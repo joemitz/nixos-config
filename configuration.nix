@@ -140,7 +140,7 @@
   # NH (Nix Helper) - modern replacement for nixos-rebuild
   programs.nh = {
     enable = true;
-    flake = "/home/joemitz/nixos";
+    flake = "/home/joemitz/nixos-config";
     clean = {
       enable = true;
       dates = "weekly";
@@ -151,7 +151,7 @@
   # Fix ownership of NixOS configuration files
   # Ensures nh can update flake.lock without permission errors
   system.activationScripts.fix-nixos-config-permissions = ''
-    chown -R joemitz:users /home/joemitz/nixos/*.nix /home/joemitz/nixos/flake.lock 2>/dev/null || true
+    chown -R joemitz:users /home/joemitz/nixos-config/*.nix /home/joemitz/nixos-config/flake.lock 2>/dev/null || true
   '';
 
   # Mount NVMe drive
