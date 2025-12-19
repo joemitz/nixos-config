@@ -5,6 +5,7 @@
 
   home.packages = [
     claude-code.packages.x86_64-linux.default
+    pkgs.gh
   ];
 
   programs.git = {
