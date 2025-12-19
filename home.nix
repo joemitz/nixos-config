@@ -64,15 +64,10 @@
         exit_code=$? && \
         if [ $exit_code -eq 0 ]; then \
           if ! git diff --quiet || ! git diff --cached --quiet; then \
-            generation=$(nixos-rebuild list-generations | grep current | awk '{print $1}') && \
+            generation=$(nixos-rebuild list-generations | grep True | awk '{print $1}') && \
             timestamp=$(date +"%Y-%m-%d %H:%M") && \
             git add -A && \
-            git commit -m "nixos: rebuild generation $generation [$timestamp]
-
-Changes:
-$(git diff --cached --name-only | sed 's/^/- /')
-
-Built with: nh os switch" && \
+            git commit -m "nixos: rebuild generation $generation [$timestamp]" && \
             echo "" && \
             echo "Changes committed. Pushing to remote..." && \
             git push && \
@@ -83,7 +78,6 @@ Built with: nh os switch" && \
           fi; \
         fi && \
         cd "$current_dir" && \
-        exit $exit_code
       '';
     };
     initExtra = ''
