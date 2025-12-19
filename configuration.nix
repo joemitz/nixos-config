@@ -24,6 +24,9 @@
   # Enable networking
   networking.networkmanager.enable = true;
 
+  # Enable Wake-on-LAN for enp6s0
+  networking.interfaces.enp6s0.wakeOnLan.enable = true;
+
   # Set your time zone.
   time.timeZone = "America/Los_Angeles";
 
