@@ -8,6 +8,8 @@
     pkgs.gh
     pkgs.tmux
     pkgs.vscodium
+    pkgs.postman
+    pkgs.zoom-us
   ];
 
   programs.git = {
@@ -77,7 +79,7 @@
             echo "No configuration changes to commit"; \
           fi; \
         fi && \
-        cd "$current_dir" && \
+        cd "$current_dir"
       '';
     };
     initExtra = ''
