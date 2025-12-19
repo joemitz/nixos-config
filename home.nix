@@ -58,7 +58,7 @@
       nhs = ''
         current_dir=$(pwd) && \
         cd /home/joemitz/nixos && \
-        nh os switch && \
+        nh os switch /home/joemitz/nixos && \
         exit_code=$? && \
         if [ $exit_code -eq 0 ]; then \
           if ! git diff --quiet || ! git diff --cached --quiet; then \
