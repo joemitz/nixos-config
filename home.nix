@@ -7,6 +7,7 @@
     claude-code.packages.x86_64-linux.default
     pkgs.gh
     pkgs.tmux
+    pkgs.vscodium
   ];
 
   programs.git = {
