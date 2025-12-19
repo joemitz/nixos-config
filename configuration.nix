@@ -131,6 +131,23 @@
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
+  # NH (Nix Helper) - modern replacement for nixos-rebuild
+  programs.nh = {
+    enable = true;
+    flake = "/home/joemitz/nixos";
+    clean = {
+      enable = true;
+      dates = "weekly";
+      extraArgs = "--keep 5 --keep-since 4d";
+    };
+  };
+
+  # Fix ownership of NixOS configuration files
+  # Ensures nh can update flake.lock without permission errors
+  system.activationScripts.fix-nixos-config-permissions = ''
+    chown -R joemitz:users /home/joemitz/nixos/*.nix /home/joemitz/nixos/flake.lock 2>/dev/null || true
+  '';
+
   # Mount NVMe drive
   fileSystems."/mnt/nvme" = {
     device = "/dev/disk/by-uuid/8590c09a-138e-4615-b02d-c982580e3bf8";
