@@ -59,6 +59,7 @@
   programs.bash = {
     enable = true;
     shellAliases = {
+      code = "codium";
       # NH with auto-commit and auto-push: rebuild, commit, and push on success
       nhs = ''
         current_dir=$(pwd) && \
