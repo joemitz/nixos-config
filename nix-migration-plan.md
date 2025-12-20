@@ -1,5 +1,21 @@
 # Migration Plan: Add @nix Btrfs Subvolume
 
+## MIGRATION STATUS (2025-12-20)
+
+**Phase 1: COMPLETED** - Pre-migration checkpoint committed (f312ea0)
+
+**Phase 2: COMPLETED** - Live USB data migration successful:
+- @nix subvolume created (ID 263)
+- All 693,297 files copied using reflinks (CoW)
+- Verified: No data duplication (reflinks working correctly)
+- Note: Could not unmount /mnt/btrfs-root because Claude Code running from mounted directory
+
+**NEXT STEP: Start Phase 3** - Edit hardware-configuration.nix to add /nix mount entry
+
+The @nix subvolume now contains a complete copy of the Nix store. On next boot after config update, the system will mount /nix from the new @nix subvolume instead of using the old /nix directory in @ subvolume.
+
+---
+
 ## Overview
 
 Migrate `/nix` (currently 21GB inside `@` subvolume) to a dedicated `@nix` Btrfs subvolume on `/dev/sda2`. This follows NixOS best practices and enables independent snapshot management, optimized mount options, and prevents snapshots from including the massive Nix store.

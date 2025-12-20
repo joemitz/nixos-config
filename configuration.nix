@@ -14,6 +14,10 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  # Use LTS kernel to avoid AMD GPU bug in kernel 6.12.10+
+  # See: https://bbs.archlinux.org/viewtopic.php?id=303556
+  boot.kernelPackages = pkgs.linuxPackages;
+
   networking.hostName = "nixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 

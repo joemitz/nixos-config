@@ -25,6 +25,12 @@
       options = [ "subvol=@home" ];
     };
 
+  fileSystems."/nix" =
+    { device = "/dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a";
+      fsType = "btrfs";
+      options = [ "subvol=@nix" "compress=zstd" "noatime" ];
+    };
+
   fileSystems."/boot" =
     { device = "/dev/disk/by-uuid/F2B1-6D81";
       fsType = "vfat";
