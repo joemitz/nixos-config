@@ -34,6 +34,71 @@ Migrate `/nix` (currently 21GB inside `@` subvolume) to a dedicated `@nix` Btrfs
 
 **Alternative: Single-user/rescue mode** (riskier but no USB needed)
 
+## Accessing Claude Code in Live USB Environment
+
+You'll want Claude Code available in the live environment to help execute the migration steps. Here are three options:
+
+### Option 1: Temporary nix-shell (Easiest - Recommended)
+
+Once booted into the live USB, open a terminal and run:
+
+```bash
+# Quick temporary shell with claude-code
+nix-shell -p claude-code
+
+# This will download and make claude-code available
+# Then you can run: claude
+```
+
+This is the fastest way to get claude-code without any setup.
+
+### Option 2: Use Your Existing Flake Configuration
+
+After mounting your partitions in Phase 2, you can access your nixos-config:
+
+```bash
+# Mount your home partition
+mkdir -p /mnt/home
+mount -o subvol=@home /dev/sda2 /mnt/home
+
+# Navigate to your config
+cd /mnt/home/joemitz/nixos-config
+
+# Run claude-code from the flake input
+nix run github:sadjow/claude-code-nix
+
+# Or enter a dev shell with all your tools
+nix develop
+```
+
+This uses your existing flake configuration and gives you the same claude-code version you use on your main system.
+
+### Option 3: Build Custom Live USB with Claude Code (Not Recommended)
+
+This would require building a custom NixOS ISO with claude-code pre-installed:
+
+```bash
+# Create a custom ISO configuration
+# Add claude-code to systemPackages
+# Build with: nix build .#nixosConfigurations.liveUSB.config.system.build.isoImage
+
+# Time required: 20-40 minutes
+# Complexity: High
+# Benefit: Claude Code available immediately on boot
+```
+
+**Not recommended for this migration** - Options 1 or 2 are much faster and simpler.
+
+### Recommended Approach
+
+Use **Option 1** when you first boot the live USB:
+1. Boot into NixOS live USB GUI
+2. Open Konsole (terminal)
+3. Run: `nix-shell -p claude-code`
+4. Wait for download (~1-2 minutes)
+5. Run: `claude` to start
+6. Follow this plan file for migration steps
+
 ## Implementation Steps
 
 ### Phase 1: Preparation (Current System)
