@@ -11,6 +11,7 @@
     pkgs.postman
     pkgs.zoom-us
     pkgs.vorta
+    pkgs.devbox
   ];
 
   programs.git = {
