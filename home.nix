@@ -61,7 +61,6 @@
     shellAliases = {
       code = "codium";
       c = "claude";
-      dork = "echo 'hi dork'";
       # NH with auto-commit and auto-push: rebuild, commit, and push on success
       nhs = ''
         current_dir=$(pwd) && \
