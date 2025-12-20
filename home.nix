@@ -128,4 +128,12 @@
       set -g status-right ""
     '';
   };
+
+  programs.alacritty = {
+    enable = true;
+    theme = "campbell";
+    settings = {
+      colors.primary.background = "#000000";
+    };
+  };
 }
