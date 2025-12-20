@@ -10,6 +10,7 @@
     pkgs.vscodium
     pkgs.postman
     pkgs.zoom-us
+    pkgs.vorta
   ];
 
   programs.git = {
