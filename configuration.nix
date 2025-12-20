@@ -141,14 +141,8 @@
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
-  # Allow wheel group to run nh commands without password
-  security.sudo.extraRules = [{
-    groups = [ "wheel" ];
-    commands = [{
-      command = "${pkgs.nh}/bin/nh";
-      options = [ "NOPASSWD" ];
-    }];
-  }];
+  # Enable polkit for system authorization
+  security.polkit.enable = true;
 
   # NH (Nix Helper) - modern replacement for nixos-rebuild
   programs.nh = {
