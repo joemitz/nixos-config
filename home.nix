@@ -1,6 +1,10 @@
-{ config, pkgs, claude-code, ... }:
+{ config, pkgs, claude-code, plasma-manager, ... }:
 
 {
+  imports = [
+    ./plasma.nix
+  ];
+
   home.stateVersion = "25.11";
 
   home.packages = [
