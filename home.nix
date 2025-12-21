@@ -1,10 +1,6 @@
-{ config, pkgs, claude-code, plasma-manager, ... }:
+{ config, pkgs, claude-code, ... }:
 
 {
-  imports = [
-    ./plasma.nix
-  ];
-
   home.stateVersion = "25.11";
 
   home.packages = [
@@ -67,12 +63,6 @@
     shellAliases = {
       code = "codium";
       c = "claude";
-      # Plasma sync: regenerate plasma config from KDE GUI settings
-      plasma-sync = ''
-        cd /home/joemitz/nixos-config && \
-        nix run github:nix-community/plasma-manager > plasma-generated-$(date +%Y%m%d-%H%M%S).nix && \
-        echo "Generated config saved. Review and copy desired sections to plasma.nix"
-      '';
       # NH with auto-commit and auto-push: rebuild, commit, and push on success
       nhs = ''
         current_dir=$(pwd) && \

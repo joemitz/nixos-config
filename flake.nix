@@ -8,14 +8,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     claude-code.url = "github:sadjow/claude-code-nix";
-    plasma-manager = {
-      url = "github:nix-community/plasma-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.home-manager.follows = "home-manager";
-    };
   };
 
-  outputs = { self, nixpkgs, home-manager, claude-code, plasma-manager, ... }: {
+  outputs = { self, nixpkgs, home-manager, claude-code, ... }: {
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
@@ -25,8 +20,7 @@
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
           home-manager.users.joemitz = import ./home.nix;
-          home-manager.extraSpecialArgs = { inherit claude-code plasma-manager; };
-          home-manager.sharedModules = [ plasma-manager.homeModules.plasma-manager ];
+          home-manager.extraSpecialArgs = { inherit claude-code; };
         }
       ];
     };
