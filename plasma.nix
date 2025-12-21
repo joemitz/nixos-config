@@ -2,6 +2,13 @@
   programs.plasma = {
     enable = true;
     overrideConfig = true;
+
+    workspace = {
+      lookAndFeel = "org.kde.breezedark.desktop";
+      theme = "breeze-dark";
+      colorScheme = "BreezeDark";
+    };
+
     shortcuts = {
       ActivityManager.switch-to-activity-158bc3f5-7170-4b3b-b856-57b0163aee1e = [ ];
       "KDE Keyboard Layout Switcher"."Switch to Last-Used Keyboard Layout" = "Meta+Alt+L";
@@ -300,7 +307,7 @@
       kwinrc."Tiling/00a5778d-907b-4187-8e63-a3bd61292d03/faf2ebc9-4e09-4076-bcee-e93a1ac423bb"."[Tiling][c54f6d27-0b4b-4f86-9fed-58258e808d21][]" = "";
       kwinrc."Tiling/00a5778d-907b-4187-8e63-a3bd61292d03/faf2ebc9-4e09-4076-bcee-e93a1ac423bb".tiles = "{\"layoutDirection\":\"horizontal\",\"tiles\":[{\"width\":0.25},{\"width\":0.5},{\"width\":0.25}]}";
       kwinrc."Tiling/c54f6d27-0b4b-4f86-9fed-58258e808d21/faf2ebc9-4e09-4076-bcee-e93a1ac423bb".tiles = "{\"layoutDirection\":\"horizontal\",\"tiles\":[{\"width\":0.3451302083333333},{\"width\":0.32530598958333345},{\"width\":0.32956380208333325}]}";
-      kwinrc.Xwayland.Scale = 1;
+      kwinrc.Xwayland.Scale = 1.45;
       plasma-localerc.Formats.LANG = "en_US.UTF-8";
       plasmanotifyrc."Applications/firefox".Seen = true;
       plasmanotifyrc."Applications/tidal-hifi".Seen = true;
