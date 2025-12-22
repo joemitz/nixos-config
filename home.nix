@@ -17,6 +17,7 @@
     pkgs.guvcview
     pkgs.vlc
     pkgs.remmina
+    pkgs.android-studio
   ];
 
   programs.git = {
