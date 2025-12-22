@@ -20,6 +20,7 @@
     pkgs.android-studio
     pkgs.android-tools
     pkgs.nodejs
+    pkgs.jdk11
     (pkgs.callPackage ./pkgs/tiny4linux.nix { src = tiny4linux; })
   ];
 
@@ -77,6 +78,11 @@
   };
 
   programs.firefox.enable = true;
+
+  programs.direnv = {
+    enable = true;
+    nix-direnv.enable = true;  # Better Nix integration with caching
+  };
 
   programs.bash = {
     enable = true;
