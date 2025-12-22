@@ -16,6 +16,7 @@
     pkgs.tidal-hifi
     pkgs.guvcview
     pkgs.vlc
+    pkgs.remmina
   ];
 
   programs.git = {
