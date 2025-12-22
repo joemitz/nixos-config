@@ -64,6 +64,16 @@
     };
   };
 
+  programs.ssh = {
+    enable = true;
+    matchBlocks = {
+      "macbook" = {
+        hostname = "192.168.0.232";
+        user = "joemitz";
+      };
+    };
+  };
+
   programs.firefox.enable = true;
 
   programs.bash = {
