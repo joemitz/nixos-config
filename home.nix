@@ -144,7 +144,7 @@
 
   programs.alacritty = {
     enable = true;
-    theme = "smoooooth";
+    theme = "papercolor_dark";
     # settings = {
     #   colors.primary.background = "#000000";
     # };
