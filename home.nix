@@ -18,7 +18,6 @@
     pkgs.vlc
     pkgs.remmina
     pkgs.android-studio
-    pkgs.floorp-bin
     (pkgs.callPackage ./pkgs/tiny4linux.nix { src = tiny4linux; })
   ];
 
@@ -145,7 +144,7 @@
 
   programs.alacritty = {
     enable = true;
-    theme = "campbell";
+    theme = "tokyo_night_enhanced";
     settings = {
       colors.primary.background = "#000000";
     };
