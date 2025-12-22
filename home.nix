@@ -144,7 +144,7 @@
 
   programs.alacritty = {
     enable = true;
-    theme = "hatsunemiku";
+    theme = "tokyo_night";
     settings = {
       colors.primary.background = "#000000";
     };
