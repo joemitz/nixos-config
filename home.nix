@@ -110,18 +110,11 @@
     sessionVariables = {
       # Non-secret environment variables
       NODE_ENV = "development";
-      EDGE_PATH = "/usr/bin/chromium";
-      DEVBOX_USE_VERSION = "0.14.2";
       DEVICE_IP = "192.168.0.249";
       HUSKY = "0";
-      ZYPP_PCK_PRELOAD = "1";
-      ZYPP_CURL2 = "1";
 
       # Android SDK paths
       ANDROID_HOME = "$HOME/Android/Sdk";
-
-      # NVM directory
-      NVM_DIR = "$HOME/.nvm";
     };
     initExtra = ''
       # Source alias file if it exists
@@ -131,21 +124,6 @@
       export PATH=$PATH:$ANDROID_HOME/emulator
       export PATH=$PATH:$ANDROID_HOME/platform-tools
       export PATH="$PATH:/opt/WebStorm-243.26053.12/bin"
-
-      # NVM setup
-      [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-      [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-
-      # GitHub Copilot CLI alias
-      eval "$(gh copilot alias -- bash)"
-
-      # Persistent bash history configuration
-      export HISTFILE=~/.bash_history_persistent
-      export HISTSIZE=10000
-      export HISTFILESIZE=20000
-      export HISTCONTROL=ignoredups:erasedups
-      shopt -s histappend
-      PROMPT_COMMAND="history -a; history -c; history -r; $PROMPT_COMMAND"
 
       # Load secrets from sops
       if [ -f ~/.config/secrets.env ]; then
