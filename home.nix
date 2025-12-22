@@ -18,6 +18,7 @@
     pkgs.vlc
     pkgs.remmina
     pkgs.android-studio
+    pkgs.floorp-bin
   ];
 
   programs.git = {
