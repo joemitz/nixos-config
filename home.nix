@@ -6,10 +6,11 @@
   home.packages = [
     claude-code.packages.x86_64-linux.default
     pkgs.gh
+    pkgs.jq
     pkgs.tmux
     pkgs.vscodium
     pkgs.postman
-    pkgs-unstable.zoom-us
+    pkgs.zoom-us
     pkgs.vorta
     pkgs.devbox
     pkgs.tidal-hifi
@@ -58,6 +59,8 @@
       };
     };
   };
+
+  programs.firefox.enable = true;
 
   programs.bash = {
     enable = true;
