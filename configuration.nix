@@ -173,9 +173,12 @@
     };
   };
 
+  # Enable Tailscale VPN
+  services.tailscale.enable = true;
+
   # Open ports in the firewall.
   networking.firewall.allowedTCPPorts = [ 22 ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
+  networking.firewall.allowedUDPPorts = [ 41641 ]; # Tailscale
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
 
