@@ -147,9 +147,6 @@
     theme = "hatsunemiku";
     settings = {
       colors.primary.background = "#000000";
-      colors.indexed_colors = [
-        { index = 47; color = "#00ff00"; }
-      ];
     };
   };
 
