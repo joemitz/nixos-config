@@ -144,7 +144,7 @@
 
   programs.alacritty = {
     enable = true;
-    theme = "vesper";
+    theme = "campbell";
     settings = {
       colors.primary.background = "#000000";
     };
