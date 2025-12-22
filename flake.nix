@@ -9,9 +9,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     claude-code.url = "github:sadjow/claude-code-nix";
+    tiny4linux = {
+      url = "github:OpenFoxes/Tiny4Linux/v2.2.2";
+      flake = false;
+    };
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, claude-code, ... }: {
+  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, claude-code, tiny4linux, ... }: {
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = {
@@ -28,7 +32,7 @@
           home-manager.useUserPackages = true;
           home-manager.users.joemitz = import ./home.nix;
           home-manager.extraSpecialArgs = {
-            inherit claude-code;
+            inherit claude-code tiny4linux;
             pkgs-unstable = import nixpkgs-unstable {
               system = "x86_64-linux";
               config.allowUnfree = true;

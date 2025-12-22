@@ -1,4 +1,4 @@
-{ config, pkgs, pkgs-unstable, claude-code, ... }:
+{ config, pkgs, pkgs-unstable, claude-code, tiny4linux, ... }:
 
 {
   home.stateVersion = "25.11";
@@ -19,6 +19,7 @@
     pkgs.remmina
     pkgs.android-studio
     pkgs.floorp-bin
+    (pkgs.callPackage ./pkgs/tiny4linux.nix { src = tiny4linux; })
   ];
 
   programs.git = {

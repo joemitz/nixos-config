@@ -111,7 +111,8 @@
         "claude-code": "claude-code",
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs_2",
-        "nixpkgs-unstable": "nixpkgs-unstable"
+        "nixpkgs-unstable": "nixpkgs-unstable",
+        "tiny4linux": "tiny4linux"
       }
     },
     "systems": {
@@ -126,6 +127,23 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
+        "type": "github"
+      }
+    },
+    "tiny4linux": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1765192606,
+        "narHash": "sha256-58P4HeG3j9H0WHAFsLdxBIhtngrBLkYSnRpQ58I8x1U=",
+        "owner": "OpenFoxes",
+        "repo": "Tiny4Linux",
+        "rev": "2dff06fbfcc8c141736d044038b1b8ee9e420ac7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "OpenFoxes",
+        "ref": "v2.2.2",
+        "repo": "Tiny4Linux",
         "type": "github"
       }
     }
