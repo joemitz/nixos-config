@@ -1,10 +1,12 @@
 { lib
 , rustPlatform
 , pkg-config
+, makeWrapper
 , fontconfig
 , wayland
 , libxkbcommon
 , libGL
+, vulkan-loader
 , src
 }:
 
@@ -18,6 +20,7 @@ rustPlatform.buildRustPackage rec {
 
   nativeBuildInputs = [
     pkg-config
+    makeWrapper
   ];
 
   buildInputs = [
@@ -25,14 +28,17 @@ rustPlatform.buildRustPackage rec {
     wayland
     libxkbcommon
     libGL
+    vulkan-loader
   ];
 
   buildFeatures = [ "gui" "cli" ];
 
-  # Ensure the binary can find Wayland libraries at runtime
-  postInstall = ''
-    patchelf --set-rpath "${lib.makeLibraryPath buildInputs}:$(patchelf --print-rpath $out/bin/tiny4linux-gui)" $out/bin/tiny4linux-gui || true
-    patchelf --set-rpath "${lib.makeLibraryPath buildInputs}:$(patchelf --print-rpath $out/bin/tiny4linux-cli)" $out/bin/tiny4linux-cli || true
+  # Wrap binaries with proper library paths
+  postFixup = ''
+    wrapProgram $out/bin/tiny4linux-gui \
+      --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ wayland libxkbcommon libGL vulkan-loader ]}"
+    wrapProgram $out/bin/tiny4linux-cli \
+      --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ wayland libxkbcommon libGL vulkan-loader ]}"
   '';
 
   meta = with lib; {
