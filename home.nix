@@ -1,4 +1,4 @@
-{ config, pkgs, claude-code, ... }:
+{ config, pkgs, pkgs-unstable, claude-code, ... }:
 
 {
   home.stateVersion = "25.11";
@@ -9,7 +9,7 @@
     pkgs.tmux
     pkgs.vscodium
     pkgs.postman
-    pkgs.zoom-us
+    pkgs-unstable.zoom-us
     pkgs.vorta
     pkgs.devbox
     pkgs.tidal-hifi
