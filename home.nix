@@ -144,10 +144,10 @@
 
   programs.alacritty = {
     enable = true;
-    theme = "tokyo_night_enhanced";
-    settings = {
-      colors.primary.background = "#000000";
-    };
+    theme = "smoooooth";
+    # settings = {
+    #   colors.primary.background = "#000000";
+    # };
   };
 
   xdg.desktopEntries.guvcview = {
