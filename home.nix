@@ -146,6 +146,7 @@
   xdg.desktopEntries.guvcview = {
     name = "guvcview";
     exec = "guvcview -z";
+    icon = "guvcview";
     terminal = false;
     categories = [ "AudioVideo" "Video" ];
     comment = "GTK UVC Viewer";
