@@ -147,6 +147,11 @@
     theme = "hatsunemiku";
     settings = {
       colors.primary.background = "#000000";
+      # Dim the thinking block highlighting
+      colors.bright = {
+        black = "#404040";   # Darker grey for highlights
+        white = "#808080";   # Dimmer white
+      };
     };
   };
 
