@@ -13,6 +13,7 @@
     pkgs.vorta
     pkgs.devbox
     pkgs.tidal-hifi
+    pkgs.kdePackages.kamoso
   ];
 
   programs.git = {
