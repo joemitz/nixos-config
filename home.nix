@@ -142,4 +142,12 @@
       colors.primary.background = "#000000";
     };
   };
+
+  xdg.desktopEntries.guvcview = {
+    name = "guvcview";
+    exec = "guvcview -z";
+    terminal = false;
+    categories = [ "AudioVideo" "Video" ];
+    comment = "GTK UVC Viewer";
+  };
 }
