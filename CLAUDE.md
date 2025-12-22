@@ -41,6 +41,12 @@ This alias:
 4. Pushes to git remote
 5. Returns to original directory
 
+**For Claude Code to run nhs**:
+Since `nhs` is a bash alias, Claude must use interactive bash:
+```bash
+bash -ic "nhs"
+```
+
 **Update flake inputs**:
 ```bash
 nix flake update
@@ -99,3 +105,44 @@ Auto-setup-remote is enabled for pushing new branches.
 - Unfree packages are allowed system-wide
 - The configuration auto-commits successfully applied changes to track system generations
 - All .nix files and flake.lock have ownership fixed on activation to allow NH updates
+
+## Secrets Management
+
+This configuration uses [sops-nix](https://github.com/Mic92/sops-nix) to manage secrets securely.
+
+**Files**:
+- `secrets.yaml` - Encrypted secrets (safe to commit to git)
+- `.sops.yaml` - sops configuration (safe to commit)
+- `~/.config/sops/age/keys.txt` - Your age private key (NEVER commit! Back this up securely!)
+- `~/.config/secrets.env` - Generated file sourced by bash (auto-created on rebuild)
+
+**How It Works**:
+1. Secrets stored encrypted in `secrets.yaml` using age encryption
+2. On system activation, sops-nix decrypts and creates `~/.config/secrets.env`
+3. Bash automatically sources this file, making secrets available as environment variables
+
+**Editing Secrets**:
+```bash
+nix-shell -p sops --run "sops secrets.yaml"
+```
+
+**Adding New Secrets**:
+1. Edit encrypted file: `nix-shell -p sops --run "sops secrets.yaml"`
+2. Update `configuration.nix`: Add to `sops.secrets` and `sops.templates."secrets.env".content`
+3. Rebuild: `nhs`
+
+**Managed Secrets**:
+- API Keys: NPM_TOKEN, GEMINI_API_KEY, OPENAI_API_KEY, ANTHROPIC_API_KEY, CIRCLECI_TOKEN
+- Android: ANDROID_RELEASE_KEYSTORE_PASSWORD, ANDROID_RELEASE_KEY_PASSWORD, ANDROID_KEYSTORE_PASSWORD
+- Production: APC_WSS_ADMIN_BEARER_TOKEN, APC_WSS_FIREBASE_ADMIN_CONFIG, APC_WSS_A3_PG_PASSWORD
+
+**Security**:
+- ✅ Commit: `secrets.yaml`, `.sops.yaml`
+- ❌ Never commit: `~/.config/sops/age/keys.txt`, `secrets-template.yaml`
+- Always back up your age private key securely
+- Secrets only decrypted locally during system activation
+
+**Troubleshooting**:
+- Secrets not loading? Check `~/.config/secrets.env` exists, rebuild with `nhs`, start new bash session
+- Can't decrypt? Verify age key exists and public key in `.sops.yaml` matches
+- Rotate key: Generate new with `age-keygen`, update `.sops.yaml`, run `sops updatekeys secrets.yaml`

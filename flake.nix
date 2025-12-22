@@ -9,13 +9,17 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     claude-code.url = "github:sadjow/claude-code-nix";
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     tiny4linux = {
       url = "github:OpenFoxes/Tiny4Linux/v2.2.2";
       flake = false;
     };
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, claude-code, tiny4linux, ... }: {
+  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, claude-code, sops-nix, tiny4linux, ... }: {
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = {
@@ -26,6 +30,7 @@
       };
       modules = [
         ./configuration.nix
+        sops-nix.nixosModules.sops
         home-manager.nixosModules.home-manager
         {
           home-manager.useGlobalPkgs = true;

@@ -1,3 +1,6 @@
 result
 result-*
 .direnv/
+
+# Secrets (encrypted secrets.yaml IS committed, but template is not)
+secrets-template.yaml
