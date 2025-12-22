@@ -89,7 +89,7 @@
   users.users.joemitz = {
     isNormalUser = true;
     description = "joemitz";
-    extraGroups = [ "networkmanager" "wheel" "adbusers" ];
+    extraGroups = [ "networkmanager" "wheel" ];
     packages = with pkgs; [
       kdePackages.kate
     #  thunderbird
@@ -163,9 +163,6 @@
   # };
 
   # List services that you want to enable:
-
-  # Enable Android Debug Bridge
-  programs.adb.enable = true;
 
   # Enable the OpenSSH daemon.
   services.openssh = {
