@@ -139,7 +139,10 @@
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "25.11"; # Did you read the comment?
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings = {
+    experimental-features = [ "nix-command" "flakes" ];
+    download-buffer-size = 536870912; # 512 MiB
+  };
 
   # Enable polkit for system authorization
   security.polkit.enable = true;
