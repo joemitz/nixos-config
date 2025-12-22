@@ -144,7 +144,7 @@
 
   programs.alacritty = {
     enable = true;
-    theme = "papercolor_dark";
+    theme = "hatsunemiku";
     # settings = {
     #   colors.primary.background = "#000000";
     # };
