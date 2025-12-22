@@ -145,9 +145,12 @@
   programs.alacritty = {
     enable = true;
     theme = "hatsunemiku";
-    # settings = {
-    #   colors.primary.background = "#000000";
-    # };
+    settings = {
+      colors.primary.background = "#000000";
+      colors.indexed_colors = [
+        { index = 47; color = "#00ff00"; }
+      ];
+    };
   };
 
   xdg.desktopEntries.guvcview = {
