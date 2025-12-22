@@ -18,6 +18,7 @@
     pkgs.vlc
     pkgs.remmina
     pkgs.android-studio
+    pkgs.nodejs
     (pkgs.callPackage ./pkgs/tiny4linux.nix { src = tiny4linux; })
   ];
 
