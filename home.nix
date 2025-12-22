@@ -15,6 +15,7 @@
     pkgs.devbox
     pkgs.tidal-hifi
     pkgs.guvcview
+    pkgs.vlc
   ];
 
   programs.git = {
@@ -78,7 +79,7 @@
             generation=$(nixos-rebuild list-generations | grep True | awk '{print $1}') && \
             timestamp=$(date +"%Y-%m-%d %H:%M") && \
             git add -A && \
-            git commit -m "nixos: rebuild generation $generation [$timestamp]" && \
+            git commit -m "generation $generation [$timestamp]" && \
             echo "" && \
             echo "Changes committed. Pushing to remote..." && \
             git push && \
