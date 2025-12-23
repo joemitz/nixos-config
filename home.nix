@@ -19,6 +19,7 @@
     pkgs.remmina
     pkgs.android-studio
     pkgs.android-tools
+    pkgs.patchelf
     pkgs.nodejs
     (pkgs.callPackage ./pkgs/tiny4linux.nix { src = tiny4linux; })
   ];
