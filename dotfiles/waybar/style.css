@@ -115,6 +115,18 @@ window.top_bar .modules-right {
   margin-right: 5;
 }
 
+/* Reduce padding on individual modules in top bar */
+window.top_bar #pulseaudio,
+window.top_bar #bluetooth,
+window.top_bar #network,
+window.top_bar #tray,
+window.top_bar #idle_inhibitor {
+  padding-left: 5;
+  padding-right: 5;
+  margin-left: 2;
+  margin-right: 2;
+}
+
 #custom-separator {
   color: @green;
 }
