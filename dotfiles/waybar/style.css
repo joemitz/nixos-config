@@ -109,7 +109,7 @@ window.top_bar .modules-right {
   background-color: alpha(@surface1, 0.7);
   border-radius: 15 0 0 15;
   padding-left: 10;
-  padding-right: 5;
+  padding-right: 20;
   margin-top: 5;
   margin-bottom: 5;
   margin-right: 5;
