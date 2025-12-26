@@ -24,6 +24,25 @@
     (pkgs.callPackage ./pkgs/tiny4linux.nix { src = tiny4linux; })
   ];
 
+  # Hyprland configuration files
+  xdg.configFile = {
+    "hypr/hyprland.conf".source = ./dotfiles/hypr/hyprland.conf;
+    "hypr/macchiato.conf".source = ./dotfiles/hypr/macchiato.conf;
+    "hypr/hypridle.conf".source = ./dotfiles/hypr/hypridle.conf;
+    "hypr/hyprlock.conf".source = ./dotfiles/hypr/hyprlock.conf;
+    "hypr/hyprpaper.conf".source = ./dotfiles/hypr/hyprpaper.conf;
+    "hypr/pyprland.toml".source = ./dotfiles/hypr/pyprland.toml;
+
+    "waybar/config".source = ./dotfiles/waybar/config;
+    "waybar/style.css".source = ./dotfiles/waybar/style.css;
+    "waybar/macchiato.css".source = ./dotfiles/waybar/macchiato.css;
+
+    "rofi/config.rasi".source = ./dotfiles/rofi/config.rasi;
+    "rofi/themes/catppuccin-macchiato.rasi".source = ./dotfiles/rofi/themes/catppuccin-macchiato.rasi;
+
+    "dunst/dunstrc".source = ./dotfiles/dunst/dunstrc;
+  };
+
   programs.git = {
     enable = true;
     settings = {

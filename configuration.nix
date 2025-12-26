@@ -8,6 +8,9 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      ./modules/hyprland.nix
+      ./modules/hyprland-theme.nix
+      ./modules/wayland-tools.nix
     ];
 
   # Bootloader.
@@ -164,6 +167,13 @@
   environment.systemPackages = with pkgs; [
   #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
   #  wget
+  ];
+
+  # Fonts for Hyprland and Waybar
+  fonts.packages = with pkgs; [
+    jetbrains-mono
+    noto-fonts-color-emoji
+    (nerd-fonts.jetbrains-mono)
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
