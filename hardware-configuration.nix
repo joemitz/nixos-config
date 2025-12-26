@@ -16,13 +16,13 @@
   fileSystems."/" =
     { device = "/dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a";
       fsType = "btrfs";
-      options = [ "subvol=@" ];
+      options = [ "subvol=@" "compress=zstd" "noatime" "space_cache=v2" ];
     };
 
   fileSystems."/home" =
     { device = "/dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a";
       fsType = "btrfs";
-      options = [ "subvol=@home" ];
+      options = [ "subvol=@home" "compress=zstd" "noatime" "space_cache=v2" ];
     };
 
   fileSystems."/nix" =

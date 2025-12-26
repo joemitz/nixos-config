@@ -18,6 +18,15 @@
   # See: https://bbs.archlinux.org/viewtopic.php?id=303556
   boot.kernelPackages = pkgs.linuxPackages;
 
+  # AMD GPU hardware acceleration
+  hardware.graphics = {
+    enable = true;
+    enable32Bit = true;
+  };
+
+  # Enable Bluetooth (built-in and USB dongles)
+  hardware.bluetooth.enable = true;
+
   networking.hostName = "nixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
@@ -66,6 +75,9 @@
   # Enable CUPS to print documents.
   services.printing.enable = true;
 
+  # Enable firmware updates
+  services.fwupd.enable = true;
+
   # Enable sound with pipewire.
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
@@ -85,11 +97,11 @@
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
 
-  # Define a user account. Don't forget to set a password with ‘passwd’.
+  # Define a user account. Don't forget to set a password with 'passwd'.
   users.users.joemitz = {
     isNormalUser = true;
     description = "joemitz";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel" "docker" "adbusers" ];
     packages = with pkgs; [
       kdePackages.kate
     #  thunderbird
@@ -175,6 +187,12 @@
 
   # Enable Tailscale VPN
   services.tailscale.enable = true;
+
+  # Enable Docker
+  virtualisation.docker.enable = true;
+
+  # Enable Android ADB with proper udev rules
+  programs.adb.enable = true;
 
   # Open ports in the firewall.
   networking.firewall.allowedTCPPorts = [ 22 ];
