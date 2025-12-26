@@ -18,11 +18,17 @@
   # See: https://bbs.archlinux.org/viewtopic.php?id=303556
   boot.kernelPackages = pkgs.linuxPackages;
 
+  # Load AMD GPU driver early in boot (fixes display detection before SDDM starts)
+  boot.initrd.kernelModules = [ "amdgpu" ];
+
   # AMD GPU hardware acceleration
   hardware.graphics = {
     enable = true;
     enable32Bit = true;
   };
+
+  # Explicitly set AMD GPU as video driver
+  services.xserver.videoDrivers = [ "amdgpu" ];
 
   # Enable Bluetooth (built-in and USB dongles)
   hardware.bluetooth.enable = true;
