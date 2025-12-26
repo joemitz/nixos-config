@@ -101,7 +101,7 @@
   users.users.joemitz = {
     isNormalUser = true;
     description = "joemitz";
-    extraGroups = [ "networkmanager" "wheel" "docker" "adbusers" ];
+    extraGroups = [ "networkmanager" "wheel" "docker" ];
     packages = with pkgs; [
       kdePackages.kate
     #  thunderbird
@@ -190,9 +190,6 @@
 
   # Enable Docker
   virtualisation.docker.enable = true;
-
-  # Enable Android ADB with proper udev rules
-  programs.adb.enable = true;
 
   # Open ports in the firewall.
   networking.firewall.allowedTCPPorts = [ 22 ];
