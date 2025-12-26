@@ -8,9 +8,6 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      ./modules/hyprland.nix
-      ./modules/hyprland-theme.nix
-      ./modules/wayland-tools.nix
     ];
 
   # Bootloader.
@@ -21,17 +18,11 @@
   # See: https://bbs.archlinux.org/viewtopic.php?id=303556
   boot.kernelPackages = pkgs.linuxPackages;
 
-  # Load AMD GPU driver early in boot (fixes display detection before SDDM starts)
-  boot.initrd.kernelModules = [ "amdgpu" ];
-
   # AMD GPU hardware acceleration
   hardware.graphics = {
     enable = true;
     enable32Bit = true;
   };
-
-  # Explicitly set AMD GPU as video driver
-  services.xserver.videoDrivers = [ "amdgpu" ];
 
   # Enable Bluetooth (built-in and USB dongles)
   hardware.bluetooth.enable = true;
@@ -173,13 +164,6 @@
   environment.systemPackages = with pkgs; [
   #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
   #  wget
-  ];
-
-  # Fonts for Hyprland and Waybar
-  fonts.packages = with pkgs; [
-    jetbrains-mono
-    noto-fonts-color-emoji
-    (nerd-fonts.jetbrains-mono)
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
