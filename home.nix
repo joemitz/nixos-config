@@ -34,7 +34,7 @@
       init.defaultBranch = "main";
       color.ui = "auto";
       core = {
-        editor = "vim";
+        editor = "nano";
         autocrlf = "input";
         safecrlf = true;
         hooksPath = "/dev/null";
