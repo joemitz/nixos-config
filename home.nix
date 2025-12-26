@@ -21,6 +21,7 @@
     pkgs.android-tools
     pkgs.patchelf
     pkgs.nodejs
+    pkgs.kitty
     (pkgs.callPackage ./pkgs/tiny4linux.nix { src = tiny4linux; })
   ];
 
