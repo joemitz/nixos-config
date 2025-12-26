@@ -3,6 +3,7 @@
     "position": "top",
     "height": 36,
     "spacing": 4,
+    "margin-right": 20,
     "modules-left": ["hyprland/workspaces", "hyprland/submap"],
     "modules-center": ["clock", "pulseaudio"],
     "modules-right": ["bluetooth", "network", "tray", "idle_inhibitor"],
