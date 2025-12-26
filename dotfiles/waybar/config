@@ -35,7 +35,8 @@
     },
 
     "clock": {
-        "format": "{:%I:%M %p | %a, %b %d, %Y}",
+        "format": "{:%I:%M %p}",
+        "format-alt": "{:%a, %b %d}",
         "tooltip-format": "<tt><small>{calendar}</small></tt>",
         "calendar": {
             "mode": "month",
@@ -65,8 +66,8 @@
     "bluetooth": {
         "format": "󰂯",
         "format-disabled": "󰂲",
-        "format-connected": "󰂱 {device_alias}",
-        "format-connected-battery": "󰂱 {device_alias} ({device_battery_percentage}%)",
+        "format-connected": "󰂱",
+        "format-connected-battery": "󰂱",
         "tooltip-format": "{controller_alias}\t{controller_address} ({status})\n\n{num_connections} connected",
         "tooltip-format-connected": "{controller_alias}\t{controller_address} ({status})\n\n{device_enumerate}",
         "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
@@ -75,7 +76,7 @@
 
     "network": {
         "format": "󰤭",
-        "format-wifi": "{icon} ({signalStrength}%) {essid}",
+        "format-wifi": "{icon}",
         "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
         "format-ethernet": "󰈀",
         "format-disconnected": "󰤫",
