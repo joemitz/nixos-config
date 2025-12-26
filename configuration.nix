@@ -101,7 +101,7 @@
   users.users.joemitz = {
     isNormalUser = true;
     description = "joemitz";
-    extraGroups = [ "networkmanager" "wheel" "docker" ];
+    extraGroups = [ "networkmanager" "wheel" "docker" "adbusers" "kvm" ];
     packages = with pkgs; [
       kdePackages.kate
     #  thunderbird
@@ -173,6 +173,9 @@
   #   enable = true;
   #   enableSSHSupport = true;
   # };
+
+  # Enable ADB for Android development
+  programs.adb.enable = true;
 
   # List services that you want to enable:
 
