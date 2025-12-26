@@ -4,8 +4,8 @@
     "height": 36,
     "spacing": 4,
     "modules-left": ["hyprland/workspaces", "hyprland/submap"],
-    "modules-center": ["clock"],
-    "modules-right": ["pulseaudio", "bluetooth", "network", "tray", "idle_inhibitor"],
+    "modules-center": ["clock", "pulseaudio"],
+    "modules-right": ["bluetooth", "network", "tray", "idle_inhibitor"],
 
     "hyprland/workspaces": {
         "on-click": "activate",
