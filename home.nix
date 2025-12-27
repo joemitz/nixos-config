@@ -1,4 +1,4 @@
-{ config, pkgs, pkgs-unstable, claude-code, tiny4linux, ... }:
+{ config, pkgs, claude-code, tiny4linux, ... }:
 
 {
   home.stateVersion = "25.11";

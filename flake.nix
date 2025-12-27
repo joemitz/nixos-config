@@ -3,7 +3,6 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
-    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     home-manager = {
       url = "github:nix-community/home-manager/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -19,15 +18,9 @@
     };
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, claude-code, sops-nix, tiny4linux, ... }: {
+  outputs = { self, nixpkgs, home-manager, claude-code, sops-nix, tiny4linux, ... }: {
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
-      specialArgs = {
-        pkgs-unstable = import nixpkgs-unstable {
-          system = "x86_64-linux";
-          config.allowUnfree = true;
-        };
-      };
       modules = [
         ./configuration.nix
         sops-nix.nixosModules.sops
@@ -38,10 +31,6 @@
           home-manager.users.joemitz = import ./home.nix;
           home-manager.extraSpecialArgs = {
             inherit claude-code tiny4linux;
-            pkgs-unstable = import nixpkgs-unstable {
-              system = "x86_64-linux";
-              config.allowUnfree = true;
-            };
           };
         }
       ];

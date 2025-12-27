@@ -9,7 +9,7 @@ This is a NixOS configuration repository using flakes and home-manager. The syst
 ## Core Architecture
 
 **Flake Structure**:
-- `flake.nix`: Main entry point defining inputs (nixpkgs stable, nixpkgs-unstable, home-manager, claude-code, sops-nix, tiny4linux) and outputs
+- `flake.nix`: Main entry point defining inputs (nixpkgs stable, home-manager, claude-code, sops-nix, tiny4linux) and outputs
 - `configuration.nix`: System-level NixOS configuration (bootloader, networking, desktop environment, system services)
 - `home.nix`: User-level home-manager configuration (user packages, git config, bash/tmux/alacritty settings)
 - `hardware-configuration.nix`: Hardware-specific configuration with Btrfs subvolumes (generated, not typically edited manually)
@@ -17,7 +17,7 @@ This is a NixOS configuration repository using flakes and home-manager. The syst
 - `cachix/`: Binary cache configurations
 
 **Key Design Decisions**:
-- Uses `nixos-25.11` stable channel with `nixpkgs-unstable` as secondary input for select packages
+- Uses `nixos-25.11` stable channel
 - home-manager integrated as a NixOS module (not standalone)
 - Experimental features enabled: `nix-command` and `flakes`
 - NH (Nix Helper) configured as modern replacement for nixos-rebuild
