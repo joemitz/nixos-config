@@ -14,6 +14,7 @@ Implement root impermanence using nix-community/impermanence module with Btrfs b
 ├── @ (root - deleted and restored from @root-blank on each boot)
 ├── @root-blank (NEW - read-only pristine root snapshot)
 ├── @persist (NEW - persistent system state, mounted at /persist)
+├── @snapshots (NEW - persistent Snapper snapshots of root, mounted at /.snapshots)
 ├── @home (existing - persistent user data)
 └── @nix (existing - persistent Nix store)
 ```
@@ -26,13 +27,20 @@ Implement root impermanence using nix-community/impermanence module with Btrfs b
 - Add `impermanence.nixosModules.impermanence` to modules list
 
 ### 2. `/home/joemitz/nixos-config/hardware-configuration.nix`
-- Add new filesystem mount for /persist:
+- Add new filesystem mounts for /persist and /.snapshots:
 ```nix
 fileSystems."/persist" = {
   device = "/dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a";
   fsType = "btrfs";
   options = [ "subvol=@persist" "compress=zstd" "noatime" ];
   neededForBoot = true;  # CRITICAL: must mount before impermanence activation
+};
+
+fileSystems."/.snapshots" = {
+  device = "/dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a";
+  fsType = "btrfs";
+  options = [ "subvol=@snapshots" "compress=zstd" "noatime" ];
+  neededForBoot = true;  # Mount early for Snapper
 };
 ```
 
@@ -102,29 +110,13 @@ environment.persistence."/persist" = {
     "/var/lib/systemd/random-seed"
   ];
 
-  users.joemitz = {
-    directories = [
-      ".config/vorta"
-      ".local/share/direnv"
-      "Android"
-      ".gradle"
-      ".cache/devbox"
-      ".mozilla"
-      ".config/google-chrome"
-      ".config/VSCodium"
-      ".vscode-oss"
-    ];
-
-    files = [
-      ".bash_history"
-      ".alias"
-    ];
-  };
+  # Note: No users.joemitz section needed since /home is already persistent
+  # via the @home subvolume mount. All user files persist automatically.
 };
 ```
 
-#### C. Disable Snapper for root (lines 259-269):
-Remove the `root` configuration from `services.snapper.configs`, keep only `home` config.
+#### C. Keep Snapper configuration (no changes needed):
+Snapper will continue to create snapshots for both root and home. Root snapshots will be stored in `/.snapshots` (mounted from `@snapshots` subvolume), so they persist across reboots. This allows you to manually restore to previous root states if needed.
 
 ### 4. `/home/joemitz/nixos-config/home.nix`
 - Remove WebStorm PATH reference (lines 124: `PATH = lib.mkAfter "/opt/WebStorm-243.26053.12/bin:$PATH";`)
@@ -152,10 +144,13 @@ mount -o subvolid=5 /dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a /mnt/
 # Create persistent storage subvolume
 btrfs subvolume create /mnt/btrfs-root/@persist
 
+# Create snapshots storage subvolume
+btrfs subvolume create /mnt/btrfs-root/@snapshots
+
 # Create read-only blank snapshot of current root
 btrfs subvolume snapshot -r /mnt/btrfs-root/@ /mnt/btrfs-root/@root-blank
 
-# Verify
+# Verify (should see @persist, @snapshots, @root-blank as new subvolumes)
 btrfs subvolume list /mnt/btrfs-root
 
 # Unmount
@@ -165,19 +160,25 @@ umount /mnt/btrfs-root
 ### Phase 3: First Boot
 1. Reboot into system
 2. Watch boot logs: `journalctl -b | grep rollback`
-3. Verify /persist mounted: `mount | grep persist`
+3. Verify mounts:
+   - `mount | grep persist` (should show /persist)
+   - `mount | grep snapshots` (should show /.snapshots)
 4. Check services: `systemctl status sshd docker tailscaled NetworkManager`
 5. Test SSH from remote machine (verify no host key warnings)
 6. Test Docker: `docker ps`
 7. Test Tailscale: `tailscale status`
+8. Verify Snapper: `sudo snapper -c root list` (should show root snapshots)
 
 ### Phase 4: Validation
 1. Create test file in /: `sudo touch /root/test-ephemeral.txt`
 2. Create test file in /persist: `sudo touch /persist/test-persistent.txt`
-3. Reboot
-4. Verify /root/test-ephemeral.txt is GONE
-5. Verify /persist/test-persistent.txt EXISTS
-6. Run full workflow tests (Android dev, Docker, networking, secrets)
+3. Create Snapper snapshot: `sudo snapper -c root create --description "Test snapshot"`
+4. Verify snapshot exists: `sudo snapper -c root list`
+5. Reboot
+6. Verify /root/test-ephemeral.txt is GONE
+7. Verify /persist/test-persistent.txt EXISTS
+8. Verify snapshot persisted: `sudo snapper -c root list` (should still show test snapshot)
+9. Run full workflow tests (Android dev, Docker, networking, secrets)
 
 ## What Gets Persisted
 
@@ -195,15 +196,10 @@ umount /mnt/btrfs-root
 - `/var/lib/tailscale` - VPN identity
 - `/var/lib/AccountsService` - Display manager metadata
 
-### User (joemitz)
-- `.bash_history` - Command history
-- `Android/` - Android SDK and keystores
-- `.gradle`, `.cache/devbox` - Development caches
-- `.config/VSCodium` - Editor settings
-
 ### Already Persistent (No Action Needed)
-- `/home` - Entire home directory
-- `/nix` - Nix store
+- `/home` - **Entire home directory** (mounted from @home subvolume)
+  - All user files automatically persist: `.bash_history`, `Android/`, `.gradle`, `.config/*`, etc.
+- `/nix` - Nix store (mounted from @nix subvolume)
 - `/boot` - EFI partition
 - `~/.config/sops/age/keys.txt` - Sops encryption key (in /home)
 - `~/.config/secrets.env` - Secrets file (in /home, regenerated on boot)
@@ -216,6 +212,26 @@ At boot, interrupt and disable rollback:
 systemctl mask rollback.service
 ```
 System boots into last state before rollback.
+
+### Restore from Snapper Snapshot
+If you have a good Snapper snapshot of root, you can restore it:
+```bash
+# Boot from live USB
+mkdir /mnt/btrfs-root
+mount -o subvolid=5 /dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a /mnt/btrfs-root
+
+# List available snapshots
+ls /mnt/btrfs-root/@snapshots/*/snapshot
+
+# Delete current @ subvolume
+btrfs subvolume delete /mnt/btrfs-root/@
+
+# Restore from Snapper snapshot (replace NUMBER with snapshot number)
+btrfs subvolume snapshot /mnt/btrfs-root/@snapshots/NUMBER/snapshot /mnt/btrfs-root/@
+
+# Reboot
+umount /mnt/btrfs-root
+```
 
 ### Restore from Backup
 ```bash
@@ -242,7 +258,7 @@ Then remove impermanence from flake.nix and rebuild.
 - ✅ /persist mounts with `neededForBoot = true`
 
 ### Known Issues Addressed
-- ✅ Snapper root config removed (incompatible with ephemeral root)
+- ✅ Snapper root snapshots persist via separate @snapshots subvolume
 - ✅ Snapper home config kept (home remains persistent)
 - ✅ WebStorm removed (not used)
 - ✅ Sops age key in /home (already persistent)
@@ -252,6 +268,7 @@ Then remove impermanence from flake.nix and rebuild.
 - [ ] System boots without errors
 - [ ] Rollback service runs successfully in initrd
 - [ ] /persist is mounted
+- [ ] /.snapshots is mounted
 - [ ] SSH works remotely without host key warnings
 - [ ] Tailscale connected
 - [ ] Docker containers accessible
@@ -260,6 +277,7 @@ Then remove impermanence from flake.nix and rebuild.
 - [ ] Secrets loaded: `env | grep NPM_TOKEN`
 - [ ] Test file in / disappears after reboot
 - [ ] Test file in /persist survives reboot
+- [ ] Snapper root snapshots persist after reboot
 - [ ] `nhs` alias works for auto-commit
 
 ## Benefits
@@ -267,6 +285,8 @@ Then remove impermanence from flake.nix and rebuild.
 - Truly declarative system (only declared state persists)
 - Easy recovery (always boots from known-good @root-blank)
 - Confidence in configuration reproducibility
+- Persistent root snapshots via Snapper (manual recovery to previous states)
+- Best of both worlds: ephemeral by default, recoverable when needed
 
 ## Time Estimate
 - Configuration changes: 1-2 hours
