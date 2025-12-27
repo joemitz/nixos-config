@@ -20,7 +20,7 @@
     pkgs.android-studio
     pkgs.android-tools
     pkgs.patchelf
-    pkgs.nodejs
+    pkgs.nodejs_24
     (pkgs.callPackage ./pkgs/tiny4linux.nix { src = tiny4linux; })
   ];
 
