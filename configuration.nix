@@ -38,7 +38,8 @@
         # Recursively delete all nested subvolumes under @
         # Keep deleting until no more nested subvolumes exist
         while true; do
-          subvol=$(btrfs subvolume list -o /mnt/@ | head -n1 | awk '{print $NF}')
+          # Use sed to extract the last field (subvolume path)
+          subvol=$(btrfs subvolume list -o /mnt/@ | head -n1 | sed 's/.* //')
           if [ -z "$subvol" ]; then
             break
           fi
