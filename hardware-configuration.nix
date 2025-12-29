@@ -37,6 +37,20 @@
       options = [ "fmask=0077" "dmask=0077" ];
     };
 
+  fileSystems."/persist" =
+    { device = "/dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a";
+      fsType = "btrfs";
+      options = [ "subvol=@persist" "compress=zstd" "noatime" ];
+      neededForBoot = true;
+    };
+
+  fileSystems."/.snapshots" =
+    { device = "/dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a";
+      fsType = "btrfs";
+      options = [ "subvol=@snapshots" "compress=zstd" "noatime" ];
+      neededForBoot = true;
+    };
+
   swapDevices = [ ];
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";

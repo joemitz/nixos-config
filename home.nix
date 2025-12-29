@@ -131,7 +131,6 @@
       # Android SDK path additions
       export PATH=$PATH:$ANDROID_HOME/emulator
       export PATH=$PATH:$ANDROID_HOME/platform-tools
-      export PATH="$PATH:/opt/WebStorm-243.26053.12/bin"
 
       # Load secrets from sops
       if [ -f ~/.config/secrets.env ]; then

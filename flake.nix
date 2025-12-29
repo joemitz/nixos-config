@@ -16,14 +16,16 @@
       url = "github:OpenFoxes/Tiny4Linux/v2.2.2";
       flake = false;
     };
+    impermanence.url = "github:nix-community/impermanence";
   };
 
-  outputs = { self, nixpkgs, home-manager, claude-code, sops-nix, tiny4linux, ... }: {
+  outputs = { self, nixpkgs, home-manager, claude-code, sops-nix, tiny4linux, impermanence, ... }: {
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
         ./configuration.nix
         sops-nix.nixosModules.sops
+        impermanence.nixosModules.impermanence
         home-manager.nixosModules.home-manager
         {
           home-manager.useGlobalPkgs = true;

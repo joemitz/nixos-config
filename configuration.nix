@@ -21,6 +21,35 @@
   # Load AMD GPU driver early in boot (fixes display detection before SDDM starts)
   boot.initrd.kernelModules = [ "amdgpu" ];
 
+  # Root impermanence: Rollback root subvolume to pristine state on boot
+  boot.initrd.systemd = {
+    enable = true;
+    services.rollback = {
+      description = "Rollback Btrfs root subvolume to blank state";
+      wantedBy = [ "initrd.target" ];
+      before = [ "sysroot.mount" ];
+      unitConfig.DefaultDependencies = "no";
+      serviceConfig.Type = "oneshot";
+      script = ''
+        mkdir -p /mnt
+        mount -o subvolid=5 /dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a /mnt
+
+        # Delete nested subvolumes (Snapper snapshots)
+        btrfs subvolume list -o /mnt/@ | cut -f9 -d' ' | while read subvolume; do
+          btrfs subvolume delete "/mnt/$subvolume" || true
+        done
+
+        # Delete root subvolume
+        btrfs subvolume delete /mnt/@
+
+        # Restore from blank snapshot
+        btrfs subvolume snapshot /mnt/@root-blank /mnt/@
+
+        umount /mnt
+      '';
+    };
+  };
+
   # AMD GPU hardware acceleration
   hardware.graphics = {
     enable = true;
@@ -160,6 +189,41 @@
         export APC_WSS_A3_PG_DATABASE="anova_core_production"
       '';
     };
+  };
+
+  # Impermanence: Define what persists across reboots
+  environment.persistence."/persist" = {
+    hideMounts = true;
+
+    directories = [
+      "/var/log"
+      "/var/lib/nixos"
+      "/var/lib/systemd/coredump"
+      "/var/lib/systemd/timers"
+      "/var/lib/systemd/rfkill"
+      "/var/lib/docker"
+      "/var/lib/NetworkManager"
+      "/etc/NetworkManager/system-connections"
+      "/var/lib/bluetooth"
+      "/var/lib/tailscale"
+      "/var/lib/cups"
+      "/var/lib/fwupd"
+      "/var/lib/AccountsService"
+      "/var/lib/geoclue"
+      "/var/lib/upower"
+    ];
+
+    files = [
+      "/etc/machine-id"
+      "/etc/ssh/ssh_host_ed25519_key"
+      "/etc/ssh/ssh_host_ed25519_key.pub"
+      "/etc/ssh/ssh_host_rsa_key"
+      "/etc/ssh/ssh_host_rsa_key.pub"
+      "/var/lib/systemd/random-seed"
+    ];
+
+    # Note: No users.joemitz section needed since /home is already persistent
+    # via the @home subvolume mount. All user files persist automatically.
   };
 
   # Allow unfree packages
