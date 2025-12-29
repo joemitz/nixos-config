@@ -22,6 +22,8 @@
   boot.initrd.kernelModules = [ "amdgpu" ];
 
   # Root impermanence: Rollback root subvolume to pristine state on boot
+  # TEMPORARILY COMMENTED OUT - Testing mounts first
+  /*
   boot.initrd.systemd = {
     enable = true;
     services.rollback = {
@@ -49,6 +51,7 @@
       '';
     };
   };
+  */
 
   # AMD GPU hardware acceleration
   hardware.graphics = {
@@ -192,6 +195,8 @@
   };
 
   # Impermanence: Define what persists across reboots
+  # TEMPORARILY COMMENTED OUT - Testing mounts first
+  /*
   environment.persistence."/persist" = {
     hideMounts = true;
 
@@ -225,6 +230,7 @@
     # Note: No users.joemitz section needed since /home is already persistent
     # via the @home subvolume mount. All user files persist automatically.
   };
+  */
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
