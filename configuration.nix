@@ -206,6 +206,9 @@
   # Enable Tailscale VPN
   services.tailscale.enable = true;
 
+  # Enable NFS client support
+  services.rpcbind.enable = true;
+
   # Enable Docker
   virtualisation.docker.enable = true;
 
@@ -284,6 +287,12 @@
     device = "/dev/disk/by-uuid/8590c09a-138e-4615-b02d-c982580e3bf8";
     fsType = "btrfs";
     options = [ "subvol=@" ];
+  };
+
+  # Mount TrueNAS Plex share via NFS
+  fileSystems."/mnt/truenas/plex" = {
+    device = "192.168.0.55:/mnt/main-pool/plex";
+    fsType = "nfs";
   };
 }
                                                                                                                                                                                                                  
