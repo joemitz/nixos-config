@@ -16,7 +16,6 @@
     pkgs.tidal-hifi
     pkgs.guvcview
     pkgs.vlc
-    pkgs.plex-desktop
     pkgs.remmina
     pkgs.android-studio
     pkgs.android-tools

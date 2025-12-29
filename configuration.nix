@@ -189,6 +189,9 @@
   # Enable ADB for Android development
   programs.adb.enable = true;
 
+  # Enable Flatpak
+  services.flatpak.enable = true;
+
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
