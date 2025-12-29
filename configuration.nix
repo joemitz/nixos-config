@@ -27,7 +27,8 @@
     services.rollback = {
       description = "Rollback Btrfs root subvolume to blank state";
       wantedBy = [ "initrd.target" ];
-      before = [ "sysroot.mount" ];
+      after = [ "sysroot.mount" ];
+      before = [ "initrd-root-fs.target" ];
       unitConfig.DefaultDependencies = "no";
       serviceConfig.Type = "oneshot";
       script = ''
