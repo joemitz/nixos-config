@@ -28,14 +28,18 @@
     # Mount the btrfs root to /mnt for subvolume manipulation
     mount -t btrfs -o subvolid=5 /dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a /mnt
 
-    # Delete all nested subvolumes before removing root
-    btrfs subvolume list -o /mnt/@ |
-    cut -f9 -d' ' |
-    while read subvolume; do
-      echo "deleting /$subvolume subvolume..."
-      btrfs subvolume delete "/mnt/$subvolume"
-    done &&
-    echo "deleting /@ subvolume..." &&
+    # Delete all nested subvolumes recursively before removing root
+    # Keep looping until no nested subvolumes remain
+    while btrfs subvolume list -o /mnt/@ | grep -q .; do
+      btrfs subvolume list -o /mnt/@ |
+      cut -f9 -d' ' |
+      while read subvolume; do
+        echo "deleting /$subvolume subvolume..."
+        btrfs subvolume delete "/mnt/$subvolume" || true
+      done
+    done
+
+    echo "deleting /@ subvolume..."
     btrfs subvolume delete /mnt/@
 
     echo "restoring blank /@ subvolume..."
