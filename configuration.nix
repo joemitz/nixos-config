@@ -35,9 +35,17 @@
         mkdir -p /mnt
         mount -t btrfs -o subvolid=5 /dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a /mnt
 
-        # Delete nested subvolumes (Snapper snapshots)
-        btrfs subvolume list -o /mnt/@ | cut -f9 -d' ' | while read subvolume; do
-          btrfs subvolume delete "/mnt/$subvolume" || true
+        # Recursively delete all nested subvolumes under @
+        # Keep deleting until no more nested subvolumes exist
+        while true; do
+          subvol=$(btrfs subvolume list -o /mnt/@ | head -n1 | awk '{print $NF}')
+          if [ -z "$subvol" ]; then
+            break
+          fi
+          btrfs subvolume delete "/mnt/$subvol" || {
+            echo "Failed to delete $subvol, attempting to continue..."
+            break
+          }
         done
 
         # Delete root subvolume
