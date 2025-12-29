@@ -248,6 +248,234 @@ nixos-rebuild switch --rollback
 ```
 Then remove impermanence from flake.nix and rebuild.
 
+## Complete Revert & Recovery Guide
+
+This section provides detailed recovery procedures for every stage of implementation.
+
+### Recovery by Implementation Phase
+
+#### **Phase 1: After Config Changes (Before Reboot)**
+**Safest point - nothing has changed on disk yet**
+
+```bash
+# Option 1: Git revert
+cd ~/nixos-config
+git log  # Find the commit before your changes
+git reset --hard <commit-hash>
+
+# Option 2: NixOS generation rollback
+nixos-rebuild switch --rollback
+
+# Option 3: Manual undo
+# Just revert your edits in flake.nix, configuration.nix, hardware-configuration.nix
+```
+
+**Risk Level**: None - no system changes yet
+
+---
+
+#### **Phase 2: After Creating Subvolumes (Before First Boot)**
+**Subvolumes exist but aren't mounted/used yet**
+
+```bash
+# Boot from live USB
+mount -o subvolid=5 /dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a /mnt
+
+# Delete new subvolumes
+btrfs subvolume delete /mnt/@persist
+btrfs subvolume delete /mnt/@snapshots
+btrfs subvolume delete /mnt/@root-blank
+
+# Revert config files (see Phase 1 options)
+umount /mnt
+```
+
+**Risk Level**: Very low - your system hasn't booted with new config yet
+
+---
+
+#### **Phase 3: System Won't Boot**
+**Most critical scenario**
+
+**Option A: Boot Previous Generation (Easiest)**
+1. At boot menu (systemd-boot), select previous generation
+2. Once booted: `nixos-rebuild switch --rollback`
+3. Remove impermanence changes from config files
+4. Rebuild: `nhs`
+
+**Option B: Live USB Recovery**
+```bash
+# Boot from NixOS live USB
+mkdir /mnt/btrfs-root
+mount -o subvolid=5 /dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a /mnt/btrfs-root
+
+# Restore from backup snapshot we made in Phase 1
+btrfs subvolume delete /mnt/btrfs-root/@
+btrfs subvolume snapshot /mnt/btrfs-root/backup-before-impermanence /mnt/btrfs-root/@
+
+# Mount the system
+mount -o subvol=@ /dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a /mnt
+mount -o subvol=@home /dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a /mnt/home
+mount -o subvol=@nix /dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a /mnt/nix
+mount /dev/disk/by-uuid/F2B1-6D81 /mnt/boot
+
+# Chroot and fix
+nixos-enter --root /mnt
+cd /home/joemitz/nixos-config
+git reset --hard <previous-commit>
+nixos-rebuild switch
+
+# Reboot
+exit
+reboot
+```
+
+**Risk Level**: Medium - but fully recoverable with backup snapshot
+
+---
+
+#### **Phase 4: System Boots But Something Broken**
+**Services don't work, data missing, etc.**
+
+**Option A: Temporarily Disable Rollback**
+```bash
+# This boots into the current @ state (before rollback happens)
+sudo systemctl mask initrd-rollback.service
+reboot
+
+# Fix issues, then re-enable
+sudo systemctl unmask initrd-rollback.service
+```
+
+**Option B: Boot Previous Generation**
+Select previous generation from boot menu → rollback config
+
+**Option C: Keep Impermanence But Fix Config**
+```bash
+# Fix the persistence config to include missing files/directories
+# Edit configuration.nix to add missing paths
+nhs  # Rebuild and commit
+reboot  # Test
+```
+
+**Risk Level**: Low - system is functional, just needs tuning
+
+---
+
+### Nuclear Option: Complete System Recovery
+
+If everything goes wrong and you can't boot anything:
+
+```bash
+# Boot from NixOS live USB
+mount -o subvolid=5 /dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a /mnt
+
+# Your data is safe:
+# - /home in @home subvolume (untouched)
+# - /nix in @nix subvolume (untouched)
+# - Config repo in /home (untouched)
+
+# Delete broken root, restore backup
+btrfs subvolume delete /mnt/@
+btrfs subvolume snapshot /mnt/backup-before-impermanence /mnt/@
+
+# Delete impermanence subvolumes
+btrfs subvolume delete /mnt/@persist
+btrfs subvolume delete /mnt/@snapshots
+btrfs subvolume delete /mnt/@root-blank
+
+# Mount and fix config
+mount -o subvol=@ /dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a /mnt
+mount -o subvol=@home /dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a /mnt/home
+mount -o subvol=@nix /dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a /mnt/nix
+mount /dev/disk/by-uuid/F2B1-6D81 /mnt/boot
+
+nixos-enter --root /mnt
+cd /home/joemitz/nixos-config
+git reset --hard <before-impermanence>
+nixos-rebuild switch
+exit
+reboot
+```
+
+---
+
+### What CAN'T Be Lost
+
+✅ **Guaranteed Safe:**
+- Your entire `/home` directory (on separate @home subvolume)
+- All Nix store packages (on separate @nix subvolume)
+- Your config repo (in /home)
+- Your SSH keys (backed up before starting + in /home)
+- Boot partition (not touched)
+- Backup snapshot (unless you manually delete it)
+- All your development work, code, and personal files
+
+❌ **Could Be Lost if You Don't Revert:**
+- Changes made to `/` after implementing impermanence (but that's the point!)
+- System state not in persistence config (but recoverable from backup)
+- Temporary files and caches (intentionally ephemeral)
+
+---
+
+### Critical Safety Measures
+
+The implementation includes multiple safety nets:
+
+1. **Backup snapshot before starting** (Phase 1, step 2):
+   - Creates `backup-before-impermanence` subvolume
+   - Your golden rollback point
+   - Can restore to exact pre-impermanence state
+
+2. **SSH keys backup** (Phase 1, step 1):
+   - Saved to `~/ssh-backup`
+   - Can manually restore if needed
+
+3. **Previous NixOS generations**:
+   - Always available in boot menu
+   - Can boot any previous working generation
+   - Unaffected by impermanence changes
+
+4. **Separate persistent subvolumes**:
+   - `/home` on @home (never touched)
+   - `/nix` on @nix (never touched)
+   - `/boot` on separate partition (never touched)
+
+5. **Git version control**:
+   - All config changes tracked in git
+   - Can revert to any previous commit
+   - Repo lives in persistent /home
+
+---
+
+### Quick Reference: Recovery Decision Tree
+
+```
+Can't boot?
+├─ YES → Boot from previous NixOS generation (Option A)
+│        OR boot from live USB (Option B)
+│
+└─ NO → System boots but broken?
+    ├─ YES → Missing files/services?
+    │        ├─ Add to persistence config → rebuild
+    │        └─ OR temporarily disable rollback → investigate
+    │
+    └─ NO → Want to completely revert?
+             └─ Use Nuclear Option (live USB + restore backup)
+```
+
+---
+
+### Bottom Line
+
+Your data in `/home` is **never at risk**. You always have:
+- The backup snapshot
+- Previous NixOS generations
+- Persistent /home, /nix, and /boot
+- Git history of all config changes
+
+Worst case scenario: 30 minutes booting from live USB to restore the backup snapshot. Everything returns to pre-impermanence state with zero data loss.
+
 ## Risk Mitigations
 
 ### High Priority
