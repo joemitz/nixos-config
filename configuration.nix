@@ -22,43 +22,28 @@
   boot.initrd.kernelModules = [ "amdgpu" ];
 
   # Root impermanence: Rollback root subvolume to pristine state on boot
-  boot.initrd.systemd = {
-    enable = true;
-    services.rollback = {
-      description = "Rollback Btrfs root subvolume to blank state";
-      wantedBy = [ "initrd.target" ];
-      after = [ "sysroot.mount" ];
-      before = [ "initrd-root-fs.target" ];
-      unitConfig.DefaultDependencies = "no";
-      serviceConfig.Type = "oneshot";
-      script = ''
-        mkdir -p /mnt
-        mount -t btrfs -o subvolid=5 /dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a /mnt
+  boot.initrd.postDeviceCommands = pkgs.lib.mkAfter ''
+    mkdir -p /mnt
 
-        # Recursively delete all nested subvolumes under @
-        # Keep deleting until no more nested subvolumes exist
-        while true; do
-          # Use sed to extract the last field (subvolume path)
-          subvol=$(btrfs subvolume list -o /mnt/@ | head -n1 | sed 's/.* //')
-          if [ -z "$subvol" ]; then
-            break
-          fi
-          btrfs subvolume delete "/mnt/$subvol" || {
-            echo "Failed to delete $subvol, attempting to continue..."
-            break
-          }
-        done
+    # Mount the btrfs root to /mnt for subvolume manipulation
+    mount -t btrfs -o subvolid=5 /dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a /mnt
 
-        # Delete root subvolume
-        btrfs subvolume delete /mnt/@
+    # Delete all nested subvolumes before removing root
+    btrfs subvolume list -o /mnt/@ |
+    cut -f9 -d' ' |
+    while read subvolume; do
+      echo "deleting /$subvolume subvolume..."
+      btrfs subvolume delete "/mnt/$subvolume"
+    done &&
+    echo "deleting /@ subvolume..." &&
+    btrfs subvolume delete /mnt/@
 
-        # Restore from blank snapshot
-        btrfs subvolume snapshot /mnt/@root-blank /mnt/@
+    echo "restoring blank /@ subvolume..."
+    btrfs subvolume snapshot /mnt/@root-blank /mnt/@
 
-        umount /mnt
-      '';
-    };
-  };
+    # Unmount and continue boot process
+    umount /mnt
+  '';
 
   # AMD GPU hardware acceleration
   hardware.graphics = {
