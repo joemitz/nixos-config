@@ -72,12 +72,6 @@
   services.displayManager.sddm.enable = true;
   services.desktopManager.plasma6.enable = true;
 
-  # XDG Portals (fixes plex-desktop Qt library conflicts)
-  xdg.portal = {
-    enable = true;
-    xdgOpenUsePortal = true;
-  };
-
   # Configure keymap in X11
   services.xserver.xkb = {
     layout = "us";
@@ -188,9 +182,6 @@
 
   # Enable ADB for Android development
   programs.adb.enable = true;
-
-  # Enable Flatpak
-  services.flatpak.enable = true;
 
   # List services that you want to enable:
 

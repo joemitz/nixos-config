@@ -212,12 +212,4 @@
     comment = "Control OBSBOT Tiny2 camera";
   };
 
-  xdg.desktopEntries.plex-desktop = {
-    name = "Plex Desktop";
-    exec = "flatpak run tv.plex.PlexDesktop";
-    icon = "multimedia-video-player";
-    terminal = false;
-    categories = [ "AudioVideo" "Video" "TV" ];
-    comment = "Plex Media Player";
-  };
 }
