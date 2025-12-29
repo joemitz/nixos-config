@@ -286,7 +286,5 @@
     fsType = "nfs";
     options = [ "ro" ];
   };
-
-  services.flatpak.enable = true;
 }
                                                                                                                                                                                                                  
