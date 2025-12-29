@@ -32,7 +32,7 @@
       serviceConfig.Type = "oneshot";
       script = ''
         mkdir -p /mnt
-        mount -o subvolid=5 /dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a /mnt
+        mount -t btrfs -o subvolid=5 /dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a /mnt
 
         # Delete nested subvolumes (Snapper snapshots)
         btrfs subvolume list -o /mnt/@ | cut -f9 -d' ' | while read subvolume; do
