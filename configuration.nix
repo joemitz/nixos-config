@@ -397,7 +397,7 @@
     };
 
     environment = {
-      BORG_RSH = "ssh -o StrictHostKeyChecking=accept-new";
+      BORG_RSH = "ssh -i /home/joemitz/.ssh/id_ed25519_borg -o StrictHostKeyChecking=accept-new";
     };
   };
 }
