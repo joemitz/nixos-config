@@ -160,6 +160,7 @@
       "apc_wss_admin_bearer_token" = { owner = "joemitz"; };
       "apc_wss_firebase_admin_config" = { owner = "joemitz"; };
       "apc_wss_a3_pg_password" = { owner = "joemitz"; };
+      "borg_passphrase" = { owner = "root"; mode = "0400"; };
     };
 
     # Create a templated secrets.env file for bash to source
@@ -361,6 +362,43 @@
     device = "192.168.0.55:/mnt/main-pool/plex";
     fsType = "nfs";
     options = [ "ro" ];
+  };
+
+  # Borg backup for /persist (runs as root to access all system files)
+  services.borgbackup.jobs."persist-backup" = {
+    paths = [
+      "/persist"
+    ];
+
+    exclude = [
+      # Exclude cache directories
+      "/persist/**/.cache"
+      # Docker images are large and can be rebuilt
+      "/persist/var/lib/docker"
+    ];
+
+    repo = "ssh://borg@192.168.0.100:2222/backup/nixos-persist";
+
+    encryption = {
+      mode = "repokey-blake2";
+      passCommand = "cat ${config.sops.secrets.borg_passphrase.path}";
+    };
+
+    compression = "auto,lz4";
+
+    startAt = "hourly";
+
+    prune.keep = {
+      hourly = 2;
+      daily = 7;
+      weekly = 4;
+      monthly = 6;
+      yearly = 2;
+    };
+
+    environment = {
+      BORG_RSH = "ssh -o StrictHostKeyChecking=accept-new";
+    };
   };
 }
                                                                                                                                                                                                                  
