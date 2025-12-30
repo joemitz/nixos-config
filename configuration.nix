@@ -131,15 +131,15 @@
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
 
-  # Define a user account. Don't forget to set a password with 'passwd'.
   users.users.joemitz = {
     isNormalUser = true;
     description = "joemitz";
     extraGroups = [ "networkmanager" "wheel" "docker" "adbusers" "kvm" ];
-    packages = with pkgs; [
-      kdePackages.kate
-    #  thunderbird
-    ];
+    hashedPassword = "$6$cdmF4NEMLVzS4BDv$aK9lR1juxe512iK4SWVEFjailBjp96HThTA2zQkMRqOgThGISKIyA9x72Koa1qoVJ8VxbbHBZlni69BA9ZFKd/";
+  };
+
+  users.users.root = {
+    hashedPassword = "$y$j9T$y2GlvoUIQM86.G9oHU4/P1$ig7BJtev.mK1LqGt73cNRURiqVsHlwViKS52WjuNnU/";
   };
 
   # sops-nix secrets management
@@ -199,6 +199,7 @@
       "/var/lib/nixos"
       "/var/lib/systemd/coredump"
       "/var/lib/systemd/timers"
+      "/var/lib/systemd/timesync"
       "/var/lib/systemd/rfkill"
       "/var/lib/docker"
       "/var/lib/NetworkManager"
@@ -210,6 +211,7 @@
       "/var/lib/AccountsService"
       "/var/lib/geoclue"
       "/var/lib/upower"
+      "/var/lib/sddm"
     ];
 
     files = [
@@ -253,7 +255,7 @@
     enable = true;
     settings = {
       PasswordAuthentication = true;
-      PermitRootLogin = "no";
+      PermitRootLogin = "yes";
     };
   };
 
@@ -324,6 +326,17 @@
       };
       root = {
         SUBVOLUME = "/";
+        ALLOW_USERS = [ "joemitz" ];
+        TIMELINE_CREATE = true;
+        TIMELINE_CLEANUP = true;
+        TIMELINE_LIMIT_HOURLY = "48";    # Keep 48 hourly snapshots (2 days)
+        TIMELINE_LIMIT_DAILY = "7";      # Keep 7 daily snapshots
+        TIMELINE_LIMIT_WEEKLY = "4";     # Keep 4 weekly snapshots
+        TIMELINE_LIMIT_MONTHLY = "12";   # Keep 12 monthly snapshots
+        TIMELINE_LIMIT_YEARLY = "2";     # Keep 2 yearly snapshots
+      };
+      persist = {
+        SUBVOLUME = "/persist";
         ALLOW_USERS = [ "joemitz" ];
         TIMELINE_CREATE = true;
         TIMELINE_CLEANUP = true;

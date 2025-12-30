@@ -4,6 +4,7 @@
   home.stateVersion = "25.11";
 
   home.packages = [
+    (pkgs.callPackage ./pkgs/tiny4linux.nix { src = tiny4linux; })
     claude-code.packages.x86_64-linux.default
     pkgs.gh
     pkgs.jq
@@ -21,7 +22,7 @@
     pkgs.android-tools
     pkgs.patchelf
     pkgs.nodejs_24
-    (pkgs.callPackage ./pkgs/tiny4linux.nix { src = tiny4linux; })
+    pkgs.kdePackages.kate
   ];
 
   programs.git = {
