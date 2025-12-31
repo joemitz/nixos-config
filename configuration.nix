@@ -101,12 +101,6 @@
     enable = true;
     wayland.enable = true;
     theme = "breeze";
-    settings = {
-      General = {
-        # Use Opal wallpaper to match KDE Plasma desktop
-        Background = "${pkgs.kdePackages.plasma-workspace}/share/wallpapers/Opal/contents/images/3840x2160.png";
-      };
-    };
   };
   services.desktopManager.plasma6.enable = true;
 
@@ -246,6 +240,11 @@
   environment.systemPackages = with pkgs; [
   #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
   #  wget
+    # Override SDDM breeze theme background to match KDE Plasma Opal wallpaper
+    (pkgs.writeTextDir "share/sddm/themes/breeze/theme.conf.user" ''
+      [General]
+      background=${pkgs.kdePackages.plasma-workspace}/share/wallpapers/Opal/contents/images/3840x2160.png
+    '')
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
