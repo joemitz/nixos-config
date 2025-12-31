@@ -243,7 +243,7 @@
     # Override SDDM breeze theme background to match KDE Plasma Opal wallpaper
     (pkgs.writeTextDir "share/sddm/themes/breeze/theme.conf.user" ''
       [General]
-      background=${pkgs.kdePackages.plasma-workspace}/share/wallpapers/Opal/contents/images/3840x2160.png
+      background=${pkgs.kdePackages.plasma-workspace-wallpapers}/share/wallpapers/Opal/contents/images/3840x2160.png
     '')
   ];
 
