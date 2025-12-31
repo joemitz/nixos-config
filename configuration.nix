@@ -97,7 +97,17 @@
   services.xserver.enable = true;
 
   # Enable the KDE Plasma Desktop Environment.
-  services.displayManager.sddm.enable = true;
+  services.displayManager.sddm = {
+    enable = true;
+    wayland.enable = true;
+    theme = "breeze";
+    settings = {
+      General = {
+        # Use Opal wallpaper to match KDE Plasma desktop
+        Background = "${pkgs.kdePackages.plasma-workspace}/share/wallpapers/Opal/contents/images/3840x2160.png";
+      };
+    };
+  };
   services.desktopManager.plasma6.enable = true;
 
   # Configure keymap in X11
