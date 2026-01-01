@@ -9,6 +9,7 @@
     pkgs.gh
     pkgs.jq
     pkgs.tmux
+    pkgs.btop
     pkgs.vscodium
     pkgs.postman
     pkgs.zoom-us
