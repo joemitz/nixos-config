@@ -36,7 +36,7 @@
       init.defaultBranch = "main";
       color.ui = "auto";
       core = {
-        editor = "nano";
+        editor = "micro";
         autocrlf = "input";
         safecrlf = true;
         hooksPath = "/dev/null";
@@ -93,6 +93,7 @@
     shellAliases = {
       code = "codium";
       c = "claude";
+      nano = "micro";
       # NH with auto-commit and auto-push: rebuild, commit, and push on success
       nhs = ''
         current_dir=$(pwd) && \
