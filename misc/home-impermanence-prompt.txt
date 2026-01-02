@@ -1,0 +1,21 @@
+I want to add home impermanence with the following strategy. Ask me questions to improve this plan.
+We will not use the home manager impermanence module. Persisted paths will be added to configuration.nix
+Home files/folders will be persisted to new subvolumes.
+Dotfiles will be persisted to @persist-dotfiles, mounted at /persist-dotfiles (ie .android, .mozilla, .var etc)
+Userfiles will be persisted to @persist-userfiles, mounted at /persist-userfiles (Desktop, Documents, Downloads)
+We will want new snapper configurations for the new subvolumes.
+We want to keep paths narrow in scope instead of broad (ie .config/kate, not .config)
+The plan needs to include how to wipe the home subvolume at boot. (do we need a @home-blank subvolume?)
+The plan also needs to include how to create the new subvolumes and how to migrate existing data into the new subvolumes.
+Any questions?
+
+1. wiped on every reboot
+2. the same way we handle persisted root paths
+3. not sure boot timing, but we need to keep sops in mind so that nixos-rebuild boot still works. yes lets use neededForBoot
+4. lets consider some specific cache dirs
+5. ~/Android/Sdk is userfile. .local/share is dotfile. Lets persist .gradle, .npm, .cargo
+6. Application status boundaries: lets stick to the strict definition of a dotfile. If it starts with a dot, it's a dotfile.
+7. Safe, live USB
+8. yes lets create a @home snapshot. Lets also create a copy of home called @home-backup for safety
+9. same snapper settings
+10. lets try to enumerate everything for starters
