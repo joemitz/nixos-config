@@ -240,13 +240,6 @@
   environment.systemPackages = with pkgs; [
   #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
   #  wget
-    # Gaming tools
-    mangohud
-
-    # AMD GPU monitoring for btop
-    rocmPackages.rocm-smi
-    libdrm
-
     # Override SDDM breeze theme background to match KDE Plasma Opal wallpaper
     (pkgs.writeTextDir "share/sddm/themes/breeze/theme.conf.user" ''
       [General]
@@ -264,15 +257,6 @@
 
   # Enable ADB for Android development
   programs.adb.enable = true;
-
-  # Enable Steam with gaming enhancements
-  programs.steam = {
-    enable = true;
-    gamescopeSession.enable = true; # GameScope compositor for improved gaming
-  };
-
-  # GameMode - automatic performance optimizations when gaming
-  programs.gamemode.enable = true;
 
   # List services that you want to enable:
 
