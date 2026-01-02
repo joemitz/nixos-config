@@ -9,7 +9,7 @@ This is a NixOS configuration repository using flakes and home-manager. The syst
 ## Core Architecture
 
 **Flake Structure**:
-- `flake.nix`: Main entry point defining inputs (nixpkgs stable, home-manager, claude-code, sops-nix, tiny4linux) and outputs
+- `flake.nix`: Main entry point defining inputs (nixpkgs stable, home-manager, claude-code, sops-nix, tiny4linux, impermanence) and outputs
 - `configuration.nix`: System-level NixOS configuration (bootloader, networking, desktop environment, system services)
 - `home.nix`: User-level home-manager configuration (user packages, git config, bash/tmux/alacritty settings)
 - `hardware-configuration.nix`: Hardware-specific configuration with Btrfs subvolumes (generated, not typically edited manually)
@@ -20,10 +20,13 @@ This is a NixOS configuration repository using flakes and home-manager. The syst
 - Uses `nixos-25.11` stable channel
 - home-manager integrated as a NixOS module (not standalone)
 - Experimental features enabled: `nix-command` and `flakes`
+- **Root impermanence**: Root filesystem rolls back to pristine state on every boot (stateless root)
+- Important state persisted via `/persist` subvolume using impermanence module
 - NH (Nix Helper) configured as modern replacement for nixos-rebuild
 - Git hooks disabled globally (`core.hooksPath = "/dev/null"`)
 - Auto-commits configuration changes after successful rebuilds via `nhs` alias
 - Btrfs filesystem with compression (zstd) and snapshots via Snapper
+- Automated backups via Borg to remote server
 - LTS kernel to avoid AMD GPU bugs in newer kernels
 
 ## Building and Deploying
@@ -67,35 +70,40 @@ nix flake show
 
 ## NH (Nix Helper) Configuration
 
-NH is configured in configuration.nix:229-237 with:
+NH is configured in configuration.nix with:
 - Automatic weekly garbage collection
-- Keeps last 5 generations and anything from last 4 days
+- Keeps last 10 generations and anything from last 10 days
 - Flake path: `/home/joemitz/nixos-config`
+- Download buffer size: 512 MiB for faster downloads
 
-The activation script at configuration.nix:241-243 ensures proper file ownership to allow NH to update flake.lock without permission errors.
+The activation script ensures proper file ownership to allow NH to update flake.lock without permission errors.
 
 ## Configuration Layout
 
 **System Configuration** (configuration.nix):
-- Boot: systemd-boot with EFI, LTS kernel (pkgs.linuxPackages)
+- Boot: systemd-boot with EFI, LTS kernel (pkgs.linuxPackages), root rollback on boot
 - Hardware: AMD GPU with amdgpu driver early loading, hardware acceleration, Bluetooth
-- Desktop: KDE Plasma 6 with SDDM
+- Desktop: KDE Plasma 6 with SDDM (Wayland enabled, Opal wallpaper background)
 - Audio: PipeWire (replaces PulseAudio)
-- Networking: NetworkManager, Wake-on-LAN on enp6s0, Tailscale VPN
-- Services: OpenSSH (port 22), fwupd firmware updates, Snapper for Btrfs snapshots
+- Networking: NetworkManager, Wake-on-LAN on enp6s0, Tailscale VPN, NFS client support
+- Services: OpenSSH (port 22, root login allowed), fwupd firmware updates, Snapper for Btrfs snapshots
+- Backup: Borg hourly backups of /persist to remote server (192.168.0.100)
 - Development: Docker, ADB for Android
 - Security: Polkit enabled, sudo without password for wheel group
 - User groups: networkmanager, wheel, docker, adbusers, kvm
-- Filesystem: Btrfs with subvolumes (@, @home, @nix) and zstd compression
-- NVMe mount at /mnt/nvme (Btrfs with subvol=@)
+- Filesystem: Btrfs with subvolumes (@, @home, @nix, @persist, @snapshots, @root-blank) and zstd compression
+- Impermanence: Root wipes on boot, state persisted to /persist subvolume
+- NVMe mount at /mnt/nvme (Btrfs with subvol=@, read-only)
+- NFS mount: TrueNAS Plex share at /mnt/truenas/plex (read-only)
 - Timezone: America/Los_Angeles
 
 **User Configuration** (home.nix):
 - CLI Tools: claude-code, gh, jq, tmux, patchelf, devbox, nodejs_24
-- Development: vscodium, postman, android-studio, android-tools
+- Development: vscodium, postman, android-studio, android-tools, kate
 - Applications: zoom-us, firefox, tidal-hifi, vlc, guvcview, remmina, vorta (backup)
 - Custom Packages: tiny4linux (OBSBOT Tiny2 camera controller)
-- Git configured with useful aliases (co, st, br, hi, cp, lb, ma, type, dump, pu, ad, ch)
+- Desktop Entries: guvcview with -z flag, tiny4linux-gui
+- Git configured with useful aliases (co, st, br, hi, lb, ma, type, dump, pu, ad, ch)
 - SSH with macbook host configuration
 - Bash with tmux auto-attach, secrets sourcing, Android SDK paths, nhs alias
 - Tmux with custom keybindings (h/v for splits, n for new window, Ctrl+K to clear)
@@ -104,7 +112,7 @@ The activation script at configuration.nix:241-243 ensures proper file ownership
 
 ## Git Workflow
 
-Git is configured with several useful aliases defined in home.nix:53-66:
+Git is configured with several useful aliases:
 - `git co`: Quick commit (`git commit -m`)
 - `git st`: Status
 - `git br`: Branch
@@ -114,7 +122,6 @@ Git is configured with several useful aliases defined in home.nix:53-66:
 - `git pu`: Push
 - `git ad`: Add
 - `git ch`: Checkout
-- `git cp`: Commit and push in one command
 - `git lb`: Show last 10 branch checkouts with colors
 - `git ma`: Show last 30 merge commits with colors
 
@@ -140,17 +147,23 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
 **Kernel**: LTS (linuxPackages) to avoid stability issues with newer kernels on AMD GPUs
 
 **Filesystem**:
-- Root filesystem: Btrfs with subvolumes (@, @home, @nix)
+- Root filesystem: Btrfs with subvolumes (@, @home, @nix, @persist, @snapshots, @root-blank)
 - Mount options: compress=zstd, noatime, space_cache=v2
-- Additional NVMe drive mounted at /mnt/nvme
+- Root (@) subvolume: Rolls back to pristine @root-blank snapshot on every boot
+- /persist subvolume: Stores important persistent state across reboots
+- /home subvolume: User files (persistent, neededForBoot)
+- /.snapshots subvolume: Snapper snapshots (neededForBoot)
+- Additional NVMe drive mounted at /mnt/nvme (read-only)
+- TrueNAS NFS share mounted at /mnt/truenas/plex (read-only)
 
 **Snapper Snapshots**:
-- Configured for both / (root) and /home
-- Hourly snapshots: 48 (2 days)
-- Daily snapshots: 7
-- Weekly snapshots: 4
-- Monthly snapshots: 12
-- Yearly snapshots: 2
+- Configured for / (root), /home, and /persist
+- All three configs have the same retention policy:
+  - Hourly snapshots: 48 (2 days)
+  - Daily snapshots: 7
+  - Weekly snapshots: 4
+  - Monthly snapshots: 12
+  - Yearly snapshots: 2
 
 ## Development Environment
 
@@ -167,12 +180,11 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
 
 **Node.js**: Version 24 installed
 
-**WebStorm**: PATH includes /opt/WebStorm-243.26053.12/bin
-
-**Additional Environment Variables** (home.nix:119-125):
+**Additional Environment Variables**:
 - NODE_ENV=development
 - DEVICE_IP=192.168.0.249
 - HUSKY=0 (disables git hooks)
+- ANDROID_HOME=$HOME/Android/Sdk
 
 ## Secrets Management
 
@@ -199,12 +211,13 @@ nix-shell -p sops --run "sops secrets.yaml"
 2. Update `configuration.nix`: Add to `sops.secrets` and `sops.templates."secrets.env".content`
 3. Rebuild: `nhs`
 
-**Managed Secrets** (configuration.nix:123-135):
+**Managed Secrets**:
 - API Keys: NPM_TOKEN, GEMINI_API_KEY, OPENAI_API_KEY, ANTHROPIC_API_KEY, CIRCLECI_TOKEN
 - Android: ANDROID_RELEASE_KEYSTORE_PASSWORD, ANDROID_RELEASE_KEY_PASSWORD, ANDROID_KEYSTORE_PASSWORD
 - Production: APC_WSS_ADMIN_BEARER_TOKEN, APC_WSS_FIREBASE_ADMIN_CONFIG, APC_WSS_A3_PG_PASSWORD
+- Backup: borg_passphrase (root-owned, mode 0400, for Borg backups)
 
-**Generated Environment Variables** (configuration.nix:141-161):
+**Generated Environment Variables**:
 The secrets.env template includes both secrets and non-secret constants:
 - Android aliases: ANDROID_RELEASE_KEY_ALIAS="release-key", ANDROID_KEYSTORE_ALIAS="Anova"
 - Google KMS: APC_WSS_GOOGLE_KMS_A3_SECRET_KEYRING, APC_WSS_GOOGLE_KMS_A3_SECRET_KEY_NAME
@@ -232,7 +245,7 @@ The secrets.env template includes both secrets and non-secret constants:
 
 ## Terminal & Shell
 
-**Tmux Configuration** (home.nix:151-187):
+**Tmux Configuration**:
 - Auto-attach to "main" session on bash login
 - Mouse support enabled
 - Custom split keybindings: `h` (horizontal), `v` (vertical)
@@ -242,11 +255,11 @@ The secrets.env template includes both secrets and non-secret constants:
 - Ctrl+_ mapped to Shift-Tab
 - Status bar enabled with session name
 
-**Alacritty Terminal** (home.nix:189-195):
+**Alacritty Terminal**:
 - Theme: campbell
 - Background: pure black (#000000)
 
-**Bash Configuration** (home.nix:89-149):
+**Bash Configuration**:
 - Sources ~/.alias if exists
 - Auto-sources ~/.config/secrets.env
 - Auto-attaches to tmux "main" session on login (unless already in tmux)
@@ -254,17 +267,87 @@ The secrets.env template includes both secrets and non-secret constants:
 
 ## Network & Remote Access
 
-**SSH Configuration** (home.nix:70-79):
+**SSH Configuration**:
 - Macbook host: 192.168.0.232 (user: joemitz)
 
-**OpenSSH Server** (configuration.nix:189-195):
+**OpenSSH Server**:
 - Port: 22 (TCP)
 - Password authentication: enabled
-- Root login: disabled
+- Root login: allowed
 
-**Tailscale VPN** (configuration.nix:198):
+**Tailscale VPN**:
 - Enabled for secure remote access
 - UDP port 41641 open in firewall
 
-**Wake-on-LAN** (configuration.nix:47):
+**NFS Client**:
+- rpcbind enabled for NFS support
+- TrueNAS Plex share auto-mounted at /mnt/truenas/plex (read-only)
+
+**Wake-on-LAN**:
 - Enabled on interface enp6s0
+
+## Root Impermanence
+
+This system uses **root impermanence** - the root filesystem is wiped and restored to a clean state on every boot. This provides a stateless, reproducible system where only explicitly declared state persists.
+
+**How it works**:
+1. During boot, after devices are available but before root is mounted
+2. The system mounts the Btrfs root volume
+3. Recursively deletes all nested subvolumes under @ (root)
+4. Deletes the @ subvolume itself
+5. Creates a fresh @ subvolume from the @root-blank snapshot
+6. Continues normal boot process
+
+**What persists**:
+- `/home` - Mounted from @home subvolume (always persistent)
+- `/nix` - Mounted from @nix subvolume (Nix store, always persistent)
+- `/persist` - Mounted from @persist subvolume, contains important state:
+  - System state: logs, NetworkManager connections, Docker data, Bluetooth pairings
+  - Service state: Tailscale, CUPS, SDDM, systemd timers
+  - SSH host keys and machine-id
+  - See full list in configuration.nix
+
+**Benefits**:
+- Clean slate on every boot - no accumulated cruft
+- Reproducible system state
+- Forces explicit declaration of what should persist
+- Makes it obvious what state is truly necessary
+- Easy rollback from any issue - just reboot
+
+**Impermanence Configuration**:
+- Uses the impermanence NixOS module
+- hideMounts enabled to keep /persist hidden from file browsers
+- Directories and files explicitly listed for persistence
+- User home directory (/home) is already persistent via @home subvolume
+
+## Backup System
+
+**Borg Backup Configuration**:
+- Service: `persist-backup` backs up /persist to remote Borg repository
+- Repository: ssh://borg@192.168.0.100:2222/backup/nixos-persist
+- Encryption: repokey-blake2 with passphrase from sops secrets
+- Compression: auto,lz4 for good balance of speed and size
+- Schedule: Runs hourly
+- SSH key: /home/joemitz/.ssh/id_ed25519_borg (auto-accept new hosts)
+
+**Backup Retention**:
+- Hourly: 2 backups
+- Daily: 7 backups
+- Weekly: 4 backups
+- Monthly: 6 backups
+- Yearly: 2 backups
+
+**What's backed up**:
+- Everything in /persist (system state, configurations)
+- Excludes: .cache directories, Docker images (can be rebuilt)
+
+**What's NOT backed up** (doesn't need to be):
+- / (root) - Wiped on every boot, fully reproducible from config
+- /nix - Nix store is reproducible from configuration
+- /home - Use Vorta or other backup solution for user data
+
+**Recovery**:
+To restore from backup after a catastrophic failure:
+1. Reinstall NixOS with same subvolume structure
+2. Restore /persist from Borg: `borg extract ssh://borg@192.168.0.100:2222/backup/nixos-persist::archive-name`
+3. Run `nhs` to rebuild system from configuration in /home/joemitz/nixos-config

@@ -23,6 +23,7 @@
     pkgs.patchelf
     pkgs.nodejs_24
     pkgs.kdePackages.kate
+    pkgs.micro
   ];
 
   programs.git = {
