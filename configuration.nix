@@ -245,6 +245,7 @@
 
     # AMD GPU monitoring for btop
     rocmPackages.rocm-smi
+    libdrm
 
     # Override SDDM breeze theme background to match KDE Plasma Opal wallpaper
     (pkgs.writeTextDir "share/sddm/themes/breeze/theme.conf.user" ''
