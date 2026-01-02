@@ -214,4 +214,26 @@
     comment = "Control OBSBOT Tiny2 camera";
   };
 
+  xdg.desktopEntries.codium = {
+    name = "VSCodium";
+    exec = "codium %F";
+    icon = "vscodium";
+    terminal = false;
+    type = "Application";
+    categories = [ "Utility" "TextEditor" "Development" "IDE" ];
+    mimeType = [ "text/plain" "inode/directory" ];
+    startupNotify = true;
+    comment = "Code Editing. Redefined.";
+    settings = {
+      StartupWMClass = "VSCodium";
+      Keywords = "vscode";
+    };
+    actions = {
+      new-empty-window = {
+        name = "New Empty Window";
+        exec = "codium --new-window %F";
+      };
+    };
+  };
+
 }
