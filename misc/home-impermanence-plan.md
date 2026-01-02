@@ -13,17 +13,22 @@ Implement home directory impermanence by wiping `/home` (@home subvolume) on eve
 ### Target State
 ```
 Btrfs Filesystem (a895216b-d275-480c-9b78-04c6a00df14a)
-├── @                      (/) - WIPED ON BOOT, recreated from @root-blank
-├── @root-blank            Reference snapshot (pristine @)
-├── @home                  (/home) - WIPED ON BOOT, recreated from @home-blank  ← NEW
-├── @home-blank            Reference snapshot (pristine /home skeleton)        ← NEW
+├── @                      (/) - WIPED ON BOOT, contains /home directory
+├── @blank                 Empty reference snapshot (renamed from @root-blank)
+├── @home                  REMOVED - no longer needed, /home lives on @
 ├── @home-backup           Safety backup of current @home before migration     ← NEW (temporary)
 ├── @nix                   (/nix) - Persistent
-├── @persist               (/persist) - Persistent (system state)
-├── @persist-dotfiles      (/persist-dotfiles) - Persistent (user dotfiles)   ← NEW
-├── @persist-userfiles     (/persist-userfiles) - Persistent (user files)     ← NEW
-└── @snapshots             (/.snapshots) - Persistent
+├── @persist-root          (/persist-root) - Persistent (system state)        ← RENAMED, has snapshots
+├── @persist-dotfiles      (/persist-dotfiles) - Persistent (user dotfiles)   ← NEW, has snapshots
+├── @persist-userfiles     (/persist-userfiles) - Persistent (user files)     ← NEW, has snapshots
+└── @snapshots             REMOVED - no longer needed                           ← CHANGE
 ```
+
+**Key simplifications:**
+1. No separate @home subvolume - /home is just a directory on @ that gets wiped
+2. Renamed @persist → @persist-root for consistent naming
+3. **Removed @snapshots subvolume** - only snapshot the persist subvolumes (data that actually persists!)
+4. Disabled Snapper for root and home - they're wiped on boot, snapshots are useless
 
 ## Persistence Strategy
 
@@ -103,6 +108,19 @@ No code changes needed. Information gathering complete.
 ---
 
 ### Phase 2: Create Subvolumes & Migrate Data (Live USB Required)
+
+⚠️ **CRITICAL: BACKUP YOUR ENTIRE DISK FIRST!** ⚠️
+
+Before proceeding with ANY changes, create a full disk image with Clonezilla:
+1. Boot Clonezilla Live USB
+2. Choose "device-image" mode
+3. Save entire disk image to external drive
+4. Verify the backup completed successfully
+5. Keep this backup until you've verified the new setup works perfectly
+
+**This is your safety net in case of catastrophic failure during migration!**
+
+---
 
 **Boot from NixOS live USB, mount filesystem, create subvolumes, migrate data.**
 
@@ -221,20 +239,28 @@ cp -a ssh-backup @persist-userfiles/joemitz/
 chown -R 1000:100 @persist-userfiles/joemitz
 ```
 
-#### Step 2.6: Create @home-blank Snapshot
+#### Step 2.6: Rename Subvolumes and Cleanup
 ```bash
-# Delete everything from @home (we have backups!)
 cd /mnt
+
+# Rename @root-blank to @blank for clarity
+mv @root-blank @blank
+
+# Rename @persist to @persist-root for consistent naming
+mv @persist @persist-root
+
+# Delete @home subvolume (we have backups, and it's no longer needed!)
+# /home will just be a directory on @ going forward
 btrfs subvolume delete @home
 
-# Create minimal @home-blank with skeleton structure
-btrfs subvolume create @home-blank
-mkdir -p @home-blank/joemitz
-chown 1000:100 @home-blank/joemitz
-chmod 700 @home-blank/joemitz
+# Delete @snapshots subvolume (no longer needed - we only snapshot persist subvolumes)
+btrfs subvolume delete @snapshots
 
-# Create fresh @home from @home-blank for first boot
-btrfs subvolume snapshot @home-blank @home
+# Clean out .snapshots directory from @home-backup if it exists
+rm -rf @home-backup/joemitz/.snapshots 2>/dev/null || true
+
+# Delete old-root-backup if it exists (leftover from previous migrations)
+btrfs subvolume delete @old-root-backup 2>/dev/null || true
 ```
 
 #### Step 2.7: Verify Migration
@@ -258,10 +284,49 @@ umount /mnt
 ### Phase 3: Update NixOS Configuration
 
 #### File: `hardware-configuration.nix`
-**Location:** Lines after line 53
 
-Add filesystem entries for new persist subvolumes:
+**Change 1: Remove /home mount** (delete lines 22-27):
+```nix
+# DELETE THIS ENTIRE BLOCK - /home will be a directory on @ now:
+fileSystems."/home" =
+  { device = "/dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a";
+    fsType = "btrfs";
+    options = [ "subvol=@home" "compress=zstd" "noatime" "space_cache=v2" ];
+    neededForBoot = true;
+  };
+```
 
+**Change 2: Rename /persist to /persist-root** (lines 41-46):
+```nix
+# CHANGE FROM:
+fileSystems."/persist" =
+  { device = "/dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a";
+    fsType = "btrfs";
+    options = [ "subvol=@persist" "compress=zstd" "noatime" ];
+    neededForBoot = true;
+  };
+
+# TO:
+fileSystems."/persist-root" =
+  { device = "/dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a";
+    fsType = "btrfs";
+    options = [ "subvol=@persist-root" "compress=zstd" "noatime" ];
+    neededForBoot = true;
+  };
+```
+
+**Change 3: Remove /.snapshots mount** (delete lines 48-53):
+```nix
+# DELETE THIS - @snapshots subvolume no longer exists:
+fileSystems."/.snapshots" =
+  { device = "/dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a";
+    fsType = "btrfs";
+    options = [ "subvol=@snapshots" "compress=zstd" "noatime" ];
+    neededForBoot = true;
+  };
+```
+
+**Change 4: Add new persist subvolume mounts** (after line 46):
 ```nix
 fileSystems."/persist-dotfiles" =
   { device = "/dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a";
@@ -278,24 +343,11 @@ fileSystems."/persist-userfiles" =
   };
 ```
 
-**Change existing /home entry** (line 22-27):
-```nix
-# BEFORE:
-fileSystems."/home" =
-  { device = "/dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a";
-    fsType = "btrfs";
-    options = [ "subvol=@home" "compress=zstd" "noatime" "space_cache=v2" ];
-    neededForBoot = true;  # KEEP THIS - needed for impermanence bind mounts
-  };
-```
-
-No change needed to /home mount - it still needs `neededForBoot = true` so impermanence can bind mount into it.
-
 ---
 
 #### File: `configuration.nix`
 
-**Change 1: Add Home Wipe to Boot Script** (after line 50, inside boot.initrd.postDeviceCommands)
+**Change 1: Update Boot Script** (lines 24-50, modify existing boot.initrd.postDeviceCommands)
 
 ```nix
 boot.initrd.postDeviceCommands = pkgs.lib.mkAfter ''
@@ -304,7 +356,7 @@ boot.initrd.postDeviceCommands = pkgs.lib.mkAfter ''
   # Mount the btrfs root to /mnt for subvolume manipulation
   mount -t btrfs -o subvolid=5 /dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a /mnt
 
-  # === ROOT WIPE (existing) ===
+  # === ROOT WIPE (update to use @blank) ===
   # Delete all nested subvolumes recursively before removing root
   while btrfs subvolume list -o /mnt/@ | grep -q .; do
     btrfs subvolume list -o /mnt/@ |
@@ -319,31 +371,38 @@ boot.initrd.postDeviceCommands = pkgs.lib.mkAfter ''
   btrfs subvolume delete /mnt/@
 
   echo "restoring blank /@ subvolume..."
-  btrfs subvolume snapshot /mnt/@root-blank /mnt/@
+  btrfs subvolume snapshot /mnt/@blank /mnt/@
 
-  # === HOME WIPE (new) ===
-  # Delete all nested subvolumes recursively before removing home
-  while btrfs subvolume list -o /mnt/@home | grep -q .; do
-    btrfs subvolume list -o /mnt/@home |
-    cut -f9 -d' ' |
-    while read subvolume; do
-      echo "deleting /$subvolume subvolume..."
-      btrfs subvolume delete "/mnt/$subvolume" || true
-    done
-  done
-
-  echo "deleting /@home subvolume..."
-  btrfs subvolume delete /mnt/@home
-
-  echo "restoring blank /@home subvolume..."
-  btrfs subvolume snapshot /mnt/@home-blank /mnt/@home
+  # Create /home directory structure (no separate @home subvolume needed!)
+  mkdir -p /mnt/@/home/joemitz
+  chown 1000:100 /mnt/@/home/joemitz
+  chmod 700 /mnt/@/home/joemitz
 
   # Unmount and continue boot process
   umount /mnt
 '';
 ```
 
-**Change 2: Add Home Impermanence Config** (after line 233, after existing environment.persistence)
+**Note:** Only @root-blank → @blank rename needed. No separate home wipe - /home is just a directory on @ now!
+
+**Change 2: Rename System Persistence Path** (around line 198):
+```nix
+# CHANGE FROM:
+environment.persistence."/persist" = {
+  hideMounts = true;
+  directories = [ ... ];
+  files = [ ... ];
+};
+
+# TO:
+environment.persistence."/persist-root" = {
+  hideMounts = true;
+  directories = [ ... ];  # Keep existing content
+  files = [ ... ];  # Keep existing content
+};
+```
+
+**Change 3: Add Home Impermanence Config** (after line 233, after system persistence)
 
 ```nix
 # Home impermanence - dotfiles
@@ -354,8 +413,20 @@ environment.persistence."/persist-dotfiles" = {
     directories = [
       ".ssh"
       ".claude"
-      ".config"
-      ".local"
+      # IMPORTANT: Use narrow paths for .config, not the entire directory!
+      # Examples of narrow .config paths (add more as needed):
+      ".config/alacritty"
+      ".config/kate"
+      ".config/git"
+      ".config/gh"
+      ".config/borg"
+      ".config/environment.d"
+      # Add other .config subdirs as needed (gtk-3.0, gtk-4.0, etc.)
+
+      # Similar for .local - use narrow paths:
+      ".local/share"
+      ".local/state"
+
       ".android"
       ".mozilla"
       ".var"
@@ -392,6 +463,11 @@ environment.persistence."/persist-dotfiles" = {
   };
 };
 
+# NOTE: The above is a starting point. You may need to add more specific
+# .config paths as you discover which apps need their config persisted.
+# Keep paths narrow (e.g., .config/kate, not .config) to avoid persisting
+# unnecessary data and to make it explicit what's being kept.
+
 # Home impermanence - userfiles
 environment.persistence."/persist-userfiles" = {
   hideMounts = true;
@@ -418,12 +494,52 @@ environment.persistence."/persist-userfiles" = {
 };
 ```
 
-**Change 3: Add Snapper Configs** (after line 360, inside services.snapper.configs)
+**Change 5: Update Snapper Configs** (around line 323-360)
 
+**Remove "root" and "home" configs** (wiped on boot, snapshots are useless):
+```nix
+# DELETE these configs:
+root = {
+  SUBVOLUME = "/";
+  ...
+};
+
+home = {
+  SUBVOLUME = "/home";
+  ...
+};
+```
+
+**Rename "persist" to "persist-root":**
+```nix
+# CHANGE FROM:
+persist = {
+  SUBVOLUME = "/persist";
+  ...
+};
+
+# TO:
+persist-root = {
+  SUBVOLUME = "/persist-root";
+  ALLOW_USERS = [ "joemitz" ];
+  TIMELINE_CREATE = true;
+  TIMELINE_CLEANUP = true;
+  TIMELINE_LIMIT_HOURLY = "48";
+  TIMELINE_LIMIT_DAILY = "7";
+  TIMELINE_LIMIT_WEEKLY = "4";
+  TIMELINE_LIMIT_MONTHLY = "12";
+  TIMELINE_LIMIT_YEARLY = "2";
+};
+```
+
+**Add new persist configs:**
 ```nix
 services.snapper = {
   configs = {
-    # ... existing root, home, persist configs ...
+    # Only snapshot persist subvolumes (actual persistent data)
+    # Removed: root, home (wiped on boot)
+
+    persist-root = { /* ... */ };  # Renamed from persist
 
     persist-dotfiles = {
       SUBVOLUME = "/persist-dotfiles";
@@ -452,15 +568,21 @@ services.snapper = {
 };
 ```
 
-**Change 4: Update Borg Backup** (optional, around line 290)
+**Change 5: Update Borg Backup** (optional, around line 290)
 
-Add new persist subvolumes to Borg backup paths (if desired):
+Update backup paths to use new naming:
 
 ```nix
+# CHANGE FROM:
 paths = [
   "/persist"
-  "/persist-dotfiles"      # Add this
-  "/persist-userfiles"     # Add this
+];
+
+# TO:
+paths = [
+  "/persist-root"          # Renamed
+  "/persist-dotfiles"      # Add
+  "/persist-userfiles"     # Add
 ];
 ```
 
@@ -507,9 +629,15 @@ claude --version     # Claude should work with persisted config
 
 4. **Check Snapper:**
 ```bash
+# List all configs - should only show 3 persist configs
+snapper list-configs
+# Expected: persist-root, persist-dotfiles, persist-userfiles
+# NOT: root, home
+
+# Check snapshots are being created
+sudo snapper -c persist-root list
 sudo snapper -c persist-dotfiles list
 sudo snapper -c persist-userfiles list
-# Should show snapshots being created
 ```
 
 5. **Test application access:**
@@ -552,15 +680,23 @@ umount /mnt
 
 ## Critical Files to Modify
 
-1. **hardware-configuration.nix** (lines 53+)
-   - Add `/persist-dotfiles` filesystem entry with `neededForBoot = true`
-   - Add `/persist-userfiles` filesystem entry with `neededForBoot = true`
+1. **hardware-configuration.nix**
+   - Lines 22-27: **DELETE** `/home` mount (no longer needed!)
+   - Lines 41-46: **RENAME** `/persist` → `/persist-root` (subvol=@persist-root)
+   - Lines 48-53: **DELETE** `/.snapshots` mount (subvolume removed)
+   - After line 46: **ADD** `/persist-dotfiles` and `/persist-userfiles` mounts with `neededForBoot = true`
 
 2. **configuration.nix** (multiple locations)
-   - Lines 24-50: Update `boot.initrd.postDeviceCommands` to add home wipe logic
-   - After line 233: Add two new `environment.persistence` blocks (dotfiles + userfiles)
-   - After line 360: Add two new Snapper configs
-   - Around line 290 (optional): Update Borg backup paths
+   - Lines 24-50: **UPDATE** `boot.initrd.postDeviceCommands`:
+     - Change `@root-blank` to `@blank`
+     - Add `/home/joemitz` directory creation after @ snapshot
+   - Around line 198: **RENAME** `environment.persistence."/persist"` → `environment.persistence."/persist-root"`
+   - After line 233: **ADD** two new `environment.persistence` blocks (dotfiles + userfiles)
+   - Lines 323-360: **UPDATE** Snapper configs:
+     - **Remove "root" and "home" configs** (wiped on boot - snapshots useless)
+     - Rename "persist" → "persist-root"
+     - Add "persist-dotfiles" and "persist-userfiles" configs
+   - Around line 290 (optional): **UPDATE** Borg backup paths (rename + add new paths)
 
 ---
 
@@ -569,26 +705,26 @@ umount /mnt
 ```
 1. Kernel boots, discovers devices
 2. initramfs runs boot.initrd.postDeviceCommands:
-   a. Wipes @ (root) → recreates from @root-blank
-   b. Wipes @home → recreates from @home-blank ← NEW
+   a. Wipes @ (root) → recreates from @blank
+   b. Creates /home/joemitz directory structure on fresh @ ← NEW (simplified!)
 3. initramfs mounts filesystems with neededForBoot:
-   - / (fresh @)
-   - /home (fresh @home)
+   - / (fresh @, contains /home directory)
    - /nix (@nix - persistent)
-   - /persist (@persist - persistent)
+   - /persist-root (@persist-root - persistent, renamed from @persist)
    - /persist-dotfiles (@persist-dotfiles - persistent) ← NEW
    - /persist-userfiles (@persist-userfiles - persistent) ← NEW
-   - /.snapshots (@snapshots - persistent)
 4. Root filesystem transitions from initramfs to real root
 5. Activation scripts run:
    - impermanence module creates bind mounts:
-     * /persist → @ (system state)
+     * /persist-root → @ (system state)
      * /persist-dotfiles/joemitz → /home/joemitz (dotfiles) ← NEW
      * /persist-userfiles/joemitz → /home/joemitz (userfiles) ← NEW
 6. sops-nix decrypts secrets to /home/joemitz/.config/secrets.env
    - This works because .config is bind-mounted from /persist-dotfiles
 7. Services start, user can login
 ```
+
+**Note:** Much simpler - no separate @home subvolume or mount point needed!
 
 ---
 
@@ -625,39 +761,115 @@ If home impermanence causes issues:
 
 - **@persist-dotfiles:** ~8-9 GB (configs + selective caches)
 - **@persist-userfiles:** Varies (projects, documents, media)
-- **@home-blank:** <1 MB (empty skeleton)
+- **@blank:** <1 MB (empty, shared by both @ and @home)
 - **@home-backup:** Same as current /home (keep temporarily for safety)
 
 ---
 
 ## Testing Checklist
 
-- [ ] Subvolumes created successfully
-- [ ] Data migrated to @persist-dotfiles and @persist-userfiles
-- [ ] @home-blank created with minimal skeleton
-- [ ] Configuration changes applied
+- [ ] @persist-dotfiles and @persist-userfiles subvolumes created
+- [ ] Data migrated to persist subvolumes
+- [ ] @home subvolume deleted (no longer needed!)
+- [ ] @snapshots subvolume deleted (no longer needed!)
+- [ ] @old-root-backup deleted (if it exists)
+- [ ] .snapshots cleaned from @home-backup
+- [ ] @root-blank renamed to @blank
+- [ ] @persist renamed to @persist-root
+- [ ] /home mount removed from hardware-configuration.nix
+- [ ] /.snapshots mount removed from hardware-configuration.nix
+- [ ] /persist mount renamed to /persist-root in hardware-configuration.nix
+- [ ] environment.persistence."/persist" renamed to "/persist-root"
+- [ ] "root" Snapper config removed (snapshots useless for wiped subvolumes)
+- [ ] "home" Snapper config removed
+- [ ] "persist" Snapper config renamed to "persist-root"
+- [ ] Boot script updated (@blank + /home/joemitz creation)
+- [ ] Impermanence configs added for both new persist subvolumes
+- [ ] Snapper configs added for 3 persist subvolumes only
 - [ ] `nixos-rebuild boot` succeeds
 - [ ] First reboot successful
+- [ ] /home is a directory on @ (not separate mount)
 - [ ] All bind mounts present (`findmnt` check)
-- [ ] SSH keys accessible
+- [ ] SSH keys accessible (~/.ssh)
 - [ ] Git credentials work
 - [ ] Claude Code config intact
 - [ ] Firefox profile accessible
 - [ ] Kate settings preserved
 - [ ] Projects (anova, nixos-config) accessible
 - [ ] Ephemeral test file disappears after reboot
-- [ ] Snapper creating snapshots for new subvolumes
+- [ ] Snapper creating snapshots for all 3 persist subvolumes (persist-root, persist-dotfiles, persist-userfiles)
+- [ ] NO Snapper snapshots for / or /home (confirmed with `snapper list-configs`)
 - [ ] Borg backup working (if enabled)
 - [ ] sops-nix secrets still decrypt correctly
+
+---
+
+## Optional: Maintenance Script to Find Orphaned Files
+
+After implementation, you may want to periodically check for files in persist subvolumes that aren't declared in your configuration. Create this script:
+
+**File: `~/bin/check-orphaned-persist.sh`**
+
+```bash
+#!/usr/bin/env bash
+# Find files in persist subvolumes not declared in configuration.nix
+
+echo "=== Orphaned Files in Persist Subvolumes ==="
+echo ""
+echo "These files/folders exist in persist but are NOT in your configuration.nix"
+echo "Decide: Should they be added to config? Or deleted?"
+echo ""
+
+# Simple approach: list top-level items and let you compare manually
+echo "=== persist-dotfiles contents ==="
+ls -lh /persist-dotfiles/joemitz/ 2>/dev/null | tail -n +2
+echo ""
+
+echo "=== persist-userfiles contents ==="
+ls -lh /persist-userfiles/joemitz/ 2>/dev/null | tail -n +2
+echo ""
+
+echo "=== persist-root contents ==="
+ls -lh /persist-root/ 2>/dev/null | tail -n +2
+echo ""
+
+# Show sizes
+echo "=== Disk usage by top-level directory ==="
+echo ""
+echo "Dotfiles:"
+du -sh /persist-dotfiles/joemitz/* /persist-dotfiles/joemitz/.* 2>/dev/null | sort -hr | head -20
+echo ""
+echo "Userfiles:"
+du -sh /persist-userfiles/joemitz/* 2>/dev/null | sort -hr | head -20
+echo ""
+
+echo "Compare the above with your configuration.nix environment.persistence blocks"
+echo "To delete orphaned data: sudo rm -rf /persist-dotfiles/joemitz/.unwanted"
+```
+
+**Usage:**
+```bash
+chmod +x ~/bin/check-orphaned-persist.sh
+~/bin/check-orphaned-persist.sh
+```
+
+**Run this periodically** (monthly?) to:
+1. Identify files not in your config
+2. Decide if they should be added or deleted
+3. Keep your persist subvolumes clean
+
+**Remember:** Removing a path from `environment.persistence` does NOT delete the files from the persist subvolume - they remain there. This script helps you find and clean up those orphans.
 
 ---
 
 ## Notes & Warnings
 
 ⚠️ **CRITICAL:**
-- Back up important data before starting (especially Age key at `~/.config/sops/age/keys.txt`)
+- **CREATE FULL DISK IMAGE WITH CLONEZILLA BEFORE STARTING!** This is your ultimate safety net.
+- Back up important data separately (especially Age key at `~/.config/sops/age/keys.txt`)
 - Keep `@home-backup` subvolume for at least a week after successful migration
-- Test thoroughly before deleting backup
+- Keep the Clonezilla disk image until you've verified everything works perfectly
+- Test thoroughly before deleting any backups
 
 ⚠️ **Boot Order is Critical:**
 - Persist subvolumes MUST have `neededForBoot = true`
@@ -665,11 +877,38 @@ If home impermanence causes issues:
 - Impermanence bind mounts happen during activation, after filesystems are mounted
 
 ⚠️ **Narrow Persistence:**
-- The plan lists specific paths; any unlisted paths will NOT persist
-- You can add more paths later by editing the persistence blocks and rebuilding
-- Start narrow, expand as needed
+- Keep paths narrow and specific (e.g., `.config/kate`, NOT `.config`)
+- This makes it explicit what's being persisted and avoids unnecessary data
+- Any unlisted paths will NOT persist across reboots
+- Start narrow, add more paths as you discover what needs to persist
+- When in doubt, use specific subdirectories rather than entire directories
 
 ⚠️ **Cache Strategy:**
 - Large caches (.gradle 3.7G, .npm 226M) are persisted for build performance
 - Browser/UI caches are NOT persisted (auto-regenerate quickly)
 - Adjust based on your preferences after testing
+
+---
+
+## Key Simplifications vs. Original Plan
+
+Through iterative refinement, we achieved a much simpler design:
+
+1. **Single @blank instead of @root-blank + @home-blank**
+   - @root-blank renamed to @blank
+   - Both @ and @home (when it existed) use the same empty snapshot
+   - Saves disk space and conceptual complexity
+
+2. **No separate @home subvolume** ← MAJOR SIMPLIFICATION
+   - /home is just a directory on @, wiped along with the rest of root
+   - Eliminates one subvolume, one mount point, one Snapper config
+   - Simpler boot script (only wipe @, not @ and @home)
+   - All user data persists via @persist-dotfiles and @persist-userfiles anyway!
+
+**Final architecture:**
+- @ (wiped on boot, contains /home directory)
+- @persist-root (persistent system state, renamed from @persist)
+- @persist-dotfiles (persistent user configs)
+- @persist-userfiles (persistent user files)
+
+Much cleaner than the traditional @home approach, with consistent naming across all persist subvolumes!
