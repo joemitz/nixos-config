@@ -1,7 +1,7 @@
 # Home Impermanence Implementation Plan
 
 ## Overview
-Implement home directory impermanence by wiping `/home` (@home subvolume) on every boot and restoring persistent data from two new subvolumes: `@persist-dotfiles` for configuration files and `@persist-userfiles` for user documents/projects.
+Implement home directory impermanence by wiping `/home` (directory on @ subvolume) on every boot and restoring persistent data from two new subvolumes: `@persist-dotfiles` for configuration files and `@persist-userfiles` for user documents/projects.
 
 ## Architecture
 
@@ -41,9 +41,11 @@ Any path starting with `.` goes here. Bind mounted to `/home/joemitz/.<name>`.
 - `.claude/` (45M) - Claude Code data
 - `.claude.json`, `.claude.json.backup` - Claude config
 - `.config/` (1.4G) - Application configurations
-  - Specific subdirs: `alacritty/`, `kate/`, `git/`, `gh/`, `borg/`, `environment.d/`, `gtk-3.0/`, `gtk-4.0/`, `guvcview2/`, `micro/`, KDE configs
+  - Specific subdirs: `alacritty/`, `kate/`, `git/`, `gh/`, `borg/`, `sops/` (CRITICAL!), `environment.d/`, `gtk-3.0/`, `gtk-4.0/`, `guvcview2/`, `micro/`, KDE configs
 - `.local/share/` (469M) - User application data
+  - Use narrow paths: `applications/`, `keyrings/`, `konsole/`, `kwalletd/`, etc.
 - `.local/state/` (688K) - Application state
+  - Use narrow paths: `wireplumber/`, etc.
 - `.android/` (515M) - Android Studio settings + AVDs
 - `.mozilla/` (378M) - Firefox profiles
 - `.var/` (8.2M) - Flatpak app data
@@ -420,12 +422,18 @@ environment.persistence."/persist-dotfiles" = {
       ".config/git"
       ".config/gh"
       ".config/borg"
+      ".config/sops"          # CRITICAL: age keys for sops-nix secrets
       ".config/environment.d"
       # Add other .config subdirs as needed (gtk-3.0, gtk-4.0, etc.)
 
-      # Similar for .local - use narrow paths:
-      ".local/share"
-      ".local/state"
+      # Similar for .local - use narrow paths where possible:
+      # Examples of .local subdirectories that can be persisted individually:
+      ".local/share/applications"  # Desktop entries
+      ".local/share/keyrings"      # Keyrings/passwords
+      ".local/share/konsole"       # Konsole profiles
+      ".local/share/kwalletd"      # KWallet
+      ".local/state/wireplumber"   # Audio state
+      # Note: You may need to persist more .local subdirs - start narrow and add as needed
 
       ".android"
       ".mozilla"
@@ -463,10 +471,12 @@ environment.persistence."/persist-dotfiles" = {
   };
 };
 
-# NOTE: The above is a starting point. You may need to add more specific
-# .config paths as you discover which apps need their config persisted.
-# Keep paths narrow (e.g., .config/kate, not .config) to avoid persisting
-# unnecessary data and to make it explicit what's being kept.
+# NOTE: The above is a starting point. After first boot, many apps will have
+# lost their settings. You'll need to iteratively add more .config and .local
+# paths as you discover what needs to persist. This is expected with narrow paths.
+# Process: app loses config → identify what it needs → add to this list → rebuild.
+# Keep paths narrow (e.g., .config/kate, not .config) to make it explicit
+# what's being kept and to avoid persisting unnecessary data.
 
 # Home impermanence - userfiles
 environment.persistence."/persist-userfiles" = {
@@ -732,28 +742,84 @@ umount /mnt
 
 **Important:** sops-nix will continue to work because:
 - `/home/joemitz/.config/secrets.env` is where secrets are written
-- `.config` will be bind-mounted from `/persist-dotfiles/joemitz/.config`
-- Age keys at `~/.config/sops/age/keys.txt` will persist (in `.config`)
-- No changes needed to sops configuration!
+- `.config/sops` will be bind-mounted from `/persist-dotfiles/joemitz/.config/sops`
+- Age keys at `~/.config/sops/age/keys.txt` will persist
+- **CRITICAL**: You MUST include `.config/sops` in the persist-dotfiles directories list (see Change 3 above)
+- No other changes needed to sops configuration!
 
 ---
 
 ## Rollback Plan
 
-If home impermanence causes issues:
+If home impermanence causes issues, you can roll back to the previous setup:
 
-1. **Boot from live USB**
-2. **Mount filesystem:**
-   ```bash
-   mount -t btrfs -o subvolid=5 /dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a /mnt
-   ```
-3. **Restore from backup:**
-   ```bash
-   btrfs subvolume delete /mnt/@home
-   btrfs subvolume snapshot /mnt/@home-backup /mnt/@home
-   ```
-4. **Revert config changes** (remove new persistence blocks, remove home wipe from boot script)
-5. **Rebuild and reboot**
+### Step 1: Boot from Live USB
+Boot from a NixOS live USB to access the filesystem.
+
+### Step 2: Mount Filesystem
+```bash
+mount -t btrfs -o subvolid=5 /dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a /mnt
+cd /mnt
+```
+
+### Step 3: Restore Subvolumes
+```bash
+# Restore @home subvolume from backup
+btrfs subvolume snapshot @home-backup @home
+
+# Restore @persist from @persist-root
+mv @persist-root @persist
+
+# Restore @root-blank from @blank
+mv @blank @root-blank
+
+# Recreate @snapshots subvolume if needed
+btrfs subvolume create @snapshots
+```
+
+### Step 4: Delete New Subvolumes (Optional)
+```bash
+# Delete the new persist subvolumes (optional - can keep them for future attempt)
+# btrfs subvolume delete @persist-dotfiles
+# btrfs subvolume delete @persist-userfiles
+```
+
+### Step 5: Reboot to Installed System
+```bash
+cd /
+umount /mnt
+reboot
+```
+Boot back into your installed NixOS system (it will use the old configuration).
+
+### Step 6: Revert Configuration Changes
+Once booted, revert the configuration changes:
+
+**In hardware-configuration.nix:**
+- Restore /home mount (pointing to @home subvolume)
+- Rename /persist-root back to /persist (subvol=@persist)
+- Restore /.snapshots mount
+- Remove /persist-dotfiles and /persist-userfiles mounts
+
+**In configuration.nix:**
+- Revert boot.initrd.postDeviceCommands to use @root-blank (remove @blank and /home/joemitz creation)
+- Rename environment.persistence."/persist-root" back to "/persist"
+- Remove the two new environment.persistence blocks (dotfiles and userfiles)
+- Restore Snapper configs for "root" and "home"
+- Rename Snapper "persist-root" back to "persist"
+- Remove "persist-dotfiles" and "persist-userfiles" Snapper configs
+- Revert Borg backup paths if changed
+
+### Step 7: Rebuild System
+```bash
+nhs  # or nixos-rebuild switch
+```
+
+### Step 8: Verify Rollback
+After rebuilding and rebooting:
+- Check that /home is mounted from @home subvolume
+- Verify all your data is accessible
+- Confirm applications work correctly
 
 ---
 
@@ -870,6 +936,15 @@ chmod +x ~/bin/check-orphaned-persist.sh
 - Keep `@home-backup` subvolume for at least a week after successful migration
 - Keep the Clonezilla disk image until you've verified everything works perfectly
 - Test thoroughly before deleting any backups
+
+⚠️ **Expect Iterative Configuration:**
+- **After the first boot, many applications will lose their settings** because their `.config` subdirectories aren't in the persistence list yet
+- This is intentional and expected with the narrow path strategy
+- You will need to iteratively add more paths as you discover what needs to persist
+- Process: Notice app lost config → check what it needs in `.config` or `.local` → add specific path to configuration → rebuild
+- Keep a text file handy to track paths you need to add
+- Don't panic - your data is safe in the persist subvolumes, you just need to tell the system to bind-mount it
+- The maintenance script (see below) can help identify what's in persist but not mounted
 
 ⚠️ **Boot Order is Critical:**
 - Persist subvolumes MUST have `neededForBoot = true`
