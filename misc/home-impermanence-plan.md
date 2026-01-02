@@ -105,6 +105,16 @@ Anything in `/home/joemitz/` not covered by the persistence lists above will be 
 ### Phase 1: Preparation & Enumeration (Current System)
 **Status: Ready to execute**
 
+#### Step 1.1: Create Branch
+```bash
+cd ~/nixos-config
+git checkout -b home-impermanence
+git push -u origin home-impermanence
+```
+
+This keeps the experimental work isolated from your main branch. You can merge it back to main after successful testing.
+
+#### Step 1.2: Information Gathering
 No code changes needed. Information gathering complete.
 
 ---
@@ -834,6 +844,7 @@ After rebuilding and rebooting:
 
 ## Testing Checklist
 
+- [ ] Created home-impermanence branch
 - [ ] @persist-dotfiles and @persist-userfiles subvolumes created
 - [ ] Data migrated to persist subvolumes
 - [ ] @home subvolume deleted (no longer needed!)
