@@ -391,10 +391,12 @@
   '';
 
   # Snapper - Btrfs snapshot management
+  # Only snapshot persist subvolumes (actual persistent data)
+  # Removed: root, home (wiped on boot, snapshots are useless)
   services.snapper = {
     configs = {
-      home = {
-        SUBVOLUME = "/home";
+      persist-root = {
+        SUBVOLUME = "/persist-root";
         ALLOW_USERS = [ "joemitz" ];
         TIMELINE_CREATE = true;
         TIMELINE_CLEANUP = true;
@@ -404,8 +406,9 @@
         TIMELINE_LIMIT_MONTHLY = "12";   # Keep 12 monthly snapshots
         TIMELINE_LIMIT_YEARLY = "2";     # Keep 2 yearly snapshots
       };
-      root = {
-        SUBVOLUME = "/";
+
+      persist-dotfiles = {
+        SUBVOLUME = "/persist-dotfiles";
         ALLOW_USERS = [ "joemitz" ];
         TIMELINE_CREATE = true;
         TIMELINE_CLEANUP = true;
@@ -415,8 +418,9 @@
         TIMELINE_LIMIT_MONTHLY = "12";   # Keep 12 monthly snapshots
         TIMELINE_LIMIT_YEARLY = "2";     # Keep 2 yearly snapshots
       };
-      persist = {
-        SUBVOLUME = "/persist";
+
+      persist-userfiles = {
+        SUBVOLUME = "/persist-userfiles";
         ALLOW_USERS = [ "joemitz" ];
         TIMELINE_CREATE = true;
         TIMELINE_CLEANUP = true;
@@ -443,17 +447,20 @@
     options = [ "ro" ];
   };
 
-  # Borg backup for /persist (runs as root to access all system files)
+  # Borg backup for all persist subvolumes (runs as root to access all system files)
   services.borgbackup.jobs."persist-backup" = {
     paths = [
-      "/persist"
+      "/persist-root"        # System state
+      "/persist-dotfiles"    # User dotfiles and configs
+      "/persist-userfiles"   # User documents and projects
     ];
 
     exclude = [
       # Exclude cache directories
-      "/persist/**/.cache"
+      "/persist-root/**/.cache"
+      "/persist-dotfiles/**/.cache"
       # Docker images are large and can be rebuilt
-      "/persist/var/lib/docker"
+      "/persist-root/var/lib/docker"
     ];
 
     repo = "ssh://borg@192.168.0.100:2222/backup/nixos-persist";
