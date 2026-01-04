@@ -1013,6 +1013,173 @@ After rebuilding and rebooting:
 
 ---
 
+## Boot Failure Recovery (Without Clonezilla)
+
+If the system fails to boot after migration, here are recovery options at each stage:
+
+### Recovery After Phase 3 (First Boot with New Config)
+
+**Why this is the safest point:** Nothing has been deleted yet. @home, @root-blank, and @persist still exist with their original names.
+
+#### Option 1: Boot Previous Generation (Easiest)
+
+At the systemd-boot bootloader screen:
+
+1. **Select the previous NixOS generation** (the one before your home-impermanence changes)
+2. Boot into it
+3. The old config expects @home subvolume - it still exists, so boot succeeds
+4. Once booted, revert your configuration changes:
+   ```bash
+   cd ~/nixos-config
+   git checkout main  # or: git revert <commit-hash>
+   nhs  # Rebuild with old config
+   ```
+
+#### Option 2: Live USB Manual Fix
+
+If generation boot doesn't work:
+
+```bash
+# Boot NixOS Live USB
+mount -t btrfs -o subvolid=5 /dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a /mnt
+
+# Mount system to investigate
+mount -o subvol=@ /dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a /mnt
+mount -o subvol=@nix /dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a /mnt/nix
+mount -o subvol=@home /dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a /mnt/home
+mount /dev/disk/by-uuid/F2B1-6D81 /mnt/boot
+
+# Enter the system
+nixos-enter
+
+# Inside chroot, revert config and rebuild
+cd /home/joemitz/nixos-config
+git checkout main
+nixos-rebuild boot
+
+# Exit and reboot
+exit
+umount -R /mnt
+reboot
+```
+
+### Recovery After Phase 5 (After Destructive Cleanup)
+
+**Why this is trickier:** @home is deleted, subvolumes are renamed (@root-blank→@blank, @persist→@persist-root).
+
+#### Step 1: Boot Live USB and Restore Subvolumes
+
+```bash
+# Boot NixOS Live USB
+mount -t btrfs -o subvolid=5 /dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a /mnt
+cd /mnt
+
+# Restore @home from backup (CRITICAL!)
+btrfs subvolume snapshot @home-backup @home
+echo "@home restored from @home-backup"
+
+# Restore old subvolume names to match old config
+mv @blank @root-blank
+echo "Renamed @blank back to @root-blank"
+
+mv @persist-root @persist
+echo "Renamed @persist-root back to @persist"
+
+# Recreate @snapshots subvolume
+btrfs subvolume create @snapshots
+echo "@snapshots recreated"
+
+# Verify subvolumes
+echo "Current subvolumes:"
+btrfs subvolume list /mnt
+
+# Unmount and reboot
+cd /
+umount /mnt
+reboot
+```
+
+#### Step 2: Boot Previous Generation
+
+At bootloader, select the **previous generation** (before home-impermanence changes).
+
+It will now boot successfully because:
+- @home exists (restored from @home-backup)
+- @root-blank exists (renamed from @blank)
+- @persist exists (renamed from @persist-root)
+
+#### Step 3: Make Old Config Permanent
+
+Once booted into previous generation:
+
+```bash
+# Revert configuration changes in git
+cd ~/nixos-config
+git log  # Find the commit before home-impermanence changes
+git reset --hard <commit-before-changes>
+
+# Or if you want to keep git history:
+git revert <bad-commit-hash>
+
+# Rebuild to make old config the default
+nhs
+
+# Verify you're on old config
+mount | grep home  # Should show /home mounted from @home subvolume
+```
+
+### Preventing Boot Failures
+
+**Before starting Phase 5, verify generation rollback works:**
+
+```bash
+# List available generations
+sudo nixos-rebuild list-generations
+
+# You should see multiple generations like:
+#   120  2024-01-15 10:30:00  (current)
+#   119  2024-01-14 14:20:00
+#   118  2024-01-13 09:15:00
+
+# Test booting previous generation:
+# 1. Reboot your system
+# 2. At the bootloader menu, select generation 119 (or your previous one)
+# 3. Verify it boots successfully
+# 4. Reboot and return to current generation
+
+# ONLY proceed with Phase 5 if previous generation boots successfully!
+```
+
+### Why This Migration Plan is Safe
+
+**Multiple Safety Layers:**
+
+1. **Until Phase 5:**
+   - @home still exists (not deleted)
+   - @home-backup exists (safety snapshot)
+   - All old subvolumes intact
+   - Previous generation boots immediately
+
+2. **After Phase 5:**
+   - @home-backup still exists (quick restore)
+   - Previous generation available (select at boot)
+   - Git history intact (revert config)
+   - Clonezilla backup (nuclear option)
+
+3. **At Every Stage:**
+   - No single point of failure
+   - Multiple recovery paths
+   - Can always get back to working state
+
+**Recovery Difficulty by Stage:**
+
+- **Phase 1-2:** Trivial (just revert files, no subvolume changes)
+- **Phase 3-4:** Easy (boot previous generation)
+- **Phase 5:** Moderate (Live USB + restore subvolumes + boot previous generation)
+- **Complete Disaster:** Use Clonezilla backup
+
+---
+
 ## Estimated Disk Usage
 
 - **@persist-dotfiles:** ~8-9 GB (configs + selective caches)
