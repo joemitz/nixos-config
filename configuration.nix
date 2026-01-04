@@ -272,6 +272,36 @@
     };
   };
 
+  # Home impermanence - userfiles
+  environment.persistence."/persist-userfiles" = {
+    hideMounts = true;
+
+    users.joemitz = {
+      directories = [
+        "Android"           # Android SDK
+        "anova"             # Anova project directory
+        "nixos-config"      # NixOS configuration repo
+        "Desktop"           # Desktop files
+        "Documents"         # Documents
+        "Downloads"         # Downloads
+        "Pictures"          # Pictures
+        "Videos"            # Videos
+        "Music"             # Music
+        "Templates"         # File templates
+        "Public"            # Public share
+        "Postman"           # Postman collections
+        "Library"           # macOS-style library
+        "misc"              # Miscellaneous files
+        "ssh-backup"        # SSH backup folder
+      ];
+
+      files = [
+        "borg-nixos-persist-key-backup"   # Borg backup encryption key
+        "CLAUDE.md"                       # Claude Code instructions
+      ];
+    };
+  };
+
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
