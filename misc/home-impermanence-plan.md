@@ -119,181 +119,9 @@ No code changes needed. Information gathering complete.
 
 ---
 
-### Phase 2: Create Subvolumes & Migrate Data (Live USB Required)
+### Phase 2: Update NixOS Configuration (Current System)
 
-⚠️ **CRITICAL: BACKUP YOUR ENTIRE DISK FIRST!** ⚠️
-
-Before proceeding with ANY changes, create a full disk image with Clonezilla:
-1. Boot Clonezilla Live USB
-2. Choose "device-image" mode
-3. Save entire disk image to external drive
-4. Verify the backup completed successfully
-5. Keep this backup until you've verified the new setup works perfectly
-
-**This is your safety net in case of catastrophic failure during migration!**
-
----
-
-**Boot from NixOS live USB, mount filesystem, create subvolumes, migrate data.**
-
-#### Step 2.1: Mount Btrfs Root
-```bash
-# Mount the Btrfs root volume
-mount -t btrfs -o subvolid=5 /dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a /mnt
-cd /mnt
-```
-
-#### Step 2.2: Safety Backups
-```bash
-# Create snapshot backup of current @home (SAFETY)
-btrfs subvolume snapshot @home @home-backup
-
-# Create snapshot for Snapper (optional, for immediate rollback via Snapper)
-mkdir -p @home/.snapshots
-btrfs subvolume snapshot @home "@home/.snapshots/pre-impermanence-$(date +%Y%m%d-%H%M%S)"
-```
-
-#### Step 2.3: Create New Persist Subvolumes
-```bash
-# Create dotfiles persist subvolume
-btrfs subvolume create @persist-dotfiles
-
-# Create userfiles persist subvolume
-btrfs subvolume create @persist-userfiles
-
-# Set ownership
-chown -R 1000:100 @persist-dotfiles  # joemitz:users (UID:GID)
-chown -R 1000:100 @persist-userfiles
-```
-
-#### Step 2.4: Migrate Dotfiles to @persist-dotfiles
-```bash
-# Create base directory structure
-mkdir -p @persist-dotfiles/joemitz
-
-# Copy dotfiles (preserving attributes)
-cd @home/joemitz
-
-# Copy critical configs first
-cp -a .ssh @persist-dotfiles/joemitz/
-cp -a .git-credentials @persist-dotfiles/joemitz/
-cp -a .claude @persist-dotfiles/joemitz/
-cp -a .claude.json @persist-dotfiles/joemitz/
-cp -a .claude.json.backup @persist-dotfiles/joemitz/ 2>/dev/null || true
-
-# Copy app configs
-cp -a .config @persist-dotfiles/joemitz/
-cp -a .local @persist-dotfiles/joemitz/
-cp -a .android @persist-dotfiles/joemitz/
-cp -a .mozilla @persist-dotfiles/joemitz/
-cp -a .var @persist-dotfiles/joemitz/
-cp -a .vscode-oss @persist-dotfiles/joemitz/
-cp -a .zoom @persist-dotfiles/joemitz/
-
-# Copy shell configs
-cp -a .bashrc @persist-dotfiles/joemitz/
-cp -a .bash_profile @persist-dotfiles/joemitz/
-cp -a .profile @persist-dotfiles/joemitz/
-cp -a .bash_history @persist-dotfiles/joemitz/
-cp -a .bash_history_persistent @persist-dotfiles/joemitz/
-
-# Copy build caches
-cp -a .gradle @persist-dotfiles/joemitz/
-cp -a .npm @persist-dotfiles/joemitz/
-cp -a .cargo @persist-dotfiles/joemitz/
-cp -a .compose-cache @persist-dotfiles/joemitz/
-cp -a .java @persist-dotfiles/joemitz/
-cp -a .react-native-cli @persist-dotfiles/joemitz/
-cp -a .crashlytics @persist-dotfiles/joemitz/
-cp -a .nix-defexpr @persist-dotfiles/joemitz/
-cp -a .nix-profile @persist-dotfiles/joemitz/
-
-# Copy other dotfiles
-cp -a .gtkrc-2.0 @persist-dotfiles/joemitz/
-cp -a .npmrc @persist-dotfiles/joemitz/
-cp -a .pki @persist-dotfiles/joemitz/
-cp -a .icons @persist-dotfiles/joemitz/
-
-# Create and migrate selective cache
-mkdir -p @persist-dotfiles/joemitz/.cache
-cp -a .cache/nix @persist-dotfiles/joemitz/.cache/
-cp -a .cache/borg @persist-dotfiles/joemitz/.cache/
-cp -a .cache/node-gyp @persist-dotfiles/joemitz/.cache/
-
-# Fix ownership
-chown -R 1000:100 @persist-dotfiles/joemitz
-```
-
-#### Step 2.5: Migrate Userfiles to @persist-userfiles
-```bash
-# Create base directory
-mkdir -p @persist-userfiles/joemitz
-
-# Copy user directories
-cd @home/joemitz
-cp -a Android @persist-userfiles/joemitz/
-cp -a anova @persist-userfiles/joemitz/
-cp -a nixos-config @persist-userfiles/joemitz/
-cp -a Desktop @persist-userfiles/joemitz/
-cp -a Documents @persist-userfiles/joemitz/
-cp -a Downloads @persist-userfiles/joemitz/
-cp -a Pictures @persist-userfiles/joemitz/
-cp -a Videos @persist-userfiles/joemitz/
-cp -a Music @persist-userfiles/joemitz/
-cp -a Templates @persist-userfiles/joemitz/
-cp -a Public @persist-userfiles/joemitz/
-cp -a Postman @persist-userfiles/joemitz/
-cp -a Library @persist-userfiles/joemitz/
-cp -a misc @persist-userfiles/joemitz/
-cp -a ssh-backup @persist-userfiles/joemitz/
-
-# Fix ownership
-chown -R 1000:100 @persist-userfiles/joemitz
-```
-
-#### Step 2.6: Rename Subvolumes and Cleanup
-```bash
-cd /mnt
-
-# Rename @root-blank to @blank for clarity
-mv @root-blank @blank
-
-# Rename @persist to @persist-root for consistent naming
-mv @persist @persist-root
-
-# Delete @home subvolume (we have backups, and it's no longer needed!)
-# /home will just be a directory on @ going forward
-btrfs subvolume delete @home
-
-# Delete @snapshots subvolume (no longer needed - we only snapshot persist subvolumes)
-btrfs subvolume delete @snapshots
-
-# Clean out .snapshots directory from @home-backup if it exists
-rm -rf @home-backup/joemitz/.snapshots 2>/dev/null || true
-
-# Delete old-root-backup if it exists (leftover from previous migrations)
-btrfs subvolume delete @old-root-backup 2>/dev/null || true
-```
-
-#### Step 2.7: Verify Migration
-```bash
-# Check subvolumes exist
-btrfs subvolume list /mnt
-
-# Check data migrated correctly
-ls -la /mnt/@persist-dotfiles/joemitz/
-ls -la /mnt/@persist-userfiles/joemitz/
-
-# Unmount
-cd /
-umount /mnt
-```
-
-**Reboot back to installed system (DO NOT boot with new config yet)**
-
----
-
-### Phase 3: Update NixOS Configuration
+**Update configuration files BEFORE modifying subvolumes. This ensures the config and subvolume layout match when you boot.**
 
 #### File: `hardware-configuration.nix`
 
@@ -395,7 +223,7 @@ boot.initrd.postDeviceCommands = pkgs.lib.mkAfter ''
 '';
 ```
 
-**Note:** Only @root-blank → @blank rename needed. No separate home wipe - /home is just a directory on @ now!
+**Note:** Changed @root-blank → @blank. No separate home wipe - /home is just a directory on @ now!
 
 **Change 2: Rename System Persistence Path** (around line 198):
 ```nix
@@ -514,7 +342,7 @@ environment.persistence."/persist-userfiles" = {
 };
 ```
 
-**Change 5: Update Snapper Configs** (around line 323-360)
+**Change 4: Update Snapper Configs** (around line 323-360)
 
 **Remove "root" and "home" configs** (wiped on boot, snapshots are useless):
 ```nix
@@ -606,95 +434,447 @@ paths = [
 ];
 ```
 
----
+#### Step 2.1: Build New Boot Configuration
 
-### Phase 4: Test & Verify
-
-#### Step 4.1: Test Configuration
+**Build the new boot configuration WITHOUT activating it yet:**
 ```bash
-# Test config is valid
-nixos-rebuild test --flake /home/joemitz/nixos-config
+# This builds the new config and makes it available at next boot,
+# but doesn't activate it now (system still uses current config)
+nh os boot /home/joemitz/nixos-config
 
-# If successful, build boot configuration (doesn't activate yet)
+# Or if nh isn't working:
 nixos-rebuild boot --flake /home/joemitz/nixos-config
 ```
 
-#### Step 4.2: First Reboot
+**DO NOT REBOOT YET!** The new boot configuration is ready but the subvolumes don't match yet.
+
+---
+
+### Phase 3: Create Subvolumes & Migrate Data (Live USB Required)
+
+⚠️ **CRITICAL: BACKUP YOUR ENTIRE DISK FIRST!** ⚠️
+
+Before proceeding with ANY changes, create a full disk image with Clonezilla:
+1. Boot Clonezilla Live USB
+2. Choose "device-image" mode
+3. Save entire disk image to external drive
+4. Verify the backup completed successfully
+5. Keep this backup until you've verified the new setup works perfectly
+
+**This is your safety net in case of catastrophic failure during migration!**
+
+---
+
+**Boot from NixOS live USB, mount filesystem, create subvolumes, migrate data.**
+
+#### Step 3.1: Mount Btrfs Root
 ```bash
-# Reboot to test home impermanence
+# Mount the Btrfs root volume
+mount -t btrfs -o subvolid=5 /dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a /mnt
+cd /mnt
+```
+
+#### Step 3.2: Safety Backups
+```bash
+# Create snapshot backup of current @home (SAFETY)
+btrfs subvolume snapshot /mnt/@home /mnt/@home-backup
+
+# Create snapshot for Snapper (optional, for immediate rollback via Snapper)
+mkdir -p /mnt/@home/.snapshots
+btrfs subvolume snapshot /mnt/@home "/mnt/@home/.snapshots/pre-impermanence-$(date +%Y%m%d-%H%M%S)"
+```
+
+#### Step 3.3: Create New Persist Subvolumes
+```bash
+# Create dotfiles persist subvolume
+btrfs subvolume create /mnt/@persist-dotfiles
+
+# Create userfiles persist subvolume
+btrfs subvolume create /mnt/@persist-userfiles
+
+# Create base directory structure with proper ownership
+mkdir -p /mnt/@persist-dotfiles/joemitz
+mkdir -p /mnt/@persist-userfiles/joemitz
+chown -R 1000:100 /mnt/@persist-dotfiles/joemitz  # joemitz:users (UID:GID)
+chown -R 1000:100 /mnt/@persist-userfiles/joemitz
+```
+
+#### Step 3.4: Migrate Dotfiles to @persist-dotfiles
+```bash
+# Navigate to source directory
+cd /mnt/@home/joemitz
+
+# Copy critical configs first (fail if these don't exist - they're critical!)
+echo "Copying critical configs..."
+cp -a .ssh /mnt/@persist-dotfiles/joemitz/ || { echo "ERROR: .ssh not found!"; exit 1; }
+cp -a .git-credentials /mnt/@persist-dotfiles/joemitz/ 2>/dev/null || echo "Warning: .git-credentials not found"
+cp -a .claude /mnt/@persist-dotfiles/joemitz/ 2>/dev/null || echo "Warning: .claude not found"
+cp -a .claude.json /mnt/@persist-dotfiles/joemitz/ 2>/dev/null || echo "Warning: .claude.json not found"
+cp -a .claude.json.backup /mnt/@persist-dotfiles/joemitz/ 2>/dev/null || true
+
+# Copy app configs (with error handling for missing directories)
+echo "Copying application configs..."
+cp -a .config /mnt/@persist-dotfiles/joemitz/ 2>/dev/null || echo "Warning: .config not found"
+cp -a .local /mnt/@persist-dotfiles/joemitz/ 2>/dev/null || echo "Warning: .local not found"
+cp -a .android /mnt/@persist-dotfiles/joemitz/ 2>/dev/null || echo "Warning: .android not found"
+cp -a .mozilla /mnt/@persist-dotfiles/joemitz/ 2>/dev/null || echo "Warning: .mozilla not found"
+cp -a .var /mnt/@persist-dotfiles/joemitz/ 2>/dev/null || echo "Warning: .var not found"
+cp -a .vscode-oss /mnt/@persist-dotfiles/joemitz/ 2>/dev/null || echo "Warning: .vscode-oss not found"
+cp -a .zoom /mnt/@persist-dotfiles/joemitz/ 2>/dev/null || echo "Warning: .zoom not found"
+
+# Copy shell configs
+echo "Copying shell configs..."
+cp -a .bashrc /mnt/@persist-dotfiles/joemitz/ 2>/dev/null || echo "Warning: .bashrc not found"
+cp -a .bash_profile /mnt/@persist-dotfiles/joemitz/ 2>/dev/null || true
+cp -a .profile /mnt/@persist-dotfiles/joemitz/ 2>/dev/null || true
+cp -a .bash_history /mnt/@persist-dotfiles/joemitz/ 2>/dev/null || true
+cp -a .bash_history_persistent /mnt/@persist-dotfiles/joemitz/ 2>/dev/null || true
+
+# Copy build caches
+echo "Copying build caches..."
+cp -a .gradle /mnt/@persist-dotfiles/joemitz/ 2>/dev/null || echo "Warning: .gradle not found"
+cp -a .npm /mnt/@persist-dotfiles/joemitz/ 2>/dev/null || echo "Warning: .npm not found"
+cp -a .cargo /mnt/@persist-dotfiles/joemitz/ 2>/dev/null || echo "Warning: .cargo not found"
+cp -a .compose-cache /mnt/@persist-dotfiles/joemitz/ 2>/dev/null || true
+cp -a .java /mnt/@persist-dotfiles/joemitz/ 2>/dev/null || true
+cp -a .react-native-cli /mnt/@persist-dotfiles/joemitz/ 2>/dev/null || true
+cp -a .crashlytics /mnt/@persist-dotfiles/joemitz/ 2>/dev/null || true
+cp -a .nix-defexpr /mnt/@persist-dotfiles/joemitz/ 2>/dev/null || true
+cp -a .nix-profile /mnt/@persist-dotfiles/joemitz/ 2>/dev/null || true
+
+# Copy other dotfiles
+echo "Copying other dotfiles..."
+cp -a .gtkrc-2.0 /mnt/@persist-dotfiles/joemitz/ 2>/dev/null || true
+cp -a .gtkrc /mnt/@persist-dotfiles/joemitz/ 2>/dev/null || true
+cp -a .npmrc /mnt/@persist-dotfiles/joemitz/ 2>/dev/null || true
+cp -a .pki /mnt/@persist-dotfiles/joemitz/ 2>/dev/null || true
+cp -a .icons /mnt/@persist-dotfiles/joemitz/ 2>/dev/null || true
+
+# Create and migrate selective cache
+echo "Copying selective cache directories..."
+mkdir -p /mnt/@persist-dotfiles/joemitz/.cache
+cp -a .cache/nix /mnt/@persist-dotfiles/joemitz/.cache/ 2>/dev/null || echo "Warning: .cache/nix not found"
+cp -a .cache/borg /mnt/@persist-dotfiles/joemitz/.cache/ 2>/dev/null || echo "Warning: .cache/borg not found"
+cp -a .cache/node-gyp /mnt/@persist-dotfiles/joemitz/.cache/ 2>/dev/null || true
+
+# Fix ownership
+echo "Fixing ownership..."
+chown -R 1000:100 /mnt/@persist-dotfiles/joemitz
+
+echo "Dotfiles migration complete!"
+```
+
+#### Step 3.5: Migrate Userfiles to @persist-userfiles
+```bash
+# Navigate to source directory
+cd /mnt/@home/joemitz
+
+# Copy user directories (with error handling)
+echo "Copying user directories..."
+cp -a Android /mnt/@persist-userfiles/joemitz/ 2>/dev/null || echo "Warning: Android not found"
+cp -a anova /mnt/@persist-userfiles/joemitz/ 2>/dev/null || echo "Warning: anova not found"
+cp -a nixos-config /mnt/@persist-userfiles/joemitz/ || { echo "ERROR: nixos-config not found!"; exit 1; }
+cp -a Desktop /mnt/@persist-userfiles/joemitz/ 2>/dev/null || echo "Warning: Desktop not found"
+cp -a Documents /mnt/@persist-userfiles/joemitz/ 2>/dev/null || echo "Warning: Documents not found"
+cp -a Downloads /mnt/@persist-userfiles/joemitz/ 2>/dev/null || echo "Warning: Downloads not found"
+cp -a Pictures /mnt/@persist-userfiles/joemitz/ 2>/dev/null || echo "Warning: Pictures not found"
+cp -a Videos /mnt/@persist-userfiles/joemitz/ 2>/dev/null || echo "Warning: Videos not found"
+cp -a Music /mnt/@persist-userfiles/joemitz/ 2>/dev/null || echo "Warning: Music not found"
+cp -a Templates /mnt/@persist-userfiles/joemitz/ 2>/dev/null || true
+cp -a Public /mnt/@persist-userfiles/joemitz/ 2>/dev/null || true
+cp -a Postman /mnt/@persist-userfiles/joemitz/ 2>/dev/null || echo "Warning: Postman not found"
+cp -a Library /mnt/@persist-userfiles/joemitz/ 2>/dev/null || true
+cp -a misc /mnt/@persist-userfiles/joemitz/ 2>/dev/null || true
+cp -a ssh-backup /mnt/@persist-userfiles/joemitz/ 2>/dev/null || true
+
+# Fix ownership
+echo "Fixing ownership..."
+chown -R 1000:100 /mnt/@persist-userfiles/joemitz
+
+echo "Userfiles migration complete!"
+```
+
+#### Step 3.6: Verify Migration (CRITICAL!)
+```bash
+cd /mnt
+
+echo "=== Verifying critical data migration ==="
+
+# Verify critical dotfiles exist
+echo "Checking critical dotfiles..."
+ls -la /mnt/@persist-dotfiles/joemitz/.ssh/id_* || { echo "ERROR: SSH keys missing!"; exit 1; }
+ls -la /mnt/@persist-dotfiles/joemitz/.config/sops/age/keys.txt || { echo "ERROR: Age key missing! sops-nix will break!"; exit 1; }
+
+# Verify critical userfiles exist
+echo "Checking critical userfiles..."
+ls -d /mnt/@persist-userfiles/joemitz/nixos-config/ || { echo "ERROR: nixos-config missing!"; exit 1; }
+
+# Show summary
+echo ""
+echo "=== Migration Summary ==="
+echo "Dotfiles subvolume size:"
+du -sh /mnt/@persist-dotfiles/joemitz/
+echo ""
+echo "Userfiles subvolume size:"
+du -sh /mnt/@persist-userfiles/joemitz/
+echo ""
+echo "Backup subvolume size:"
+du -sh /mnt/@home-backup/
+echo ""
+
+# Check subvolumes exist
+echo "=== Current Subvolumes ==="
+btrfs subvolume list /mnt
+
+echo ""
+echo "=== Verification complete! ==="
+echo "If all checks passed, you can proceed to reboot."
+echo "Otherwise, investigate errors before continuing!"
+```
+
+#### Step 3.7: Unmount and Reboot
+```bash
+# Unmount
+cd /
+umount /mnt
+
+# Reboot to activate new configuration
+echo "Rebooting to activate new configuration..."
 reboot
 ```
 
-**After reboot, verify:**
+**The new boot configuration (built in Phase 2) will activate on this reboot.**
+**The @home subvolume still exists but won't be mounted - this is safe.**
 
-1. **Check mounts:**
+---
+
+### Phase 4: Verify New Configuration
+
+**After rebooting from Phase 3, you should be running the new configuration. Now verify everything works.**
+
+#### Step 4.1: Check Filesystem Mounts
 ```bash
+# Check persist mounts are active
 mount | grep persist
-# Should see: /persist-dotfiles and /persist-userfiles with neededForBoot
+# Should see: /persist-root, /persist-dotfiles, /persist-userfiles
+
+# Verify /home is NOT a separate mount (it's just a directory on @)
+mount | grep "/home"
+# Should see NOTHING - /home is not mounted separately
 ```
 
-2. **Check bind mounts:**
+#### Step 4.2: Check Bind Mounts
 ```bash
+# Check bind mounts from persist subvolumes to /home
 findmnt -t btrfs | grep home
 # Should see bind mounts from /persist-dotfiles and /persist-userfiles to /home/joemitz
+
+# Alternative: check with ls
+ls -la ~ | head -20
+# Your dotfiles and directories should be visible
 ```
 
-3. **Verify data access:**
+#### Step 4.3: Verify Critical Data Access
 ```bash
-ls -la ~/.ssh        # Should see SSH keys
-ls -la ~/.config     # Should see configs
-ls ~/nixos-config    # Should see project files
-claude --version     # Claude should work with persisted config
+# Test SSH keys (CRITICAL!)
+ls -la ~/.ssh/id_*
+# Should see your SSH keys
+
+# Test Age key for sops-nix (CRITICAL!)
+ls -la ~/.config/sops/age/keys.txt
+# Should exist - if not, sops-nix will break!
+
+# Test project access
+cd ~/nixos-config && git status
+# Should work normally
+
+# Test Claude Code
+claude --version
+# Should work with persisted config
 ```
 
-4. **Check Snapper:**
+#### Step 4.4: Check Snapper Configs
 ```bash
 # List all configs - should only show 3 persist configs
 snapper list-configs
 # Expected: persist-root, persist-dotfiles, persist-userfiles
-# NOT: root, home
+# NOT PRESENT: root, home (removed because they're wiped on boot)
 
 # Check snapshots are being created
 sudo snapper -c persist-root list
 sudo snapper -c persist-dotfiles list
 sudo snapper -c persist-userfiles list
+# Should see timeline snapshots
 ```
 
-5. **Test application access:**
-- Open Firefox (profile should be intact)
-- Open Kate (settings should be intact)
-- Run `git config --global user.name` (should be preserved)
+#### Step 4.5: Test Application Settings
+- Open Firefox - profile should be intact
+- Open Kate - settings should be preserved
+- Run `git config --global user.name` - should be your name
+- Check KDE settings - may need reconfiguration (see note below about iterative config)
 
-#### Step 4.3: Verify Wipe Behavior
+#### Step 4.6: Verify Wipe Behavior
 ```bash
-# Create test file in home
+# Create test file in home (should NOT persist across reboots)
 touch ~/test-ephemeral.txt
+echo "This file should disappear after reboot" > ~/test-ephemeral.txt
 
-# Reboot
-reboot
+# Check it exists now
+cat ~/test-ephemeral.txt
 
-# After reboot, test file should be GONE
-ls ~/test-ephemeral.txt  # Should not exist
+# Reboot to test wipe
+sudo reboot
+```
+
+**After rebooting, verify wipe worked:**
+```bash
+# Test file should be GONE
+ls ~/test-ephemeral.txt
+# Should show: No such file or directory
 
 # But persisted files should remain
 ls ~/.ssh  # Should still exist
+ls ~/nixos-config  # Should still exist
 ```
+
+#### Step 4.7: Check Subvolume Status (Optional)
+```bash
+# From Live USB or by mounting the root subvolume:
+# Verify @home still exists but isn't being used
+sudo mount -t btrfs -o subvolid=5 /dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a /mnt
+sudo btrfs subvolume list /mnt
+# Should see @home in the list (but it's not mounted or used)
+sudo umount /mnt
+```
+
+**If everything above checks out, proceed to Phase 5. Otherwise, troubleshoot issues before cleaning up.**
 
 ---
 
-### Phase 5: Cleanup (After Successful Testing)
+### Phase 5: Cleanup - Destructive Operations (After Days of Successful Testing)
 
-Once everything works correctly:
+**ONLY proceed with this phase after you've verified everything works perfectly for several days.**
+
+This phase performs the destructive operations: renaming subvolumes and deleting the old @home and @snapshots subvolumes.
+
+#### Step 5.1: Boot Live USB
+Boot from a NixOS live USB to safely manipulate subvolumes.
+
+#### Step 5.2: Mount Filesystem
+```bash
+# Mount the Btrfs root volume
+mount -t btrfs -o subvolid=5 /dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a /mnt
+cd /mnt
+```
+
+#### Step 5.3: Verify Current State
+```bash
+# List current subvolumes
+btrfs subvolume list /mnt
+
+# You should see:
+# - @root-blank (needs renaming to @blank)
+# - @persist (needs renaming to @persist-root)
+# - @home (needs deletion - no longer used)
+# - @home-backup (keep for now)
+# - @snapshots (needs deletion - no longer used)
+# - @persist-dotfiles (already created and working)
+# - @persist-userfiles (already created and working)
+```
+
+#### Step 5.4: Rename Subvolumes
+```bash
+# Rename @root-blank to @blank for clarity
+mv /mnt/@root-blank /mnt/@blank
+
+# Rename @persist to @persist-root for consistent naming
+mv /mnt/@persist /mnt/@persist-root
+
+# Verify renames worked
+btrfs subvolume list /mnt | grep -E "@blank|@persist-root"
+```
+
+#### Step 5.5: Delete Unused Subvolumes
+```bash
+# Delete @home subvolume (we have @home-backup as safety!)
+# /home is now just a directory on @ going forward
+btrfs subvolume delete /mnt/@home
+echo "@home deleted"
+
+# Delete @snapshots subvolume (no longer needed - we only snapshot persist subvolumes)
+btrfs subvolume delete /mnt/@snapshots
+echo "@snapshots deleted"
+
+# Clean out .snapshots directory from @home-backup if it exists
+rm -rf /mnt/@home-backup/.snapshots 2>/dev/null || true
+
+# Delete old-root-backup if it exists (leftover from previous migrations)
+btrfs subvolume delete /mnt/@old-root-backup 2>/dev/null || echo "No old-root-backup to delete"
+```
+
+#### Step 5.6: Verify Final State
+```bash
+# List final subvolumes
+echo "=== Final Subvolume List ==="
+btrfs subvolume list /mnt
+
+# Should see:
+# - @ (root, recreated on every boot)
+# - @blank (renamed from @root-blank)
+# - @nix (persistent)
+# - @persist-root (renamed from @persist)
+# - @persist-dotfiles (new)
+# - @persist-userfiles (new)
+# - @home-backup (kept as safety backup)
+
+# Should NOT see:
+# - @home (deleted)
+# - @snapshots (deleted)
+# - @root-blank (renamed to @blank)
+# - @persist (renamed to @persist-root)
+```
+
+#### Step 5.7: Unmount and Reboot
+```bash
+# Unmount
+cd /
+umount /mnt
+
+# Reboot to installed system
+reboot
+```
+
+**After this reboot, the system will use the renamed subvolumes (@blank instead of @root-blank).**
+
+#### Step 5.8: Verify System Still Works
+After rebooting, verify everything still works:
+```bash
+# Check boot worked correctly
+mount | grep persist
+
+# Verify data is still accessible
+ls ~/.ssh
+ls ~/nixos-config
+
+# Test a reboot to ensure @blank works
+sudo reboot
+```
+
+#### Step 5.9: Delete Backup (Optional, After Extended Testing)
+**Only after weeks of confirmed stable operation:**
 
 ```bash
-# Boot from live USB again
+# Boot from live USB one more time
 mount -t btrfs -o subvolid=5 /dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a /mnt
 
-# Delete backup subvolume (keep @home-backup for a while as safety)
-# btrfs subvolume delete /mnt/@home-backup  # Keep this for now
+# Delete the @home-backup subvolume
+btrfs subvolume delete /mnt/@home-backup
 
+# Unmount
 umount /mnt
 ```
+
+**Keep the Clonezilla disk image indefinitely as ultimate disaster recovery.**
 
 ---
 
