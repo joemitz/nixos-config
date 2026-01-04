@@ -1024,40 +1024,75 @@ After rebuilding and rebooting:
 
 ## Testing Checklist
 
-- [ ] Created home-impermanence branch
-- [ ] @persist-dotfiles and @persist-userfiles subvolumes created
-- [ ] Data migrated to persist subvolumes
-- [ ] @home subvolume deleted (no longer needed!)
-- [ ] @snapshots subvolume deleted (no longer needed!)
-- [ ] @old-root-backup deleted (if it exists)
-- [ ] .snapshots cleaned from @home-backup
-- [ ] @root-blank renamed to @blank
-- [ ] @persist renamed to @persist-root
+### Phase 1: Preparation
+- [ ] Created home-impermanence branch and pushed to remote
+
+### Phase 2: Configuration Updates (Current System)
 - [ ] /home mount removed from hardware-configuration.nix
 - [ ] /.snapshots mount removed from hardware-configuration.nix
-- [ ] /persist mount renamed to /persist-root in hardware-configuration.nix
+- [ ] /persist renamed to /persist-root in hardware-configuration.nix
+- [ ] /persist-dotfiles mount added to hardware-configuration.nix
+- [ ] /persist-userfiles mount added to hardware-configuration.nix
+- [ ] Boot script updated in configuration.nix (@root-blank → @blank, /home/joemitz creation)
 - [ ] environment.persistence."/persist" renamed to "/persist-root"
-- [ ] "root" Snapper config removed (snapshots useless for wiped subvolumes)
+- [ ] environment.persistence."/persist-dotfiles" added (user dotfiles config)
+- [ ] environment.persistence."/persist-userfiles" added (user files config)
+- [ ] "root" Snapper config removed (no snapshots for wiped subvolumes)
 - [ ] "home" Snapper config removed
 - [ ] "persist" Snapper config renamed to "persist-root"
-- [ ] Boot script updated (@blank + /home/joemitz creation)
-- [ ] Impermanence configs added for both new persist subvolumes
-- [ ] Snapper configs added for 3 persist subvolumes only
-- [ ] `nixos-rebuild boot` succeeds
+- [ ] "persist-dotfiles" Snapper config added
+- [ ] "persist-userfiles" Snapper config added
+- [ ] Borg backup paths updated (optional)
+- [ ] `nh os boot` or `nixos-rebuild boot` succeeds
+
+### Phase 3: Subvolume Creation & Migration (Live USB)
+- [ ] Full Clonezilla disk image backup created
+- [ ] Booted from NixOS Live USB
+- [ ] @home-backup snapshot created
+- [ ] @persist-dotfiles subvolume created
+- [ ] @persist-userfiles subvolume created
+- [ ] All dotfiles migrated to @persist-dotfiles
+- [ ] All userfiles migrated to @persist-userfiles
+- [ ] Critical files verified (SSH keys, Age keys, nixos-config)
+- [ ] Migration verification passed
+- [ ] Rebooted to installed system with new config
+
+### Phase 4: Verification (New Configuration Running)
 - [ ] First reboot successful
-- [ ] /home is a directory on @ (not separate mount)
-- [ ] All bind mounts present (`findmnt` check)
-- [ ] SSH keys accessible (~/.ssh)
+- [ ] /persist-root, /persist-dotfiles, /persist-userfiles mounted
+- [ ] /home is a directory on @ (NOT a separate mount)
+- [ ] All bind mounts present (`findmnt -t btrfs | grep home`)
+- [ ] SSH keys accessible (~/.ssh/id_*)
+- [ ] Age key accessible (~/.config/sops/age/keys.txt)
+- [ ] sops-nix secrets decrypt correctly
 - [ ] Git credentials work
-- [ ] Claude Code config intact
+- [ ] Claude Code config intact (claude --version works)
 - [ ] Firefox profile accessible
 - [ ] Kate settings preserved
-- [ ] Projects (anova, nixos-config) accessible
-- [ ] Ephemeral test file disappears after reboot
-- [ ] Snapper creating snapshots for all 3 persist subvolumes (persist-root, persist-dotfiles, persist-userfiles)
-- [ ] NO Snapper snapshots for / or /home (confirmed with `snapper list-configs`)
+- [ ] Projects accessible (anova, nixos-config)
+- [ ] Git operations work in nixos-config
+- [ ] Snapper list-configs shows ONLY: persist-root, persist-dotfiles, persist-userfiles
+- [ ] Snapper creating snapshots for all 3 persist subvolumes
+- [ ] NO Snapper snapshots for / or /home
+- [ ] Ephemeral test file created, rebooted, verified deleted
+- [ ] Persistent files remain after reboot test
 - [ ] Borg backup working (if enabled)
-- [ ] sops-nix secrets still decrypt correctly
+- [ ] System stable for several days
+
+### Phase 5: Cleanup (After Days of Successful Testing)
+- [ ] Booted from Live USB
+- [ ] @root-blank renamed to @blank
+- [ ] @persist renamed to @persist-root
+- [ ] @home subvolume deleted
+- [ ] @snapshots subvolume deleted
+- [ ] .snapshots cleaned from @home-backup
+- [ ] @old-root-backup deleted (if it existed)
+- [ ] Final subvolume list verified
+- [ ] Rebooted to installed system
+- [ ] System still works with renamed subvolumes
+- [ ] Another reboot test to ensure @blank works correctly
+- [ ] @home-backup kept for extended period (weeks)
+- [ ] Clonezilla backup kept indefinitely
 
 ---
 
