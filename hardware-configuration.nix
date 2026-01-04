@@ -19,13 +19,6 @@
       options = [ "subvol=@" "compress=zstd" "noatime" "space_cache=v2" ];
     };
 
-  fileSystems."/home" =
-    { device = "/dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a";
-      fsType = "btrfs";
-      options = [ "subvol=@home" "compress=zstd" "noatime" "space_cache=v2" ];
-      neededForBoot = true;
-    };
-
   fileSystems."/nix" =
     { device = "/dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a";
       fsType = "btrfs";
@@ -38,17 +31,24 @@
       options = [ "fmask=0077" "dmask=0077" ];
     };
 
-  fileSystems."/persist" =
+  fileSystems."/persist-root" =
     { device = "/dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a";
       fsType = "btrfs";
-      options = [ "subvol=@persist" "compress=zstd" "noatime" ];
+      options = [ "subvol=@persist-root" "compress=zstd" "noatime" ];
       neededForBoot = true;
     };
 
-  fileSystems."/.snapshots" =
+  fileSystems."/persist-dotfiles" =
     { device = "/dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a";
       fsType = "btrfs";
-      options = [ "subvol=@snapshots" "compress=zstd" "noatime" ];
+      options = [ "subvol=@persist-dotfiles" "compress=zstd" "noatime" ];
+      neededForBoot = true;
+    };
+
+  fileSystems."/persist-userfiles" =
+    { device = "/dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a";
+      fsType = "btrfs";
+      options = [ "subvol=@persist-userfiles" "compress=zstd" "noatime" ];
       neededForBoot = true;
     };
 

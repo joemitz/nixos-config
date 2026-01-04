@@ -28,8 +28,8 @@
     # Mount the btrfs root to /mnt for subvolume manipulation
     mount -t btrfs -o subvolid=5 /dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a /mnt
 
+    # === ROOT WIPE (use @blank) ===
     # Delete all nested subvolumes recursively before removing root
-    # Keep looping until no nested subvolumes remain
     while btrfs subvolume list -o /mnt/@ | grep -q .; do
       btrfs subvolume list -o /mnt/@ |
       cut -f9 -d' ' |
@@ -43,7 +43,7 @@
     btrfs subvolume delete /mnt/@
 
     echo "restoring blank /@ subvolume..."
-    btrfs subvolume snapshot /mnt/@root-blank /mnt/@
+    btrfs subvolume snapshot /mnt/@blank /mnt/@
 
     # Unmount and continue boot process
     umount /mnt
@@ -196,7 +196,7 @@
   };
 
   # Impermanence: Define what persists across reboots
-  environment.persistence."/persist" = {
+  environment.persistence."/persist-root" = {
     hideMounts = true;
 
     directories = [
@@ -227,9 +227,49 @@
       "/etc/ssh/ssh_host_rsa_key.pub"
       "/var/lib/systemd/random-seed"
     ];
+  };
 
-    # Note: No users.joemitz section needed since /home is already persistent
-    # via the @home subvolume mount. All user files persist automatically.
+  # Home impermanence - dotfiles (BROAD KDE-compatible persistence)
+  environment.persistence."/persist-dotfiles" = {
+    hideMounts = true;
+
+    users.joemitz = {
+      directories = [
+        ".ssh"                    # SSH keys and known_hosts
+        ".claude"                 # Claude Code data
+        ".config"                 # All application configs including KDE Plasma
+        ".local/share"            # Application data, KDE data, keyrings
+        ".local/state"            # Application state, wireplumber
+        ".android"                # Android Studio settings and AVDs
+        ".mozilla"                # Firefox profiles and data
+        ".var"                    # Flatpak app data
+        ".vscode-oss"             # VSCodium settings and extensions
+        ".zoom"                   # Zoom settings
+        ".gradle"                 # Gradle build cache
+        ".npm"                    # NPM package cache
+        ".cargo"                  # Rust toolchain and cargo cache
+        ".compose-cache"          # Docker compose cache
+        ".java"                   # Java settings and cache
+        ".react-native-cli"       # React Native CLI data
+        ".crashlytics"            # Crashlytics cache
+        ".nix-defexpr"            # Nix user environment definitions
+        ".pki"                    # Certificate store
+        ".icons"                  # Icon themes
+        { directory = ".cache/nix"; mode = "0755"; }        # Nix cache (expensive to rebuild)
+        { directory = ".cache/borg"; mode = "0755"; }       # Borg backup cache
+        { directory = ".cache/node-gyp"; mode = "0755"; }   # Native module build cache
+      ];
+
+      files = [
+        ".git-credentials"                # Git credential store
+        ".claude.json"                    # Claude Code config
+        ".claude.json.backup"             # Claude Code config backup
+        ".bash_history"                   # Command history
+        ".bash_history_persistent"        # Persistent command history
+        ".gtkrc-2.0"                      # GTK2 config
+        ".npmrc"                          # NPM config
+      ];
+    };
   };
 
   # Allow unfree packages
