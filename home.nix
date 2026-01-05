@@ -190,7 +190,7 @@
 
   programs.alacritty = {
     enable = true;
-    theme = "github_dark_tritanopia";
+    theme = "kanagawa_dragon";
     settings = {
       colors.primary.background = "#000000";
     };
