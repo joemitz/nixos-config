@@ -242,17 +242,13 @@
         ".local/state"            # Application state, wireplumber
         ".android"                # Android Studio settings and AVDs
         ".mozilla"                # Firefox profiles and data
-        ".var"                    # Flatpak app data
         ".vscode-oss"             # VSCodium settings and extensions
         ".zoom"                   # Zoom settings
         ".gradle"                 # Gradle build cache
         ".npm"                    # NPM package cache
-        ".cargo"                  # Rust toolchain and cargo cache
         ".compose-cache"          # Docker compose cache
         ".java"                   # Java settings and cache
         ".react-native-cli"       # React Native CLI data
-        ".crashlytics"            # Crashlytics cache
-        ".nix-defexpr"            # Nix user environment definitions
         ".pki"                    # Certificate store
         ".icons"                  # Icon themes
         ".cache"                  # Application caches (KDE, browsers, dev tools)
