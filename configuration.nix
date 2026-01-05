@@ -285,16 +285,11 @@
         "Pictures"          # Pictures
         "Videos"            # Videos
         "Music"             # Music
-        "Templates"         # File templates
-        "Public"            # Public share
         "Postman"           # Postman collections
-        "Library"           # macOS-style library
         "misc"              # Miscellaneous files
-        "ssh-backup"        # SSH backup folder
       ];
 
       files = [
-        "borg-nixos-persist-key-backup"   # Borg backup encryption key
         "CLAUDE.md"                       # Claude Code instructions
       ];
     };
