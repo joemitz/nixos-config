@@ -28,6 +28,7 @@
 
   programs.git = {
     enable = true;
+    package = pkgs.gitFull;  # Use gitFull for libsecret support
     settings = {
       user = {
         name = "Joe Mitzman";
@@ -48,8 +49,7 @@
         required = true;
       };
       credential = {
-        helper = "store";
-        "https://github.com".helper = "store";
+        helper = "libsecret";  # Store credentials in KDE Wallet
       };
       push.autoSetupRemote = true;
       alias = {

@@ -255,7 +255,6 @@
       ];
 
       files = [
-        ".git-credentials"                # Git credential store
         ".claude.json"                    # Claude Code config
         ".claude.json.backup"             # Claude Code config backup
         ".bash_history"                   # Command history
