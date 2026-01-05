@@ -483,6 +483,10 @@
       "/persist-userfiles/**/coverage"
       # Docker images are large and can be rebuilt
       "/persist-root/var/lib/docker"
+      # Exclude Snapper snapshots (redundant with Borg versioning, saves ~139GB)
+      "/persist-root/.snapshots"
+      "/persist-dotfiles/.snapshots"
+      "/persist-userfiles/.snapshots"
     ];
 
     repo = "ssh://borg@192.168.0.100:2222/backup/nixos-persist";
