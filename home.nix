@@ -190,7 +190,7 @@
 
   programs.alacritty = {
     enable = true;
-    theme = "kanagawa_dragon";
+    theme = "linux";
     settings = {
       colors.primary.background = "#000000";
     };
