@@ -190,7 +190,7 @@
 
   programs.alacritty = {
     enable = true;
-    theme = "campbell";
+    theme = "github_dark_tritanopia";
     settings = {
       colors.primary.background = "#000000";
     };
