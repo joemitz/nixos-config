@@ -190,7 +190,7 @@
 
   programs.alacritty = {
     enable = true;
-    theme = "monokai_charcoal";
+    theme = "moonfly";
     settings = {
       colors.primary.background = "#000000";
     };
