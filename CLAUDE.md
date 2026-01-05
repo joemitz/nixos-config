@@ -20,8 +20,8 @@ This is a NixOS configuration repository using flakes and home-manager. The syst
 - Uses `nixos-25.11` stable channel
 - home-manager integrated as a NixOS module (not standalone)
 - Experimental features enabled: `nix-command` and `flakes`
-- **Root impermanence**: Root filesystem rolls back to pristine state on every boot (stateless root)
-- Important state persisted via `/persist` subvolume using impermanence module
+- **Full system impermanence**: Root and home filesystems roll back to pristine state on every boot
+- Important state persisted via three subvolumes: `/persist-root`, `/persist-dotfiles`, `/persist-userfiles`
 - NH (Nix Helper) configured as modern replacement for nixos-rebuild
 - Git hooks disabled globally (`core.hooksPath = "/dev/null"`)
 - Auto-commits configuration changes after successful rebuilds via `nhs` alias
@@ -87,12 +87,12 @@ The activation script ensures proper file ownership to allow NH to update flake.
 - Audio: PipeWire (replaces PulseAudio)
 - Networking: NetworkManager, Wake-on-LAN on enp6s0, Tailscale VPN, NFS client support
 - Services: OpenSSH (port 22, root login allowed), fwupd firmware updates, Snapper for Btrfs snapshots
-- Backup: Borg hourly backups of /persist to remote server (192.168.0.100)
+- Backup: Borg hourly backups of all persist subvolumes to remote server (192.168.0.100)
 - Development: Docker, ADB for Android
 - Security: Polkit enabled, sudo without password for wheel group
 - User groups: networkmanager, wheel, docker, adbusers, kvm
-- Filesystem: Btrfs with subvolumes (@, @home, @nix, @persist, @snapshots, @root-blank) and zstd compression
-- Impermanence: Root wipes on boot, state persisted to /persist subvolume
+- Filesystem: Btrfs with subvolumes (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles) and zstd compression
+- Impermanence: Root and home wipe on boot, state persisted to three subvolumes
 - NVMe mount at /mnt/nvme (Btrfs with subvol=@, read-only)
 - NFS mount: TrueNAS Plex share at /mnt/truenas/plex (read-only)
 - Timezone: America/Los_Angeles
@@ -147,17 +147,19 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
 **Kernel**: LTS (linuxPackages) to avoid stability issues with newer kernels on AMD GPUs
 
 **Filesystem**:
-- Root filesystem: Btrfs with subvolumes (@, @home, @nix, @persist, @snapshots, @root-blank)
+- Root filesystem: Btrfs with subvolumes (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles)
 - Mount options: compress=zstd, noatime, space_cache=v2
-- Root (@) subvolume: Rolls back to pristine @root-blank snapshot on every boot
-- /persist subvolume: Stores important persistent state across reboots
-- /home subvolume: User files (persistent, neededForBoot)
-- /.snapshots subvolume: Snapper snapshots (neededForBoot)
+- Root (@) subvolume: Rolls back to pristine @blank snapshot on every boot (stateless root)
+- /persist-root: System state (NetworkManager, Docker, SSH keys, logs, etc.)
+- /persist-dotfiles: User configs and application data (.config, .local, .ssh, .claude, etc.)
+- /persist-userfiles: User documents and projects (nixos-config, anova, Documents, Downloads, etc.)
+- All home files not explicitly persisted are wiped on reboot (stateless home)
 - Additional NVMe drive mounted at /mnt/nvme (read-only)
 - TrueNAS NFS share mounted at /mnt/truenas/plex (read-only)
 
 **Snapper Snapshots**:
-- Configured for / (root), /home, and /persist
+- Configured for persist-root, persist-dotfiles, and persist-userfiles
+- Only snapshots persistent data (root and home are stateless, no point in snapshotting)
 - All three configs have the same retention policy:
   - Hourly snapshots: 48 (2 days)
   - Daily snapshots: 7
@@ -193,7 +195,7 @@ This configuration uses [sops-nix](https://github.com/Mic92/sops-nix) to manage 
 **Files**:
 - `secrets.yaml` - Encrypted secrets (safe to commit to git)
 - `.sops.yaml` - sops configuration (safe to commit)
-- `~/.config/sops/age/keys.txt` - Your age private key (NEVER commit! Back this up securely!)
+- `/persist-dotfiles/home/joemitz/.config/sops/age/keys.txt` - Your age private key (NEVER commit! Back this up securely!)
 - `~/.config/secrets.env` - Generated file sourced by bash (auto-created on rebuild)
 
 **How It Works**:
@@ -286,44 +288,58 @@ The secrets.env template includes both secrets and non-secret constants:
 **Wake-on-LAN**:
 - Enabled on interface enp6s0
 
-## Root Impermanence
+## Full System Impermanence
 
-This system uses **root impermanence** - the root filesystem is wiped and restored to a clean state on every boot. This provides a stateless, reproducible system where only explicitly declared state persists.
+This system uses **full impermanence** - both root and home filesystems are wiped and restored to a clean state on every boot. This provides a truly stateless, reproducible system where only explicitly declared state persists.
 
 **How it works**:
 1. During boot, after devices are available but before root is mounted
 2. The system mounts the Btrfs root volume
 3. Recursively deletes all nested subvolumes under @ (root)
 4. Deletes the @ subvolume itself
-5. Creates a fresh @ subvolume from the @root-blank snapshot
+5. Creates a fresh @ subvolume from the @blank snapshot
 6. Continues normal boot process
 
 **What persists**:
-- `/home` - Mounted from @home subvolume (always persistent)
 - `/nix` - Mounted from @nix subvolume (Nix store, always persistent)
-- `/persist` - Mounted from @persist subvolume, contains important state:
+- `/persist-root` - Mounted from @persist-root subvolume, contains system state:
   - System state: logs, NetworkManager connections, Docker data, Bluetooth pairings
   - Service state: Tailscale, CUPS, SDDM, systemd timers
   - SSH host keys and machine-id
-  - See full list in configuration.nix
+- `/persist-dotfiles` - Mounted from @persist-dotfiles subvolume, contains user configs:
+  - Application configs: .config, .local, .ssh, .claude
+  - Development caches: .gradle, .npm, .cargo, .android
+  - Browser data: .mozilla, .cache
+  - Application data: .zoom, .vscode-oss, .var (flatpak)
+- `/persist-userfiles` - Mounted from @persist-userfiles subvolume, contains user data:
+  - Projects: nixos-config, anova
+  - User directories: Documents, Downloads, Pictures, Videos, Desktop
+  - Android SDK, Postman collections
+
+**What gets wiped on every boot**:
+- Entire root filesystem (/) except /nix and persistence mounts
+- Entire home directory (~) except explicitly persisted files/directories
+- Any temporary files, system logs not in /persist-root
+- Any user files not in /persist-dotfiles or /persist-userfiles
 
 **Benefits**:
-- Clean slate on every boot - no accumulated cruft
-- Reproducible system state
+- Truly clean slate on every boot - no accumulated cruft anywhere
+- Reproducible system and home state
 - Forces explicit declaration of what should persist
 - Makes it obvious what state is truly necessary
 - Easy rollback from any issue - just reboot
+- KDE Plasma settings, SSH keys, and dev tools persist correctly
 
 **Impermanence Configuration**:
 - Uses the impermanence NixOS module
-- hideMounts enabled to keep /persist hidden from file browsers
-- Directories and files explicitly listed for persistence
-- User home directory (/home) is already persistent via @home subvolume
+- Three separate persistence points for organized state management
+- hideMounts enabled to keep persistence mounts hidden from file browsers
+- Directories and files explicitly listed for persistence in configuration.nix
 
 ## Backup System
 
 **Borg Backup Configuration**:
-- Service: `persist-backup` backs up /persist to remote Borg repository
+- Service: `persist-backup` backs up all three persistence subvolumes to remote Borg repository
 - Repository: ssh://borg@192.168.0.100:2222/backup/nixos-persist
 - Encryption: repokey-blake2 with passphrase from sops secrets
 - Compression: auto,lz4 for good balance of speed and size
@@ -338,16 +354,25 @@ This system uses **root impermanence** - the root filesystem is wiped and restor
 - Yearly: 2 backups
 
 **What's backed up**:
-- Everything in /persist (system state, configurations)
-- Excludes: .cache directories, Docker images (can be rebuilt)
+- `/persist-root` - System state (NetworkManager, Docker, SSH host keys, logs)
+- `/persist-dotfiles` - User configs and application data
+- `/persist-userfiles` - User documents and projects
+
+**What's excluded from backups** (can be rebuilt):
+- All .cache directories
+- Build/download caches: .gradle, .npm, .cargo, .compose-cache
+- Android AVDs and cache (can be recreated)
+- KDE Baloo indexer cache (rebuilds automatically)
+- Trash and logs
+- node_modules (rebuilt from package.json)
+- Android/iOS build artifacts (build, .gradle, Pods)
 
 **What's NOT backed up** (doesn't need to be):
 - / (root) - Wiped on every boot, fully reproducible from config
 - /nix - Nix store is reproducible from configuration
-- /home - Use Vorta or other backup solution for user data
 
 **Recovery**:
 To restore from backup after a catastrophic failure:
-1. Reinstall NixOS with same subvolume structure
-2. Restore /persist from Borg: `borg extract ssh://borg@192.168.0.100:2222/backup/nixos-persist::archive-name`
-3. Run `nhs` to rebuild system from configuration in /home/joemitz/nixos-config
+1. Reinstall NixOS with same subvolume structure (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles)
+2. Restore all persist subvolumes from Borg: `borg extract ssh://borg@192.168.0.100:2222/backup/nixos-persist::archive-name`
+3. Run `nhs` to rebuild system from configuration in /persist-userfiles/home/joemitz/nixos-config
