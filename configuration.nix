@@ -104,9 +104,6 @@
   };
   services.desktopManager.plasma6.enable = true;
 
-  # Enable COSMIC Desktop Environment
-  services.desktopManager.cosmic.enable = true;
-
   # Configure keymap in X11
   services.xserver.xkb = {
     layout = "us";
