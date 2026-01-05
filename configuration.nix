@@ -149,7 +149,7 @@
   # sops-nix secrets management
   sops = {
     defaultSopsFile = ./secrets.yaml;
-    age.keyFile = "/home/joemitz/.config/sops/age/keys.txt";
+    age.keyFile = "/persist-dotfiles/home/joemitz/.config/sops/age/keys.txt";
 
     # Define secrets and their output paths
     secrets = {
@@ -255,9 +255,7 @@
         ".nix-defexpr"            # Nix user environment definitions
         ".pki"                    # Certificate store
         ".icons"                  # Icon themes
-        { directory = ".cache/nix"; mode = "0755"; }        # Nix cache (expensive to rebuild)
-        { directory = ".cache/borg"; mode = "0755"; }       # Borg backup cache
-        { directory = ".cache/node-gyp"; mode = "0755"; }   # Native module build cache
+        ".cache"                  # Application caches (KDE, browsers, dev tools)
       ];
 
       files = [
