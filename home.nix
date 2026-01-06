@@ -24,6 +24,9 @@
     pkgs.nodejs_24
     pkgs.kdePackages.kate
     pkgs.micro
+    pkgs.btop
+    pkgs.eza
+    pkgs.bat
   ];
 
   programs.git = {
@@ -94,6 +97,9 @@
       code = "codium";
       c = "claude";
       nano = "micro";
+      ls = "eza";
+      cat = "bat";
+      top = "btop";
       # NH with auto-commit and auto-push: rebuild, commit, and push on success
       nhs = ''
         current_dir=$(pwd) && \
