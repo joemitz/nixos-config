@@ -2,7 +2,7 @@ keys:
   - &user_joemitz age1upk4aucasyay4ltwwag437xs2nz6msv48ss4p4thzmal8esxxawqq0uxm4
 
 creation_rules:
-  - path_regex: secrets\.yaml$
+  - path_regex: secrets/secrets\.yaml$
     key_groups:
       - age:
           - *user_joemitz

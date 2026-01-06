@@ -4,4 +4,4 @@ result-*
 .claude
 
 # Secrets (encrypted secrets.yaml IS committed, but template is not)
-secrets-template.yaml
+secrets/secrets-template.yaml

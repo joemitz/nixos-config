@@ -148,7 +148,7 @@
 
   # sops-nix secrets management
   sops = {
-    defaultSopsFile = ./secrets.yaml;
+    defaultSopsFile = ./secrets/secrets.yaml;
     age.keyFile = "/persist-dotfiles/home/joemitz/.config/sops/age/keys.txt";
 
     # Define secrets and their output paths
