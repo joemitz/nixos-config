@@ -31,7 +31,7 @@
         {
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
-          home-manager.users.joemitz = import ./home/home.nix;
+          home-manager.users.joemitz = import ./home/index.nix;
           home-manager.extraSpecialArgs = {
             inherit claude-code tiny4linux;
           };
