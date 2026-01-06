@@ -1,4 +1,4 @@
-{ config, pkgs, claude-code, tiny4linux, ... }:
+{ config, pkgs, pkgs-unstable, claude-code, tiny4linux, ... }:
 
 {
   home.packages = [
@@ -15,13 +15,15 @@
     pkgs.guvcview
     pkgs.vlc
     pkgs.remmina
-    pkgs.android-studio
-    pkgs.android-tools
     pkgs.patchelf
     pkgs.nodejs_24
     pkgs.micro
     pkgs.btop
     pkgs.eza
     pkgs.lazygit
+
+    # Use unstable packages for Android/Gradle to get PR #449037 fix
+    pkgs-unstable.android-studio
+    pkgs-unstable.android-tools
   ];
 }

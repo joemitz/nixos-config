@@ -1,6 +1,7 @@
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     claude-code.url = "github:sadjow/claude-code-nix";
     impermanence.url = "github:nix-community/impermanence";
 
@@ -20,7 +21,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, claude-code, sops-nix, tiny4linux, impermanence, ... }: {
+  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, claude-code, sops-nix, tiny4linux, impermanence, ... }: {
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
@@ -34,6 +35,10 @@
           home-manager.users.joemitz = import ./home/index.nix;
           home-manager.extraSpecialArgs = {
             inherit claude-code tiny4linux;
+            pkgs-unstable = import nixpkgs-unstable {
+              system = "x86_64-linux";
+              config.allowUnfree = true;
+            };
           };
         }
       ];
