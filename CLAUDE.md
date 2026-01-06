@@ -8,13 +8,35 @@ This is a NixOS configuration repository using flakes and home-manager. The syst
 
 ## Core Architecture
 
+**Repository Structure**:
+```
+nixos-config/
+├── flake.nix                   # Main flake entry point
+├── .sops.yaml                  # Sops configuration
+├── system/
+│   ├── configuration.nix       # System-level NixOS configuration
+│   └── hardware-configuration.nix  # Hardware-specific configuration
+├── home/
+│   └── home.nix               # User-level home-manager configuration
+├── cachix/
+│   ├── default.nix            # Auto-imports all cachix configs
+│   ├── claude-code.nix        # Claude Code binary cache
+│   └── nix-community.nix      # Community binary cache
+├── secrets/
+│   ├── secrets.yaml           # Encrypted secrets (committed)
+│   └── secrets-template.yaml  # Template (not committed)
+└── pkgs/
+    └── tiny4linux.nix         # Custom OBSBOT Tiny2 camera package
+```
+
 **Flake Structure**:
 - `flake.nix`: Main entry point defining inputs (nixpkgs stable, home-manager, claude-code, sops-nix, tiny4linux, impermanence) and outputs
-- `configuration.nix`: System-level NixOS configuration (bootloader, networking, desktop environment, system services)
-- `home.nix`: User-level home-manager configuration (user packages, git config, bash/tmux/alacritty settings)
-- `hardware-configuration.nix`: Hardware-specific configuration with Btrfs subvolumes (generated, not typically edited manually)
+- `system/configuration.nix`: System-level NixOS configuration (bootloader, networking, desktop environment, system services)
+- `home/home.nix`: User-level home-manager configuration (user packages, git config, bash/tmux/alacritty settings)
+- `system/hardware-configuration.nix`: Hardware-specific configuration with Btrfs subvolumes (generated, not typically edited manually)
 - `pkgs/tiny4linux.nix`: Custom package for OBSBOT Tiny2 camera controller
-- `cachix/`: Binary cache configurations
+- `cachix/`: Binary cache configurations (claude-code, nix-community)
+- `secrets/`: Encrypted secrets managed by sops-nix
 
 **Key Design Decisions**:
 - Uses `nixos-25.11` stable channel
@@ -28,6 +50,7 @@ This is a NixOS configuration repository using flakes and home-manager. The syst
 - Btrfs filesystem with compression (zstd) and snapshots via Snapper
 - Automated backups via Borg to remote server
 - LTS kernel to avoid AMD GPU bugs in newer kernels
+- Binary caches configured: cache.nixos.org, claude-code.cachix.org, nix-community.cachix.org
 
 ## Building and Deploying
 
@@ -97,8 +120,9 @@ The activation script ensures proper file ownership to allow NH to update flake.
 - NFS mount: TrueNAS Plex share at /mnt/truenas/plex (read-only)
 - Timezone: America/Los_Angeles
 
-**User Configuration** (home.nix):
-- CLI Tools: claude-code, gh, jq, tmux, patchelf, devbox, nodejs_24
+**User Configuration** (home/home.nix):
+- CLI Tools: claude-code, gh, jq, tmux, patchelf, devbox, nodejs_24, micro
+- Modern CLI Tools: btop (system monitor), eza (ls replacement), bat (cat replacement)
 - Development: vscodium, postman, android-studio, android-tools, kate
 - Applications: zoom-us, firefox, tidal-hifi, vlc, guvcview, remmina, vorta (backup)
 - Custom Packages: tiny4linux (OBSBOT Tiny2 camera controller)
@@ -106,8 +130,9 @@ The activation script ensures proper file ownership to allow NH to update flake.
 - Git configured with useful aliases (co, st, br, hi, lb, ma, type, dump, pu, ad, ch)
 - SSH with macbook host configuration
 - Bash with tmux auto-attach, secrets sourcing, Android SDK paths, nhs alias
+- Shell aliases: ls→eza, cat→bat, top→btop, code→codium, c→claude, nano→micro
 - Tmux with custom keybindings (h/v for splits, n for new window, Ctrl+K to clear)
-- Alacritty terminal with campbell theme and black background
+- Alacritty terminal with moonfly theme and pure black background
 - direnv with nix-direnv integration
 
 ## Git Workflow
@@ -193,24 +218,25 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
 This configuration uses [sops-nix](https://github.com/Mic92/sops-nix) to manage secrets securely.
 
 **Files**:
-- `secrets.yaml` - Encrypted secrets (safe to commit to git)
-- `.sops.yaml` - sops configuration (safe to commit)
+- `secrets/secrets.yaml` - Encrypted secrets (safe to commit to git)
+- `.sops.yaml` - sops configuration in root (safe to commit)
+- `secrets/secrets-template.yaml` - Unencrypted template (NOT committed, in .gitignore)
 - `/persist-dotfiles/home/joemitz/.config/sops/age/keys.txt` - Your age private key (NEVER commit! Back this up securely!)
 - `~/.config/secrets.env` - Generated file sourced by bash (auto-created on rebuild)
 
 **How It Works**:
-1. Secrets stored encrypted in `secrets.yaml` using age encryption
+1. Secrets stored encrypted in `secrets/secrets.yaml` using age encryption
 2. On system activation, sops-nix decrypts and creates `~/.config/secrets.env`
 3. Bash automatically sources this file, making secrets available as environment variables
 
 **Editing Secrets**:
 ```bash
-nix-shell -p sops --run "sops secrets.yaml"
+nix-shell -p sops --run "sops secrets/secrets.yaml"
 ```
 
 **Adding New Secrets**:
-1. Edit encrypted file: `nix-shell -p sops --run "sops secrets.yaml"`
-2. Update `configuration.nix`: Add to `sops.secrets` and `sops.templates."secrets.env".content`
+1. Edit encrypted file: `nix-shell -p sops --run "sops secrets/secrets.yaml"`
+2. Update `system/configuration.nix`: Add to `sops.secrets` and `sops.templates."secrets.env".content`
 3. Rebuild: `nhs`
 
 **Managed Secrets**:
@@ -226,8 +252,8 @@ The secrets.env template includes both secrets and non-secret constants:
 - PostgreSQL: APC_WSS_A3_PG_HOST, APC_WSS_A3_PG_PORT, APC_WSS_A3_PG_USER, APC_WSS_A3_PG_DATABASE
 
 **Security**:
-- ✅ Commit: `secrets.yaml`, `.sops.yaml`
-- ❌ Never commit: `~/.config/sops/age/keys.txt`, `secrets-template.yaml`
+- ✅ Commit: `secrets/secrets.yaml`, `.sops.yaml`
+- ❌ Never commit: `~/.config/sops/age/keys.txt`, `secrets/secrets-template.yaml`
 - Always back up your age private key securely
 - Secrets only decrypted locally during system activation
 
@@ -258,14 +284,15 @@ The secrets.env template includes both secrets and non-secret constants:
 - Status bar enabled with session name
 
 **Alacritty Terminal**:
-- Theme: campbell
+- Theme: moonfly
 - Background: pure black (#000000)
 
 **Bash Configuration**:
 - Sources ~/.alias if exists
 - Auto-sources ~/.config/secrets.env
 - Auto-attaches to tmux "main" session on login (unless already in tmux)
-- Custom aliases: `code` → `codium`, `c` → `claude`, `nhs` → full rebuild+commit+push
+- Shell aliases: `ls`→`eza`, `cat`→`bat`, `top`→`btop`, `code`→`codium`, `c`→`claude`, `nano`→`micro`
+- `nhs` alias: Full rebuild + auto-commit + push workflow
 
 ## Network & Remote Access
 
