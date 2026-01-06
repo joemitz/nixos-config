@@ -26,7 +26,16 @@ nixos-config/
 │   ├── persistence.nix         # Impermanence configuration (3 subvolumes)
 │   └── backup.nix              # Snapper snapshots and Borg backups
 ├── home/
-│   └── home.nix               # User-level home-manager configuration
+│   ├── index.nix               # Main entry point (imports all modules)
+│   ├── packages.nix            # Home packages (apps, tools, custom packages)
+│   ├── git.nix                 # Git configuration with aliases
+│   ├── ssh.nix                 # SSH configuration
+│   ├── direnv.nix              # Direnv with nix-direnv integration
+│   ├── bash.nix                # Bash aliases, env vars, nhs alias
+│   ├── tmux.nix                # Tmux configuration and keybindings
+│   ├── alacritty.nix           # Terminal theme and colors
+│   ├── firefox.nix             # Firefox browser
+│   └── desktop-entries.nix     # XDG desktop entries (guvcview, tiny4linux)
 ├── cachix/
 │   ├── default.nix            # Auto-imports all cachix configs
 │   ├── claude-code.nix        # Claude Code binary cache
@@ -42,7 +51,8 @@ nixos-config/
 - `flake.nix`: Main entry point defining inputs (nixpkgs stable, home-manager, claude-code, sops-nix, tiny4linux, impermanence) and outputs
 - `system/index.nix`: Main system configuration entry point (imports all system modules)
 - `system/*.nix`: Modular system configuration split by concern (boot, hardware, networking, desktop, users, secrets, services, persistence, backup)
-- `home/home.nix`: User-level home-manager configuration (user packages, git config, bash/tmux/alacritty settings)
+- `home/index.nix`: Main home-manager entry point (imports all home modules)
+- `home/*.nix`: Modular home configuration split by program (packages, git, ssh, direnv, bash, tmux, alacritty, firefox, desktop-entries)
 - `system/hardware-configuration.nix`: Hardware-specific configuration with Btrfs subvolumes (generated, not typically edited manually)
 - `pkgs/tiny4linux.nix`: Custom package for OBSBOT Tiny2 camera controller
 - `cachix/`: Binary cache configurations (claude-code, nix-community)
@@ -125,20 +135,16 @@ The activation script ensures proper file ownership to allow NH to update flake.
 - **backup.nix**: Snapper for Btrfs snapshots, Borg hourly backups to remote server (192.168.0.100)
 - **Filesystem**: Btrfs with subvolumes (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles) and zstd compression
 
-**User Configuration** (home/home.nix):
-- CLI Tools: claude-code, gh, jq, tmux, patchelf, devbox, nodejs_24, micro
-- Modern CLI Tools: btop (system monitor), eza (ls replacement), bat (cat replacement)
-- Development: vscodium, postman, android-studio, android-tools, kate
-- Applications: zoom-us, firefox, tidal-hifi, vlc, guvcview, remmina, vorta (backup)
-- Custom Packages: tiny4linux (OBSBOT Tiny2 camera controller)
-- Desktop Entries: guvcview with -z flag, tiny4linux-gui
-- Git configured with useful aliases (co, st, br, hi, lb, ma, type, dump, pu, ad, ch)
-- SSH with macbook host configuration
-- Bash with tmux auto-attach, secrets sourcing, Android SDK paths, nhs alias
-- Shell aliases: ls→eza, cat→bat, top→btop, code→codium, c→claude, nano→micro
-- Tmux with custom keybindings (h/v for splits, n for new window, Ctrl+K to clear)
-- Alacritty terminal with moonfly theme and pure black background
-- direnv with nix-direnv integration
+**User Configuration** (modular structure in home/):
+- **packages.nix**: All user packages - CLI tools (claude-code, gh, jq, tmux, patchelf, devbox, nodejs_24, micro, btop, eza, lazygit), development apps (vscodium, postman, android-studio, android-tools), applications (zoom-us, tidal-hifi, vlc, guvcview, remmina, vorta), custom packages (tiny4linux)
+- **git.nix**: Git with gitFull package, user config, useful aliases (co, st, br, hi, lb, ma, type, dump, pu, ad, ch, cp), LFS support, libsecret credential helper (KDE Wallet)
+- **ssh.nix**: SSH configuration with macbook host (192.168.0.232)
+- **direnv.nix**: direnv with bash integration and nix-direnv support
+- **bash.nix**: Shell aliases (ls→eza, cat→bat, top→btop, code→codium, c→claude, nano→micro, zzz→suspend), nhs alias (rebuild+commit+push), session variables (NODE_ENV, DEVICE_IP, HUSKY, ANDROID_HOME), Android SDK paths, secrets sourcing, tmux auto-attach
+- **tmux.nix**: Tmux with custom keybindings (h/v for splits, n for new window, w/x for kill, Ctrl+K to clear, Ctrl+_ for Shift-Tab), mouse support, status bar
+- **alacritty.nix**: Terminal with moonfly theme and pure black background (#000000)
+- **firefox.nix**: Firefox browser enabled
+- **desktop-entries.nix**: XDG desktop entries for guvcview (with -z flag) and tiny4linux-gui
 
 ## Git Workflow
 
