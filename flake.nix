@@ -21,7 +21,7 @@
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
-        ./system/configuration.nix
+        ./system/index.nix
         sops-nix.nixosModules.sops
         impermanence.nixosModules.impermanence
         home-manager.nixosModules.home-manager
