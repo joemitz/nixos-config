@@ -27,6 +27,7 @@
     pkgs.btop
     pkgs.eza
     pkgs.bat
+    pkgs.lazygit
   ];
 
   programs.git = {
