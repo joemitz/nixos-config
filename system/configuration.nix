@@ -8,7 +8,7 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      ./cachix
+      ../cachix
     ];
 
   # Bootloader.
@@ -149,7 +149,7 @@
 
   # sops-nix secrets management
   sops = {
-    defaultSopsFile = ./secrets/secrets.yaml;
+    defaultSopsFile = ../secrets/secrets.yaml;
     age.keyFile = "/persist-dotfiles/home/joemitz/.config/sops/age/keys.txt";
 
     # Define secrets and their output paths
