@@ -22,11 +22,9 @@
     pkgs.android-tools
     pkgs.patchelf
     pkgs.nodejs_24
-    pkgs.kdePackages.kate
     pkgs.micro
     pkgs.btop
     pkgs.eza
-    pkgs.bat
     pkgs.lazygit
   ];
 
@@ -99,7 +97,6 @@
       c = "claude";
       nano = "micro";
       ls = "eza";
-      cat = "bat";
       top = "btop";
       zzz = "systemctl suspend";
       # NH with auto-commit and auto-push: rebuild, commit, and push on success

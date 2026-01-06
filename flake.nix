@@ -1,20 +1,23 @@
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
+    claude-code.url = "github:sadjow/claude-code-nix";
+    impermanence.url = "github:nix-community/impermanence";
+
     home-manager = {
       url = "github:nix-community/home-manager/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    claude-code.url = "github:sadjow/claude-code-nix";
+
     sops-nix = {
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
     tiny4linux = {
       url = "github:OpenFoxes/Tiny4Linux/v2.2.2";
       flake = false;
     };
-    impermanence.url = "github:nix-community/impermanence";
   };
 
   outputs = { self, nixpkgs, home-manager, claude-code, sops-nix, tiny4linux, impermanence, ... }: {

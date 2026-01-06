@@ -14,8 +14,17 @@ nixos-config/
 ├── flake.nix                   # Main flake entry point
 ├── .sops.yaml                  # Sops configuration
 ├── system/
-│   ├── configuration.nix       # System-level NixOS configuration
-│   └── hardware-configuration.nix  # Hardware-specific configuration
+│   ├── index.nix               # Main entry point (imports all modules)
+│   ├── hardware-configuration.nix  # Hardware-specific configuration (auto-generated)
+│   ├── boot.nix                # Boot loader, kernel, impermanence rollback
+│   ├── hardware.nix            # AMD GPU, Bluetooth, firmware, filesystem mounts
+│   ├── networking.nix          # Networking, firewall, SSH, Tailscale
+│   ├── desktop.nix             # KDE Plasma, SDDM, audio, printing
+│   ├── users.nix               # User accounts, timezone, locale, security
+│   ├── secrets.nix             # Sops-nix secrets management
+│   ├── services.nix            # Docker, ADB, NFS, NH, Nix settings
+│   ├── persistence.nix         # Impermanence configuration (3 subvolumes)
+│   └── backup.nix              # Snapper snapshots and Borg backups
 ├── home/
 │   └── home.nix               # User-level home-manager configuration
 ├── cachix/
@@ -31,7 +40,8 @@ nixos-config/
 
 **Flake Structure**:
 - `flake.nix`: Main entry point defining inputs (nixpkgs stable, home-manager, claude-code, sops-nix, tiny4linux, impermanence) and outputs
-- `system/configuration.nix`: System-level NixOS configuration (bootloader, networking, desktop environment, system services)
+- `system/index.nix`: Main system configuration entry point (imports all system modules)
+- `system/*.nix`: Modular system configuration split by concern (boot, hardware, networking, desktop, users, secrets, services, persistence, backup)
 - `home/home.nix`: User-level home-manager configuration (user packages, git config, bash/tmux/alacritty settings)
 - `system/hardware-configuration.nix`: Hardware-specific configuration with Btrfs subvolumes (generated, not typically edited manually)
 - `pkgs/tiny4linux.nix`: Custom package for OBSBOT Tiny2 camera controller
@@ -93,7 +103,7 @@ nix flake show
 
 ## NH (Nix Helper) Configuration
 
-NH is configured in configuration.nix with:
+NH is configured in services.nix with:
 - Automatic weekly garbage collection
 - Keeps last 10 generations and anything from last 10 days
 - Flake path: `/home/joemitz/nixos-config`
@@ -103,22 +113,17 @@ The activation script ensures proper file ownership to allow NH to update flake.
 
 ## Configuration Layout
 
-**System Configuration** (configuration.nix):
-- Boot: systemd-boot with EFI, LTS kernel (pkgs.linuxPackages), root rollback on boot
-- Hardware: AMD GPU with amdgpu driver early loading, hardware acceleration, Bluetooth
-- Desktop: KDE Plasma 6 with SDDM (Wayland enabled, Opal wallpaper background)
-- Audio: PipeWire (replaces PulseAudio)
-- Networking: NetworkManager, Wake-on-LAN on enp6s0, Tailscale VPN, NFS client support
-- Services: OpenSSH (port 22, root login allowed), fwupd firmware updates, Snapper for Btrfs snapshots
-- Backup: Borg hourly backups of all persist subvolumes to remote server (192.168.0.100)
-- Development: Docker, ADB for Android
-- Security: Polkit enabled, sudo without password for wheel group
-- User groups: networkmanager, wheel, docker, adbusers, kvm
-- Filesystem: Btrfs with subvolumes (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles) and zstd compression
-- Impermanence: Root and home wipe on boot, state persisted to three subvolumes
-- NVMe mount at /mnt/nvme (Btrfs with subvol=@, read-only)
-- NFS mount: TrueNAS Plex share at /mnt/truenas/plex (read-only)
-- Timezone: America/Los_Angeles
+**System Configuration** (modular structure in system/):
+- **boot.nix**: systemd-boot with EFI, LTS kernel (pkgs.linuxPackages), root rollback on boot
+- **hardware.nix**: AMD GPU with amdgpu driver early loading, hardware acceleration, Bluetooth, firmware updates, NVMe + NFS mounts
+- **desktop.nix**: KDE Plasma 6 with SDDM (Wayland enabled, Opal wallpaper background), PipeWire audio, printing
+- **networking.nix**: NetworkManager, Wake-on-LAN on enp6s0, Tailscale VPN, firewall, OpenSSH (port 22)
+- **users.nix**: User accounts (joemitz, root), timezone (America/Los_Angeles), locale, polkit, sudo
+- **secrets.nix**: Complete sops-nix configuration for encrypted secrets management
+- **services.nix**: Docker, ADB for Android, NFS client, NH (Nix Helper), Nix experimental features
+- **persistence.nix**: Impermanence configuration - root and home wipe on boot, state persisted to three subvolumes
+- **backup.nix**: Snapper for Btrfs snapshots, Borg hourly backups to remote server (192.168.0.100)
+- **Filesystem**: Btrfs with subvolumes (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles) and zstd compression
 
 **User Configuration** (home/home.nix):
 - CLI Tools: claude-code, gh, jq, tmux, patchelf, devbox, nodejs_24, micro
@@ -236,7 +241,7 @@ nix-shell -p sops --run "sops secrets/secrets.yaml"
 
 **Adding New Secrets**:
 1. Edit encrypted file: `nix-shell -p sops --run "sops secrets/secrets.yaml"`
-2. Update `system/configuration.nix`: Add to `sops.secrets` and `sops.templates."secrets.env".content`
+2. Update `system/secrets.nix`: Add to `sops.secrets` and `sops.templates."secrets.env".content`
 3. Rebuild: `nhs`
 
 **Managed Secrets**:
@@ -361,7 +366,7 @@ This system uses **full impermanence** - both root and home filesystems are wipe
 - Uses the impermanence NixOS module
 - Three separate persistence points for organized state management
 - hideMounts enabled to keep persistence mounts hidden from file browsers
-- Directories and files explicitly listed for persistence in configuration.nix
+- Directories and files explicitly listed for persistence in system/persistence.nix
 
 ## Backup System
 

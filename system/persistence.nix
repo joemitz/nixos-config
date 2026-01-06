@@ -41,32 +41,32 @@
 
     users.joemitz = {
       directories = [
-        ".ssh"                    # SSH keys and known_hosts
-        ".claude"                 # Claude Code data
-        ".config"                 # All application configs including KDE Plasma
-        ".local/share"            # Application data, KDE data, keyrings
-        ".local/state"            # Application state, wireplumber
-        ".android"                # Android Studio settings and AVDs
-        ".mozilla"                # Firefox profiles and data
-        ".vscode-oss"             # VSCodium settings and extensions
-        ".zoom"                   # Zoom settings
-        ".gradle"                 # Gradle build cache
-        ".npm"                    # NPM package cache
-        ".compose-cache"          # Docker compose cache
-        ".java"                   # Java settings and cache
-        ".react-native-cli"       # React Native CLI data
-        ".pki"                    # Certificate store
-        ".icons"                  # Icon themes
-        ".cache"                  # Application caches (KDE, browsers, dev tools)
+        ".ssh"                     # SSH keys and known_hosts
+        ".claude"                  # Claude Code data
+        ".config"                  # All application configs including KDE Plasma
+        ".local/share"             # Application data, KDE data, keyrings
+        ".local/state"             # Application state, wireplumber
+        ".android"                 # Android Studio settings and AVDs
+        ".mozilla"                 # Firefox profiles and data
+        ".vscode-oss"              # VSCodium settings and extensions
+        ".zoom"                    # Zoom settings
+        ".gradle"                  # Gradle build cache
+        ".npm"                     # NPM package cache
+        ".compose-cache"           # Docker compose cache
+        ".java"                    # Java settings and cache
+        ".react-native-cli"        # React Native CLI data
+        ".pki"                     # Certificate store
+        ".icons"                   # Icon themes
+        ".cache"                   # Application caches (KDE, browsers, dev tools)
       ];
 
       files = [
-        ".claude.json"                    # Claude Code config
-        ".claude.json.backup"             # Claude Code config backup
-        ".bash_history"                   # Command history
-        ".bash_history_persistent"        # Persistent command history
-        ".gtkrc-2.0"                      # GTK2 config
-        ".npmrc"                          # NPM config
+        ".claude.json"             # Claude Code config
+        ".claude.json.backup"      # Claude Code config backup
+        ".bash_history"            # Command history
+        ".bash_history_persistent" # Persistent command history
+        ".gtkrc-2.0"               # GTK2 config
+        ".npmrc"                   # NPM config
       ];
     };
   };
@@ -91,7 +91,7 @@
       ];
 
       files = [
-        "CLAUDE.md"                       # Claude Code instructions
+        "CLAUDE.md"         # Claude Code instructions
       ];
     };
   };

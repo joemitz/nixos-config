@@ -56,32 +56,43 @@
       # Exclude all cache directories (can be rebuilt)
       "/persist-root/**/.cache"
       "/persist-dotfiles/home/joemitz/.cache"
+
       # Exclude build/download caches (can be rebuilt)
       "/persist-dotfiles/home/joemitz/.gradle"
       "/persist-dotfiles/home/joemitz/.npm"
       "/persist-dotfiles/home/joemitz/.cargo"
       "/persist-dotfiles/home/joemitz/.compose-cache"
+
       # Exclude Android Virtual Devices and cache (can be recreated)
       "/persist-dotfiles/home/joemitz/.android/avd"
       "/persist-dotfiles/home/joemitz/.android/cache"
+
       # Exclude KDE file indexer cache (rebuilds automatically)
       "/persist-dotfiles/home/joemitz/.local/share/baloo"
+
       # Exclude Trash and logs
       "/persist-dotfiles/home/joemitz/.local/share/Trash"
       "/persist-dotfiles/home/joemitz/.zoom/logs"
+
       # Exclude node_modules (can be rebuilt from package.json)
       "/persist-userfiles/**/node_modules"
+
       # Exclude Android build artifacts (can be rebuilt)
       "/persist-userfiles/**/build"
       "/persist-userfiles/**/.gradle"
+
       # Exclude iOS CocoaPods (can be rebuilt from Podfile.lock)
       "/persist-userfiles/**/Pods"
+
       # Exclude build output directories (can be rebuilt)
       "/persist-userfiles/**/dist"
+
       # Exclude test coverage reports (can be regenerated)
       "/persist-userfiles/**/coverage"
+
       # Docker images are large and can be rebuilt
       "/persist-root/var/lib/docker"
+      
       # Exclude Snapper snapshots (redundant with Borg versioning, saves ~139GB)
       "/persist-root/.snapshots"
       "/persist-dotfiles/.snapshots"
