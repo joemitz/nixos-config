@@ -47,6 +47,9 @@
       # Source alias file if it exists
       test -s ~/.alias && . ~/.alias || true
 
+      # Java home for Gradle
+      export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
+
       # Android SDK path additions
       export PATH=$PATH:$ANDROID_HOME/emulator
       export PATH=$PATH:$ANDROID_HOME/platform-tools
