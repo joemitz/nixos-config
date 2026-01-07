@@ -7,7 +7,7 @@
 
   # Use LTS kernel to avoid AMD GPU bug in kernel 6.12.10+
   # See: https://bbs.archlinux.org/viewtopic.php?id=303556
-  boot.kernelPackages = pkgs.linuxPackages_6_6;
+  boot.kernelPackages = pkgs.linuxPackages;
 
   # Load AMD GPU driver early in boot (fixes display detection before SDDM starts)
   boot.initrd.kernelModules = [ "amdgpu" ];
