@@ -90,11 +90,11 @@ This alias:
 4. Pushes to git remote
 5. Returns to original directory
 
-**For Claude Code to run nhs**:
-Since `nhs` is a bash alias, Claude must use interactive bash:
-```bash
-bash -ic "nhs"
-```
+**IMPORTANT: Claude Code must NEVER run nhs automatically**:
+- Claude should make configuration changes and then stop
+- The user will run `nhs` manually to rebuild and commit
+- Do NOT attempt to run `bash -ic "nhs"` or any rebuild commands automatically
+- Only run rebuild commands if explicitly requested by the user
 
 **Update flake inputs**:
 ```bash

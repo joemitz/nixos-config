@@ -4,8 +4,8 @@
   programs.alacritty = {
     enable = true;
     theme = "moonfly";
-    settings = {
-      colors.primary.background = "#000000";
-    };
+    # settings = {
+    #   colors.primary.background = "#000000";
+    # };
   };
 }
