@@ -121,17 +121,30 @@
     environment = {
       BORG_RSH = "ssh -i /home/joemitz/.ssh/id_ed25519_borg -o StrictHostKeyChecking=accept-new";
     };
-
-    postHook = ''
-      # Send success notification to KDE desktop
-      export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus
-      ${pkgs.sudo}/bin/sudo -u joemitz DISPLAY=:0 DBUS_SESSION_BUS_ADDRESS=$DBUS_SESSION_BUS_ADDRESS ${pkgs.libnotify}/bin/notify-send --urgency=low 'Borg Backup' 'Backup completed successfully'
-    '';
   };
 
-  # Failure notification service (triggered by systemd OnFailure)
+  # Success and failure notification services (triggered by systemd)
   systemd.services."borgbackup-job-persist-backup" = {
-    unitConfig.OnFailure = "borg-backup-failure-notify.service";
+    unitConfig = {
+      OnSuccess = "borg-backup-success-notify.service";
+      OnFailure = "borg-backup-failure-notify.service";
+    };
+  };
+
+  systemd.services."borg-backup-success-notify" = {
+    description = "Send notification on Borg backup success";
+    serviceConfig = {
+      Type = "oneshot";
+      User = "joemitz";
+      Environment = "DISPLAY=:0";
+    };
+    script = ''
+      DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus \
+        ${pkgs.libnotify}/bin/notify-send \
+        --urgency=low \
+        "Borg Backup" \
+        "Backup completed successfully"
+    '';
   };
 
   systemd.services."borg-backup-failure-notify" = {
