@@ -6,7 +6,7 @@
     theme = "moonfly";
     settings = {
       colors.primary.background = "#000000";
-      colors.normal.magenta = "#d74f00";
+      colors.normal.magenta = "#d76800";
       colors.bright.magenta = "#ff8c5f";
     };
   };
