@@ -139,11 +139,12 @@
       Environment = "DISPLAY=:0";
     };
     script = ''
+      TIMESTAMP=$(date '+%H:%M:%S')
       DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus \
         ${pkgs.libnotify}/bin/notify-send \
         --urgency=low \
-        "Borg Backup" \
-        "Backup completed successfully"
+        "Borg Backup Success" \
+        "Backup completed at $TIMESTAMP"
     '';
   };
 
@@ -155,10 +156,11 @@
       Environment = "DISPLAY=:0";
     };
     script = ''
+      TIMESTAMP=$(date '+%H:%M:%S')
       DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus \
         ${pkgs.libnotify}/bin/notify-send \
         --urgency=critical \
-        "Borg Backup FAILED" \
+        "Borg Backup FAILED at $TIMESTAMP" \
         "Check logs: journalctl -u borgbackup-job-persist-backup"
     '';
   };
