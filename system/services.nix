@@ -7,6 +7,9 @@
   # Enable ADB for Android development
   programs.adb.enable = true;
 
+  # Enable nix-ld for running dynamically linked executables (Android SDK tools)
+  programs.nix-ld.enable = true;
+
   # Enable NFS client support
   services.rpcbind.enable = true;
 
