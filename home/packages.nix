@@ -9,7 +9,6 @@
     pkgs.vscodium
     pkgs.postman
     pkgs.zoom-us
-    pkgs.vorta
     pkgs.devbox
     pkgs.tidal-hifi
     pkgs.guvcview
