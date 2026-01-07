@@ -13,6 +13,7 @@
     pkgs.tidal-hifi
     pkgs.guvcview
     pkgs.vlc
+    pkgs.gimp
     pkgs.remmina
     pkgs.android-studio
     pkgs.android-tools
