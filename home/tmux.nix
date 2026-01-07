@@ -8,6 +8,9 @@
     mouse = true;
 
     extraConfig = ''
+      # Update environment variables for GUI apps
+      set -g update-environment "DISPLAY WAYLAND_DISPLAY XDG_RUNTIME_DIR"
+
       # Mouse wheel scroll
       bind -n WheelUpPane if-shell -F -t = "#{mouse_any_flag}" "send-keys -M" "if -Ft= '#{pane_in_mode}' 'send-keys -M' 'select-pane -t=; copy-mode -e; send-keys -M'"
       bind -n WheelDownPane select-pane -t= \; send-keys -M
