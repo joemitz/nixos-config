@@ -92,7 +92,7 @@
 
       # Docker images are large and can be rebuilt
       "/persist-root/var/lib/docker"
-      
+
       # Exclude Snapper snapshots (redundant with Borg versioning, saves ~139GB)
       "/persist-root/.snapshots"
       "/persist-dotfiles/.snapshots"
@@ -121,5 +121,31 @@
     environment = {
       BORG_RSH = "ssh -i /home/joemitz/.ssh/id_ed25519_borg -o StrictHostKeyChecking=accept-new";
     };
+
+    postHook = ''
+      # Send success notification to KDE desktop
+      su joemitz -c "DISPLAY=:0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus ${pkgs.libnotify}/bin/notify-send --urgency=low 'Borg Backup' 'Backup completed successfully'"
+    '';
+  };
+
+  # Failure notification service (triggered by systemd OnFailure)
+  systemd.services."borgbackup-job-persist-backup" = {
+    serviceConfig.OnFailure = "borg-backup-failure-notify.service";
+  };
+
+  systemd.services."borg-backup-failure-notify" = {
+    description = "Send notification on Borg backup failure";
+    serviceConfig = {
+      Type = "oneshot";
+      User = "joemitz";
+      Environment = "DISPLAY=:0";
+    };
+    script = ''
+      DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus \
+        ${pkgs.libnotify}/bin/notify-send \
+        --urgency=critical \
+        "Borg Backup FAILED" \
+        "Check logs: journalctl -u borgbackup-job-persist-backup"
+    '';
   };
 }
