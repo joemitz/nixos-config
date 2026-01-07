@@ -124,13 +124,14 @@
 
     postHook = ''
       # Send success notification to KDE desktop
-      su joemitz -c "DISPLAY=:0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus ${pkgs.libnotify}/bin/notify-send --urgency=low 'Borg Backup' 'Backup completed successfully'"
+      export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus
+      ${pkgs.sudo}/bin/sudo -u joemitz DISPLAY=:0 DBUS_SESSION_BUS_ADDRESS=$DBUS_SESSION_BUS_ADDRESS ${pkgs.libnotify}/bin/notify-send --urgency=low 'Borg Backup' 'Backup completed successfully'
     '';
   };
 
   # Failure notification service (triggered by systemd OnFailure)
   systemd.services."borgbackup-job-persist-backup" = {
-    serviceConfig.OnFailure = "borg-backup-failure-notify.service";
+    unitConfig.OnFailure = "borg-backup-failure-notify.service";
   };
 
   systemd.services."borg-backup-failure-notify" = {
