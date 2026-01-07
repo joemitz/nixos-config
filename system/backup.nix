@@ -129,6 +129,13 @@
       OnSuccess = "borg-backup-success-notify.service";
       OnFailure = "borg-backup-failure-notify.service";
     };
+    serviceConfig = {
+      # Automatic retry on failure
+      Restart = "on-failure";
+      RestartSec = "2min";          # Wait 2 minutes between retries
+      StartLimitBurst = 3;          # Max 3 retry attempts
+      StartLimitIntervalSec = "1h"; # Reset retry counter after 1 hour
+    };
   };
 
   systemd.services."borg-backup-success-notify" = {
