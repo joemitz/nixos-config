@@ -143,6 +143,7 @@
       DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus \
         ${pkgs.libnotify}/bin/notify-send \
         --urgency=low \
+        --expire-time=0 \
         "Borg Backup Success" \
         "Backup completed at $TIMESTAMP"
     '';
