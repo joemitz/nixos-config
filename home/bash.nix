@@ -32,6 +32,28 @@
         fi && \
         cd "$current_dir"
       '';
+      nhb = ''
+        current_dir=$(pwd) && \
+        cd /home/joemitz/nixos-config && \
+        git add -A && \
+        nh os boot /home/joemitz/nixos-config && \
+        exit_code=$? && \
+        if [ $exit_code -eq 0 ]; then \
+          if ! git diff --quiet || ! git diff --cached --quiet; then \
+            generation=$(nixos-rebuild list-generations | grep True | awk '{print $1}') && \
+            timestamp=$(date +"%Y-%m-%d %H:%M") && \
+            git commit -m "generation $generation [$timestamp]" && \
+            echo "" && \
+            echo "Changes committed. Pushing to remote..." && \
+            git push && \
+            echo "Successfully pushed to remote!" || \
+            echo "Warning: Commit succeeded but push failed. Run 'git push' manually."; \
+          else \
+            echo "No configuration changes to commit"; \
+          fi; \
+        fi && \
+        cd "$current_dir"
+      '';
     };
     sessionVariables = {
       # Non-secret environment variables

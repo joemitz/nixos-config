@@ -90,10 +90,21 @@ This alias:
 4. Pushes to git remote
 5. Returns to original directory
 
-**IMPORTANT: Claude Code must NEVER run nhs automatically**:
+**Stage for next boot with auto-commit and push** (use the `nhb` bash alias):
+```bash
+nhb
+```
+This alias:
+1. Switches to the config directory
+2. Runs `nh os boot` (stages configuration for next boot, doesn't switch immediately)
+3. On success: auto-commits changes with generation number and timestamp
+4. Pushes to git remote
+5. Returns to original directory
+
+**IMPORTANT: Claude Code must NEVER run nhs or nhb automatically**:
 - Claude should make configuration changes and then stop
-- The user will run `nhs` manually to rebuild and commit
-- Do NOT attempt to run `bash -ic "nhs"` or any rebuild commands automatically
+- The user will run `nhs` or `nhb` manually to rebuild and commit
+- Do NOT attempt to run `bash -ic "nhs"`, `bash -ic "nhb"`, or any rebuild commands automatically
 - Only run rebuild commands if explicitly requested by the user
 
 **Update flake inputs**:
@@ -140,7 +151,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 - **git.nix**: Git with gitFull package, user config, useful aliases (co, st, br, hi, lb, ma, type, dump, pu, ad, ch, cp), LFS support, libsecret credential helper (KDE Wallet)
 - **ssh.nix**: SSH configuration with macbook host (192.168.0.232)
 - **direnv.nix**: direnv with bash integration and nix-direnv support
-- **bash.nix**: Shell aliases (ls→eza, cat→bat, top→btop, code→codium, c→claude, nano→micro, zzz→suspend), nhs alias (rebuild+commit+push), session variables (NODE_ENV, DEVICE_IP, HUSKY, ANDROID_HOME), Android SDK paths, secrets sourcing, tmux auto-attach
+- **bash.nix**: Shell aliases (ls→eza, cat→bat, top→btop, code→codium, c→claude, nano→micro, zzz→suspend), nhs alias (rebuild+commit+push), nhb alias (stage for boot+commit+push), session variables (NODE_ENV, DEVICE_IP, HUSKY, ANDROID_HOME), Android SDK paths, secrets sourcing, tmux auto-attach
 - **tmux.nix**: Tmux with custom keybindings (h/v for splits, n for new window, w/x for kill, Ctrl+K to clear, Ctrl+_ for Shift-Tab), mouse support, status bar
 - **alacritty.nix**: Terminal with moonfly theme and pure black background (#000000)
 - **firefox.nix**: Firefox browser enabled
@@ -304,6 +315,7 @@ The secrets.env template includes both secrets and non-secret constants:
 - Auto-attaches to tmux "main" session on login (unless already in tmux)
 - Shell aliases: `ls`→`eza`, `cat`→`bat`, `top`→`btop`, `code`→`codium`, `c`→`claude`, `nano`→`micro`
 - `nhs` alias: Full rebuild + auto-commit + push workflow
+- `nhb` alias: Stage for boot + auto-commit + push workflow
 
 ## Network & Remote Access
 
