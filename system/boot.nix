@@ -17,7 +17,7 @@
     mkdir -p /mnt
 
     # Mount the btrfs root to /mnt for subvolume manipulation
-    mount -t btrfs -o subvolid=5 /dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a /mnt
+    mount -t btrfs -o subvolid=5 /dev/disk/by-label/nixos /mnt
 
     # Delete all nested subvolumes recursively before removing root
     while btrfs subvolume list -o /mnt/@ | grep -q .; do

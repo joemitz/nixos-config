@@ -14,39 +14,39 @@
   boot.extraModulePackages = [ ];
 
   fileSystems."/" =
-    { device = "/dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a";
+    { device = "/dev/disk/by-label/nixos";
       fsType = "btrfs";
       options = [ "subvol=@" "compress=zstd" "noatime" "space_cache=v2" ];
     };
 
   fileSystems."/nix" =
-    { device = "/dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a";
+    { device = "/dev/disk/by-label/nixos";
       fsType = "btrfs";
       options = [ "subvol=@nix" "compress=zstd" "noatime" ];
     };
 
   fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/F2B1-6D81";
+    { device = "/dev/disk/by-label/BOOT";
       fsType = "vfat";
       options = [ "fmask=0077" "dmask=0077" ];
     };
 
   fileSystems."/persist-root" =
-    { device = "/dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a";
+    { device = "/dev/disk/by-label/nixos";
       fsType = "btrfs";
       options = [ "subvol=@persist-root" "compress=zstd" "noatime" ];
       neededForBoot = true;
     };
 
   fileSystems."/persist-dotfiles" =
-    { device = "/dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a";
+    { device = "/dev/disk/by-label/nixos";
       fsType = "btrfs";
       options = [ "subvol=@persist-dotfiles" "compress=zstd" "noatime" ];
       neededForBoot = true;
     };
 
   fileSystems."/persist-userfiles" =
-    { device = "/dev/disk/by-uuid/a895216b-d275-480c-9b78-04c6a00df14a";
+    { device = "/dev/disk/by-label/nixos";
       fsType = "btrfs";
       options = [ "subvol=@persist-userfiles" "compress=zstd" "noatime" ];
       neededForBoot = true;
