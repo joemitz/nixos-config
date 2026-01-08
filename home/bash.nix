@@ -14,13 +14,13 @@
       nhs = ''
         current_dir=$(pwd) && \
         cd /home/joemitz/nixos-config && \
+        git add -A && \
         nh os switch /home/joemitz/nixos-config && \
         exit_code=$? && \
         if [ $exit_code -eq 0 ]; then \
           if ! git diff --quiet || ! git diff --cached --quiet; then \
             generation=$(nixos-rebuild list-generations | grep True | awk '{print $1}') && \
             timestamp=$(date +"%Y-%m-%d %H:%M") && \
-            git add -A && \
             git commit -m "generation $generation [$timestamp]" && \
             echo "" && \
             echo "Changes committed. Pushing to remote..." && \
