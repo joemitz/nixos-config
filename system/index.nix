@@ -11,7 +11,8 @@
     ./secrets.nix
     ./services.nix
     ./persistence.nix
-    ./backup.nix
+    ./snapper.nix
+    ./borg.nix
     ../cachix
   ];
 
