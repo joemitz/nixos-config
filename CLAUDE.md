@@ -24,7 +24,8 @@ nixos-config/
 │   ├── secrets.nix             # Sops-nix secrets management
 │   ├── services.nix            # Docker, ADB, NFS, NH, Nix settings
 │   ├── persistence.nix         # Impermanence configuration (3 subvolumes)
-│   └── backup.nix              # Snapper snapshots and Borg backups
+│   ├── snapper.nix             # Snapper snapshots configuration
+│   └── borg.nix                # Borg backup configuration
 ├── home/
 │   ├── index.nix               # Main entry point (imports all modules)
 │   ├── packages.nix            # Home packages (apps, tools, custom packages)
@@ -50,7 +51,7 @@ nixos-config/
 **Flake Structure**:
 - `flake.nix`: Main entry point defining inputs (nixpkgs stable, home-manager, claude-code, sops-nix, tiny4linux, impermanence) and outputs
 - `system/index.nix`: Main system configuration entry point (imports all system modules)
-- `system/*.nix`: Modular system configuration split by concern (boot, hardware, networking, desktop, users, secrets, services, persistence, backup)
+- `system/*.nix`: Modular system configuration split by concern (boot, hardware, networking, desktop, users, secrets, services, persistence, snapper, borg)
 - `home/index.nix`: Main home-manager entry point (imports all home modules)
 - `home/*.nix`: Modular home configuration split by program (packages, git, ssh, direnv, bash, tmux, alacritty, firefox, desktop-entries)
 - `system/hardware-configuration.nix`: Hardware-specific configuration with Btrfs subvolumes (generated, not typically edited manually)
@@ -143,15 +144,16 @@ The activation script ensures proper file ownership to allow NH to update flake.
 - **secrets.nix**: Complete sops-nix configuration for encrypted secrets management
 - **services.nix**: Docker, ADB for Android, NFS client, NH (Nix Helper), Nix experimental features
 - **persistence.nix**: Impermanence configuration - root and home wipe on boot, state persisted to three subvolumes
-- **backup.nix**: Snapper for Btrfs snapshots, Borg hourly backups to remote server (192.168.0.100)
+- **snapper.nix**: Snapper configuration for Btrfs snapshots of persistence subvolumes
+- **borg.nix**: Borg hourly backups to remote server (192.168.0.100)
 - **Filesystem**: Btrfs with subvolumes (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles) and zstd compression
 
 **User Configuration** (modular structure in home/):
-- **packages.nix**: All user packages - CLI tools (claude-code, gh, jq, tmux, patchelf, devbox, nodejs_24, micro, btop, eza, lazygit), development apps (vscodium, postman, android-studio, android-tools), applications (zoom-us, tidal-hifi, vlc, guvcview, remmina, vorta), custom packages (tiny4linux)
+- **packages.nix**: All user packages - CLI tools (claude-code, gh, jq, patchelf, devbox, nodejs_24, micro, btop, eza, lazygit), development apps (vscodium, postman, android-studio, android-tools, jdk11), applications (zoom-us, tidal-hifi, vlc, gimp, guvcview, remmina), custom packages (tiny4linux). Note: tmux enabled via programs.tmux in tmux.nix, not listed here
 - **git.nix**: Git with gitFull package, user config, useful aliases (co, st, br, hi, lb, ma, type, dump, pu, ad, ch, cp), LFS support, libsecret credential helper (KDE Wallet)
 - **ssh.nix**: SSH configuration with macbook host (192.168.0.232)
 - **direnv.nix**: direnv with bash integration and nix-direnv support
-- **bash.nix**: Shell aliases (ls→eza, cat→bat, top→btop, code→codium, c→claude, nano→micro, zzz→suspend), nhs alias (rebuild+commit+push), nhb alias (stage for boot+commit+push), session variables (NODE_ENV, DEVICE_IP, HUSKY, ANDROID_HOME), Android SDK paths, secrets sourcing, tmux auto-attach
+- **bash.nix**: Shell aliases (ls→eza, top→btop, code→codium, c→claude, nano→micro, zzz→suspend), nhs alias (rebuild+commit+push), nhb alias (stage for boot+commit+push), session variables (NODE_ENV, DEVICE_IP, HUSKY, ANDROID_HOME), Android SDK paths, secrets sourcing, tmux auto-attach
 - **tmux.nix**: Tmux with custom keybindings (h/v for splits, n for new window, w/x for kill, Ctrl+K to clear, Ctrl+_ for Shift-Tab), mouse support, status bar
 - **alacritty.nix**: Terminal with moonfly theme and pure black background (#000000)
 - **firefox.nix**: Firefox browser enabled
@@ -313,7 +315,7 @@ The secrets.env template includes both secrets and non-secret constants:
 - Sources ~/.alias if exists
 - Auto-sources ~/.config/secrets.env
 - Auto-attaches to tmux "main" session on login (unless already in tmux)
-- Shell aliases: `ls`→`eza`, `cat`→`bat`, `top`→`btop`, `code`→`codium`, `c`→`claude`, `nano`→`micro`
+- Shell aliases: `ls`→`eza`, `top`→`btop`, `code`→`codium`, `c`→`claude`, `nano`→`micro`, `zzz`→`systemctl suspend`
 - `nhs` alias: Full rebuild + auto-commit + push workflow
 - `nhb` alias: Stage for boot + auto-commit + push workflow
 
