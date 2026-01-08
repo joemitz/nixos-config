@@ -82,16 +82,19 @@
 
   # Success and failure notification services (triggered by systemd)
   systemd.services."borgbackup-job-persist-backup" = {
+    # Wait for network to be fully online before starting backup
+    after = [ "network-online.target" ];
+    wants = [ "network-online.target" ];
+
     unitConfig = {
       OnSuccess = "borg-backup-success-notify.service";
       OnFailure = "borg-backup-failure-notify.service";
     };
     serviceConfig = {
-      # Automatic retry on failure
+      # Automatic retry on failure: 3 attempts max, then wait for next hourly timer
       Restart = "on-failure";
       RestartSec = "2min";          # Wait 2 minutes between retries
       StartLimitBurst = 3;          # Max 3 retry attempts
-      StartLimitIntervalSec = "1h"; # Reset retry counter after 1 hour
     };
   };
 
