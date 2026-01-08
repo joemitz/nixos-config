@@ -10,7 +10,6 @@
       ls = "eza";
       top = "btop";
       zzz = "systemctl suspend";
-      # NH with auto-commit and auto-push: rebuild, commit, and push on success
       nhs = ''
         current_dir=$(pwd) && \
         cd /home/joemitz/nixos-config && \
