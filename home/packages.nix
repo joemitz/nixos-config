@@ -22,5 +22,6 @@
     pkgs.micro
     pkgs.btop
     pkgs.eza
+    pkgs.teams-for-linux
   ];
 }
