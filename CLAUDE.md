@@ -137,15 +137,15 @@ The activation script ensures proper file ownership to allow NH to update flake.
 
 **System Configuration** (modular structure in system/):
 - **boot.nix**: systemd-boot with EFI, kernel 6.6 LTS (pkgs.linuxPackages_6_6), root rollback on boot
-- **hardware.nix**: AMD GPU with amdgpu driver early loading, hardware acceleration, Bluetooth, firmware updates, NVMe + NFS mounts
-- **desktop.nix**: KDE Plasma 6 with SDDM (Wayland enabled, Opal wallpaper background), PipeWire audio, printing
-- **networking.nix**: NetworkManager, Wake-on-LAN on enp6s0, Tailscale VPN, firewall, OpenSSH (port 22)
-- **users.nix**: User accounts (joemitz, root), timezone (America/Los_Angeles), locale, polkit, sudo
+- **hardware.nix**: AMD GPU with amdgpu driver early loading, hardware acceleration, Bluetooth, firmware updates, NVMe + NFS mounts (TrueNAS at 192.168.0.55)
+- **desktop.nix**: KDE Plasma 6 with SDDM (Wayland enabled, breeze theme, Opal wallpaper background), PipeWire audio, printing, kde-rounded-corners
+- **networking.nix**: NetworkManager, Wake-on-LAN on enp6s0, Tailscale VPN, firewall, OpenSSH (port 22, password auth enabled)
+- **users.nix**: User accounts (joemitz with groups: networkmanager, wheel, docker, adbusers, kvm; root), timezone (America/Los_Angeles), locale, polkit, passwordless sudo
 - **secrets.nix**: Complete sops-nix configuration for encrypted secrets management
 - **services.nix**: Docker, ADB for Android, NFS client, nix-ld (for Android SDK tools), NH (Nix Helper), Nix experimental features
 - **persistence.nix**: Impermanence configuration - root and home wipe on boot, state persisted to three subvolumes
-- **snapper.nix**: Snapper configuration for Btrfs snapshots of persistence subvolumes
-- **borg.nix**: Borg hourly backups to remote server (192.168.0.100)
+- **snapper.nix**: Snapper configuration for Btrfs snapshots of persistence subvolumes (joemitz allowed user)
+- **borg.nix**: Borg hourly backups to remote server (192.168.0.100) with desktop notifications, automatic retries, excludes Snapper snapshots and Docker images
 - **Filesystem**: Btrfs with subvolumes (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles) and zstd compression
 
 **User Configuration** (modular structure in home/):
@@ -184,8 +184,10 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
 - Unfree packages are allowed system-wide
 - The configuration auto-commits successfully applied changes to track system generations
 - All .nix files and flake.lock have ownership fixed on activation to allow NH updates
-- Using LTS kernel to avoid AMD GPU bug in 6.12.10+ (see https://bbs.archlinux.org/viewtopic.php?id=303556)
+- Using 6.6 LTS kernel to avoid AMD GPU bug in 6.12.10+ (see https://bbs.archlinux.org/viewtopic.php?id=303556)
 - AMD GPU driver loaded early in initrd for proper display detection before SDDM
+- KVM module (kvm-amd) enabled for virtualization
+- AMD CPU microcode updates enabled
 
 ## Hardware & Kernel
 
@@ -198,8 +200,9 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
 
 **Filesystem**:
 - Root filesystem: Btrfs with subvolumes (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles)
-- Mount options: compress=zstd, noatime, space_cache=v2
+- Mount options: compress=zstd, noatime, space_cache=v2 (on root), space_cache (on /nix)
 - Root (@) subvolume: Rolls back to pristine @blank snapshot on every boot (stateless root)
+- All persistence subvolumes: neededForBoot = true
 - /persist-root: System state (NetworkManager, Docker, SSH keys, logs, etc.)
 - /persist-dotfiles: User configs and application data (.config, .local, .ssh, .claude, etc.)
 - /persist-userfiles: User documents and projects (nixos-config, anova, Documents, Downloads, etc.)
@@ -210,6 +213,8 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
 **Snapper Snapshots**:
 - Configured for persist-root, persist-dotfiles, and persist-userfiles
 - Only snapshots persistent data (root and home are stateless, no point in snapshotting)
+- User joemitz is allowed to manage snapshots
+- Timeline creation and cleanup enabled for all configs
 - All three configs have the same retention policy:
   - Hourly snapshots: 48 (2 days)
   - Daily snapshots: 7
@@ -312,6 +317,7 @@ The secrets.env template includes both secrets and non-secret constants:
 **Alacritty Terminal**:
 - Theme: moonfly
 - Background: pure black (#000000)
+- Custom magenta colors (#d79600 normal, #ffbf5f bright)
 
 **Bash Configuration**:
 - Sources ~/.alias if exists
@@ -329,7 +335,6 @@ The secrets.env template includes both secrets and non-secret constants:
 **OpenSSH Server**:
 - Port: 22 (TCP)
 - Password authentication: enabled
-- Root login: allowed
 
 **Tailscale VPN**:
 - Enabled for secure remote access
@@ -337,7 +342,7 @@ The secrets.env template includes both secrets and non-secret constants:
 
 **NFS Client**:
 - rpcbind enabled for NFS support
-- TrueNAS Plex share auto-mounted at /mnt/truenas/plex (read-only)
+- TrueNAS Plex share (192.168.0.55:/mnt/main-pool/plex) auto-mounted at /mnt/truenas/plex (read-only)
 
 **Wake-on-LAN**:
 - Enabled on interface enp6s0
@@ -362,13 +367,17 @@ This system uses **full impermanence** - both root and home filesystems are wipe
   - SSH host keys and machine-id
 - `/persist-dotfiles` - Mounted from @persist-dotfiles subvolume, contains user configs:
   - Application configs: .config, .local, .ssh, .claude
-  - Development caches: .gradle, .npm, .cargo, .android
+  - Development caches: .gradle, .npm, .cargo, .compose-cache, .android
+  - Development settings: .react-native-cli, .java
   - Browser data: .mozilla, .cache
   - Application data: .zoom, .vscode-oss, .var (flatpak)
+  - Visual customization: .icons, .pki
 - `/persist-userfiles` - Mounted from @persist-userfiles subvolume, contains user data:
   - Projects: nixos-config, anova
-  - User directories: Documents, Downloads, Pictures, Videos, Desktop
-  - Android SDK, Postman collections
+  - User directories: Documents, Downloads, Pictures, Videos, Music, Desktop
+  - Development tools: Android SDK, Postman collections
+  - Miscellaneous: misc directory
+  - Root-level CLAUDE.md file
 
 **What gets wiped on every boot**:
 - Entire root filesystem (/) except /nix and persistence mounts
@@ -399,6 +408,9 @@ This system uses **full impermanence** - both root and home filesystems are wipe
 - Compression: auto,lz4 for good balance of speed and size
 - Schedule: Runs hourly
 - SSH key: /home/joemitz/.ssh/id_ed25519_borg (auto-accept new hosts)
+- Desktop notifications: Success (low urgency, 5s) and failure (critical urgency) notifications via libnotify
+- Network dependencies: Waits for network-online.target and NetworkManager-wait-online.service
+- Automatic retry: Retries on failure after 2 minute wait
 
 **Backup Retention**:
 - Hourly: 2 backups
@@ -417,9 +429,13 @@ This system uses **full impermanence** - both root and home filesystems are wipe
 - Build/download caches: .gradle, .npm, .cargo, .compose-cache
 - Android AVDs and cache (can be recreated)
 - KDE Baloo indexer cache (rebuilds automatically)
-- Trash and logs
+- Trash and logs (.local/share/Trash, .zoom/logs)
 - node_modules (rebuilt from package.json)
 - Android/iOS build artifacts (build, .gradle, Pods)
+- Build output directories (dist)
+- Test coverage reports (coverage)
+- Docker images (can be rebuilt)
+- Snapper snapshots (redundant with Borg versioning, saves ~139GB)
 
 **What's NOT backed up** (doesn't need to be):
 - / (root) - Wiped on every boot, fully reproducible from config
