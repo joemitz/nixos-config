@@ -51,7 +51,7 @@
 
         if [ $exit_code -eq 0 ]; then
           if ! git diff --quiet || ! git diff --cached --quiet; then
-            claude -p "Check git diff and them complete both of these 2 tasks: 1) Edit CLAUDE.md with any changes 2) Write a 5-10 word lowercase commit description to /tmp/nhs-commit-msg.txt (e.g. 'enable nix-ld for android tools')" --model haiku --allowedTools "Edit" "Write" "Read" "Bash(git diff:*)" && \
+            claude -p "Check git diff and them complete both of these 2 tasks: 1) Edit CLAUDE.md with any changes 2) Write a 5-10 word lowercase commit description to /tmp/nhs-commit-msg.txt (e.g. 'enable nix-ld for android tools')" --allowedTools "Edit" "Write" "Read" "Bash(git diff:*)" && \
             git add -A && \
             local commit_msg=$(cat /tmp/nhs-commit-msg.txt) && \
             local generation=$(nixos-rebuild list-generations | grep True | awk '{print $1}') && \
