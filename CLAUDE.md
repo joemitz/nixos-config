@@ -414,7 +414,7 @@ This system uses **full impermanence** - both root and home filesystems are wipe
 - SSH key: /home/joemitz/.ssh/id_ed25519_borg (auto-accept new hosts)
 - Desktop notifications: Success (low urgency, 5s) and failure (critical urgency) notifications via libnotify
 - Network dependencies: Waits for network-online.target and NetworkManager-wait-online.service
-- Automatic retry: Retries on failure after 2 minute wait
+- Automatic retry: 3 total attempts (1 initial + 2 retries) with 2 minute delay between attempts, restart mode set to direct (OnFailure only triggers on final failure)
 
 **Backup Retention**:
 - Hourly: 2 backups

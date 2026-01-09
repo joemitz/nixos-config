@@ -93,11 +93,16 @@
     unitConfig = {
       OnSuccess = "borg-backup-success-notify.service";
       OnFailure = "borg-backup-failure-notify.service";
+      # Allow 3 total attempts before giving up
+      StartLimitBurst = 3;
+      StartLimitIntervalSec = "10min";
     };
     serviceConfig = {
-      # Automatic retry on failure
+      # Automatic retry on failure (3 attempts total: 1 initial + 2 retries)
       Restart = "on-failure";
       RestartSec = "2min";          # Wait 2 minutes between retries
+      # Skip OnFailure during auto-restarts, only trigger on final failure
+      RestartMode = "direct";
     };
   };
 
