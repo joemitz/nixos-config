@@ -23,5 +23,6 @@
     pkgs.micro
     pkgs.btop
     pkgs.eza
+    pkgs.lazygit
   ];
 }
