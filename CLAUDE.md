@@ -136,13 +136,13 @@ The activation script ensures proper file ownership to allow NH to update flake.
 ## Configuration Layout
 
 **System Configuration** (modular structure in system/):
-- **boot.nix**: systemd-boot with EFI, LTS kernel (pkgs.linuxPackages), root rollback on boot
+- **boot.nix**: systemd-boot with EFI, kernel 6.6 LTS (pkgs.linuxPackages_6_6), root rollback on boot
 - **hardware.nix**: AMD GPU with amdgpu driver early loading, hardware acceleration, Bluetooth, firmware updates, NVMe + NFS mounts
 - **desktop.nix**: KDE Plasma 6 with SDDM (Wayland enabled, Opal wallpaper background), PipeWire audio, printing
 - **networking.nix**: NetworkManager, Wake-on-LAN on enp6s0, Tailscale VPN, firewall, OpenSSH (port 22)
 - **users.nix**: User accounts (joemitz, root), timezone (America/Los_Angeles), locale, polkit, sudo
 - **secrets.nix**: Complete sops-nix configuration for encrypted secrets management
-- **services.nix**: Docker, ADB for Android, NFS client, NH (Nix Helper), Nix experimental features
+- **services.nix**: Docker, ADB for Android, NFS client, nix-ld (for Android SDK tools), NH (Nix Helper), Nix experimental features
 - **persistence.nix**: Impermanence configuration - root and home wipe on boot, state persisted to three subvolumes
 - **snapper.nix**: Snapper configuration for Btrfs snapshots of persistence subvolumes
 - **borg.nix**: Borg hourly backups to remote server (192.168.0.100)
@@ -171,10 +171,11 @@ Git is configured with several useful aliases:
 - `git pu`: Push
 - `git ad`: Add
 - `git ch`: Checkout
+- `git cp`: Commit with message and push (`git commit -m "$1" && git push`)
 - `git lb`: Show last 10 branch checkouts with colors
 - `git ma`: Show last 30 merge commits with colors
 
-Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Credential helper uses store mode for persistence.
+Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Credential helper uses libsecret (KDE Wallet).
 
 ## Important Notes
 
@@ -193,7 +194,7 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
 - Hardware acceleration enabled (32-bit support included)
 - Video driver explicitly set to "amdgpu"
 
-**Kernel**: LTS (linuxPackages) to avoid stability issues with newer kernels on AMD GPUs
+**Kernel**: 6.6 LTS (linuxPackages_6_6) to avoid stability issues with newer kernels on AMD GPUs
 
 **Filesystem**:
 - Root filesystem: Btrfs with subvolumes (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles)
@@ -221,6 +222,7 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
 **Android Development**:
 - Android Studio and android-tools installed
 - ADB enabled system-wide
+- nix-ld enabled for running Android SDK dynamically linked executables (AAPT2, CMake, Ninja, NDK tools)
 - Environment variables configured in home.nix:
   - ANDROID_HOME: $HOME/Android/Sdk
   - PATH includes emulator and platform-tools
