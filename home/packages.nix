@@ -23,6 +23,5 @@
     pkgs.micro
     pkgs.btop
     pkgs.eza
-    pkgs.kdePackages.kate
   ];
 }
