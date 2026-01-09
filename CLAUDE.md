@@ -87,9 +87,13 @@ nhs
 This alias:
 1. Switches to the config directory
 2. Runs `nh os switch`
-3. On success: auto-commits changes with generation number and timestamp
-4. Pushes to git remote
-5. Returns to original directory
+3. On success: invokes Claude Haiku to analyze git diff, update CLAUDE.md, and generate commit message
+4. Reads commit message from temporary file in config directory
+5. Cleans up temporary commit message file
+6. Stages all changes with `git add -A`
+7. Commits changes with generation number and generated message
+8. Pushes to git remote
+9. Returns to original directory
 
 **Stage for next boot with auto-commit and push** (use the `nhb` bash alias):
 ```bash
