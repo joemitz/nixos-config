@@ -18,7 +18,6 @@
     pkgs.android-studio
     pkgs.android-tools
     pkgs.jdk11
-    pkgs.patchelf
     pkgs.nodejs_24
     pkgs.micro
     pkgs.btop
