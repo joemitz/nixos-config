@@ -31,6 +31,9 @@
       "/persist-dotfiles/home/joemitz/.local/share/Trash"
       "/persist-dotfiles/home/joemitz/.zoom/logs"
 
+      # Exclude systemd journal (active logs cause backup failures)
+      "/persist-root/var/log/journal"
+
       # Exclude node_modules (can be rebuilt from package.json)
       "/persist-userfiles/**/node_modules"
 
