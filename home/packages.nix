@@ -19,7 +19,6 @@
     pkgs.android-tools
     pkgs.jdk11
     pkgs.nodejs_24
-    pkgs.micro
     pkgs.btop
     pkgs.eza
   ];

@@ -6,7 +6,6 @@
     shellAliases = {
       code = "codium";
       c = "claude";
-      nano = "micro";
       ls = "eza";
       top = "btop";
       zzz = "systemctl suspend";
