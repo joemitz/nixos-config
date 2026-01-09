@@ -10,50 +10,8 @@
       ls = "eza";
       top = "btop";
       zzz = "systemctl suspend";
-      nhs = ''
-        current_dir=$(pwd) && \
-        cd /home/joemitz/nixos-config && \
-        git add -A && \
-        nh os switch /home/joemitz/nixos-config && \
-        exit_code=$? && \
-        if [ $exit_code -eq 0 ]; then \
-          if ! git diff --quiet || ! git diff --cached --quiet; then \
-            generation=$(nixos-rebuild list-generations | grep True | awk '{print $1}') && \
-            timestamp=$(date +"%Y-%m-%d %H:%M") && \
-            git commit -m "generation $generation [$timestamp]" && \
-            echo "" && \
-            echo "Changes committed. Pushing to remote..." && \
-            git push && \
-            echo "Successfully pushed to remote!" || \
-            echo "Warning: Commit succeeded but push failed. Run 'git push' manually."; \
-          else \
-            echo "No configuration changes to commit"; \
-          fi; \
-        fi && \
-        cd "$current_dir"
-      '';
-      nhb = ''
-        current_dir=$(pwd) && \
-        cd /home/joemitz/nixos-config && \
-        git add -A && \
-        nh os boot /home/joemitz/nixos-config && \
-        exit_code=$? && \
-        if [ $exit_code -eq 0 ]; then \
-          if ! git diff --quiet || ! git diff --cached --quiet; then \
-            generation=$(nixos-rebuild list-generations | grep True | awk '{print $1}') && \
-            timestamp=$(date +"%Y-%m-%d %H:%M") && \
-            git commit -m "generation $generation [$timestamp]" && \
-            echo "" && \
-            echo "Changes committed. Pushing to remote..." && \
-            git push && \
-            echo "Successfully pushed to remote!" || \
-            echo "Warning: Commit succeeded but push failed. Run 'git push' manually."; \
-          else \
-            echo "No configuration changes to commit"; \
-          fi; \
-        fi && \
-        cd "$current_dir"
-      '';
+      nhs = "_nh_rebuild_commit switch";
+      nhb = "_nh_rebuild_commit boot";
     };
     sessionVariables = {
       # Non-secret environment variables
@@ -81,6 +39,35 @@
         source ~/.config/secrets.env
         set +a
       fi
+
+      # NH rebuild with auto-commit function
+      _nh_rebuild_commit() {
+        local mode=$1
+        local current_dir=$(pwd)
+
+        cd /home/joemitz/nixos-config
+        nh os $mode /home/joemitz/nixos-config
+        local exit_code=$?
+
+        if [ $exit_code -eq 0 ]; then
+          if ! git diff --quiet || ! git diff --cached --quiet; then
+            claude -p "Check git diff: 1) Update CLAUDE.md for any changes 2) Write a 5-10 word lowercase commit description to /tmp/nhs-commit-msg.txt (e.g. 'enable nix-ld for android tools')" --model haiku --allowedTools "Edit" "Write" "Read" "Bash(git diff:*)" && \
+            git add -A && \
+            local commit_msg=$(cat /tmp/nhs-commit-msg.txt) && \
+            local generation=$(nixos-rebuild list-generations | grep True | awk '{print $1}') && \
+            git commit -m "Gen $generation: $commit_msg" && \
+            echo "" && \
+            echo "Changes committed. Pushing to remote..." && \
+            git push && \
+            echo "Successfully pushed to remote!" || \
+            echo "Warning: Commit succeeded but push failed. Run 'git push' manually."
+          else
+            echo "No configuration changes to commit"
+          fi
+        fi
+
+        cd "$current_dir"
+      }
 
       # Auto-attach to main tmux session
       if command -v tmux &> /dev/null && [ -n "$PS1" ] && [[ ! "$TERM" =~ screen ]] && [[ ! "$TERM" =~ tmux ]] && [ -z "$TMUX" ]; then
