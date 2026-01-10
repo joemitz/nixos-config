@@ -11,6 +11,7 @@
     ./alacritty.nix
     ./firefox.nix
     ./desktop-entries.nix
+    ./nixd.nix
   ];
 
   home.stateVersion = "25.11";

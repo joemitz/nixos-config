@@ -21,5 +21,7 @@
     pkgs.nodejs_24
     pkgs.btop
     pkgs.eza
+    pkgs.nixd
+    pkgs.nixpkgs-fmt
   ];
 }
