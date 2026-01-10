@@ -153,7 +153,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 - **Filesystem**: Btrfs with subvolumes (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles) and zstd compression
 
 **User Configuration** (modular structure in home/):
-- **packages.nix**: All user packages - CLI tools (claude-code, gh, jq, devbox, nodejs_24, btop, eza, nixd, nixpkgs-fmt, nixf), development apps (vscodium, postman, android-studio, android-tools, jdk11), applications (zoom-us, tidal-hifi, vlc, gimp, guvcview, remmina), custom packages (tiny4linux). Note: tmux enabled via programs.tmux in tmux.nix, not listed here
+- **packages.nix**: All user packages - CLI tools (claude-code, gh, jq, devbox, nodejs_24, btop, eza), Nix tools (nixd, nixpkgs-fmt, nixf), development apps (vscodium, postman, android-studio, android-tools, jdk11), applications (zoom-us, tidal-hifi, vlc, gimp, guvcview, remmina), custom packages (tiny4linux). Note: tmux enabled via programs.tmux in tmux.nix, not listed here
 - **git.nix**: Git with gitFull package, user config, useful aliases (co, st, br, hi, lb, ma, type, dump, pu, ad, ch, cp), LFS support, libsecret credential helper (KDE Wallet)
 - **ssh.nix**: SSH configuration with macbook host (192.168.0.232)
 - **direnv.nix**: direnv with bash integration and nix-direnv support
@@ -193,7 +193,7 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
 - AMD GPU driver loaded early in initrd for proper display detection before SDDM
 - KVM module (kvm-amd) enabled for virtualization
 - AMD CPU microcode updates enabled
-- Module function parameters: Only explicitly required parameters are included in module headers (unused `config` and `pkgs` parameters removed to keep code clean)
+- Module function parameters: Only explicitly required parameters are included in module headers (unused `config` and `pkgs` parameters removed to keep code clean and reduce imports)
 
 ## Hardware & Kernel
 
@@ -243,6 +243,19 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
 **Docker**: Enabled with user in docker group
 
 **Node.js**: Version 24 installed
+
+**Nix Development Tools**:
+- **nixd**: Nix language server providing IDE features (autocomplete, diagnostics, go-to-definition, formatting)
+  - Configuration: `~/.config/nixd/config.json` (managed by home-manager)
+  - Configured to use flake at `/home/joemitz/nixos-config`
+  - Provides completion for nixpkgs, NixOS options, and home-manager options
+- **nixf-tidy**: Command-line linter for Nix files
+  - Checks for unused arguments, unnecessary `rec` keywords, and other code issues
+  - Outputs JSON array of diagnostics
+  - Usage: `nixf-tidy --variable-lookup < file.nix`
+  - Scan all config files: `for file in /home/joemitz/nixos-config/{system,home}/*.nix /home/joemitz/nixos-config/flake.nix /home/joemitz/nixos-config/pkgs/*.nix /home/joemitz/nixos-config/cachix/*.nix; do if [ -f "$file" ]; then result=$(nixf-tidy --variable-lookup < "$file" 2>&1); if [ "$result" != "[]" ]; then echo "=== $file ==="; echo "$result"; fi; fi; done`
+  - Empty output `[]` means no errors found
+- **nixpkgs-fmt**: Nix code formatter used by nixd
 
 **Additional Environment Variables**:
 - NODE_ENV=development

@@ -20,7 +20,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, claude-code, sops-nix, tiny4linux, impermanence, ... }: {
+  outputs = { nixpkgs, home-manager, claude-code, sops-nix, tiny4linux, impermanence, ... }: {
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [

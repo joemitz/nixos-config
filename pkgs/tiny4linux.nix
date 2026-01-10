@@ -10,7 +10,7 @@
 , src
 }:
 
-rustPlatform.buildRustPackage rec {
+rustPlatform.buildRustPackage {
   pname = "tiny4linux";
   version = "2.2.2";
 
