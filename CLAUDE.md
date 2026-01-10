@@ -86,14 +86,15 @@ nhs
 ```
 This alias:
 1. Switches to the config directory
-2. Runs `nh os switch`
-3. On success: invokes Claude Haiku to analyze git diff, update CLAUDE.md, and generate commit message
-4. Reads commit message from temporary file in config directory
-5. Cleans up temporary commit message file
-6. Stages all changes with `git add -A`
-7. Commits changes with generation number and generated message
-8. Pushes to git remote
-9. Returns to original directory
+2. Runs `statix fix .` to auto-fix any Nix code issues (unused arguments, empty patterns, etc.)
+3. Runs `nh os switch`
+4. On success: invokes Claude Haiku to analyze git diff, update CLAUDE.md, and generate commit message
+5. Reads commit message from temporary file in config directory
+6. Cleans up temporary commit message file
+7. Stages all changes with `git add -A`
+8. Commits changes with generation number and generated message
+9. Pushes to git remote
+10. Returns to original directory
 
 **Stage for next boot with auto-commit and push** (use the `nhb` bash alias):
 ```bash
@@ -101,10 +102,11 @@ nhb
 ```
 This alias:
 1. Switches to the config directory
-2. Runs `nh os boot` (stages configuration for next boot, doesn't switch immediately)
-3. On success: auto-commits changes with generation number and timestamp
-4. Pushes to git remote
-5. Returns to original directory
+2. Runs `statix fix .` to auto-fix any Nix code issues (unused arguments, empty patterns, etc.)
+3. Runs `nh os boot` (stages configuration for next boot, doesn't switch immediately)
+4. On success: auto-commits changes with generation number and timestamp
+5. Pushes to git remote
+6. Returns to original directory
 
 **IMPORTANT: Claude Code must NEVER run nhs or nhb automatically**:
 - Claude should make configuration changes and then stop
@@ -153,7 +155,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 - **Filesystem**: Btrfs with subvolumes (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles) and zstd compression
 
 **User Configuration** (modular structure in home/):
-- **packages.nix**: All user packages - CLI tools (claude-code, gh, jq, devbox, nodejs_24, btop, eza), Nix tools (nixd, nixpkgs-fmt, nixf), development apps (vscodium, postman, android-studio, android-tools, jdk11), applications (zoom-us, tidal-hifi, vlc, gimp, guvcview, remmina), custom packages (tiny4linux). Note: tmux enabled via programs.tmux in tmux.nix, not listed here
+- **packages.nix**: All user packages - CLI tools (claude-code, gh, jq, devbox, nodejs_24, btop, eza), Nix tools (nixd, nixpkgs-fmt, nixf, statix), development apps (vscodium, postman, android-studio, android-tools, jdk11), applications (zoom-us, tidal-hifi, vlc, gimp, guvcview, remmina), custom packages (tiny4linux). Note: tmux enabled via programs.tmux in tmux.nix, not listed here
 - **git.nix**: Git with gitFull package, user config, useful aliases (co, st, br, hi, lb, ma, type, dump, pu, ad, ch, cp), LFS support, libsecret credential helper (KDE Wallet)
 - **ssh.nix**: SSH configuration with macbook host (192.168.0.232)
 - **direnv.nix**: direnv with bash integration and nix-direnv support
@@ -249,7 +251,12 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
   - Configuration: `~/.config/nixd/config.json` (managed by home-manager)
   - Configured to use flake at `/home/joemitz/nixos-config`
   - Provides completion for nixpkgs, NixOS options, and home-manager options
-- **nixf-tidy**: Command-line linter for Nix files
+- **statix**: Linter with auto-fix for Nix code antipatterns
+  - Automatically runs via `statix fix .` when using `nhs` or `nhb` aliases
+  - Fixes: unused arguments, empty patterns, redundant bindings, empty let blocks, and style issues
+  - Manual usage: `statix check /path/to/dir` (check only), `statix fix /path/to/dir` (auto-fix)
+  - Dry-run: `statix fix --dry-run /path/to/dir` (preview changes without modifying files)
+- **nixf-tidy**: Command-line linter for Nix files (diagnostic only, no auto-fix)
   - Checks for unused arguments, unnecessary `rec` keywords, and other code issues
   - Outputs JSON array of diagnostics
   - Usage: `nixf-tidy --variable-lookup < file.nix`

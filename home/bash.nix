@@ -45,6 +45,11 @@
         local current_dir=$(pwd)
 
         cd /home/joemitz/nixos-config
+
+        # Auto-fix Nix code issues with statix
+        echo "Running statix fix on configuration files..."
+        statix fix .
+
         nh os $mode /home/joemitz/nixos-config
         local exit_code=$?
 
