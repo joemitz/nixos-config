@@ -1,4 +1,4 @@
-{ ... }:
+_:
 
 {
   # Allow unfree packages

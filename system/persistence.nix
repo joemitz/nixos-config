@@ -1,4 +1,4 @@
-{ ... }:
+_:
 
 {
   # Impermanence: Define what persists across reboots

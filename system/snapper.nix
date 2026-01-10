@@ -1,4 +1,4 @@
-{ ... }:
+_:
 
 {
   # Snapper - Btrfs snapshot management

@@ -1,4 +1,4 @@
-{ ... }:
+_:
 
 {
   # Configure nixd language server for Nix

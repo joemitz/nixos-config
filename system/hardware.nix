@@ -1,4 +1,4 @@
-{ ... }:
+_:
 
 {
   # AMD GPU hardware acceleration
