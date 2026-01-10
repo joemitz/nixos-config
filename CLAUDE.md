@@ -358,7 +358,7 @@ The secrets.env template includes both secrets and non-secret constants:
 - Auto-sources ~/.config/secrets.env
 - Auto-attaches to tmux "main" session on login (unless already in tmux)
 - Shell aliases: `ls`→`eza`, `top`→`btop`, `code`→`codium`, `c`→`claude`, `nano`→`micro`, `zzz`→`systemctl suspend`
-- `nhs` alias: Full rebuild + auto-commit + push workflow (with feedback message when generating CLAUDE.md updates)
+- `nhs` alias: Full rebuild + auto-commit + push workflow (invokes Claude Haiku to generate commit message and update CLAUDE.md with important changes only)
 - `nhb` alias: Stage for boot + auto-commit + push workflow
 
 ## Network & Remote Access
