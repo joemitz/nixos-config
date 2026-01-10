@@ -1,4 +1,4 @@
-{ config, pkgs, claude-code, tiny4linux, ... }:
+{ pkgs, claude-code, tiny4linux, ... }:
 
 {
   home.packages = [

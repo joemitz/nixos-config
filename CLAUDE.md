@@ -56,7 +56,7 @@ nixos-config/
 - `home/*.nix`: Modular home configuration split by program (packages, git, ssh, direnv, bash, tmux, alacritty, firefox, desktop-entries)
 - `system/hardware-configuration.nix`: Hardware-specific configuration with Btrfs subvolumes (generated, not typically edited manually)
 - `pkgs/tiny4linux.nix`: Custom package for OBSBOT Tiny2 camera controller
-- `cachix/`: Binary cache configurations (claude-code, nix-community)
+- `cachix/`: Binary cache configurations (claude-code, nix-community). Auto-import system uses cleanup of unused parameters for code hygiene.
 - `secrets/`: Encrypted secrets managed by sops-nix
 
 **Key Design Decisions**:
@@ -157,7 +157,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 - **Filesystem**: Btrfs with subvolumes (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles) and zstd compression
 
 **User Configuration** (modular structure in home/):
-- **packages.nix**: All user packages - CLI tools (claude-code, gh, jq, devbox, nodejs_24, btop, eza), Nix tools (nixd, nixpkgs-fmt, nixf, statix, deadnix), development apps (vscodium, postman, android-studio, android-tools, jdk11), applications (zoom-us, tidal-hifi, vlc, gimp, guvcview, remmina), custom packages (tiny4linux). Note: tmux enabled via programs.tmux in tmux.nix, not listed here
+- **packages.nix**: All user packages - CLI tools (claude-code, gh, jq, devbox, nodejs_24, btop, eza), Nix tools (nixd, nixpkgs-fmt, nixf, statix, deadnix), development apps (vscodium, postman, android-studio, android-tools, jdk11), applications (zoom-us, tidal-hifi, vlc, gimp, guvcview, remmina), custom packages (tiny4linux). Module header cleaned to include only required parameters (removed unused `config`). Note: tmux enabled via programs.tmux in tmux.nix, not listed here
 - **git.nix**: Git with gitFull package, user config, useful aliases (co, st, br, hi, lb, ma, type, dump, pu, ad, ch, cp), LFS support, libsecret credential helper (KDE Wallet)
 - **ssh.nix**: SSH configuration with macbook host (192.168.0.232)
 - **direnv.nix**: direnv with bash integration and nix-direnv support
