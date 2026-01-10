@@ -25,5 +25,6 @@
     pkgs.nixpkgs-fmt
     pkgs.nixf
     pkgs.statix
+    pkgs.deadnix
   ];
 }

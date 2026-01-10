@@ -46,8 +46,10 @@ _:
 
         cd /home/joemitz/nixos-config
 
-        # Auto-fix Nix code issues with statix
-        echo "Running statix fix on configuration files..."
+        # Auto-fix Nix code issues
+        echo "Running deadnix to remove unused code..."
+        deadnix -e .
+        echo "Running statix to fix style issues..."
         statix fix .
 
         nh os $mode /home/joemitz/nixos-config
