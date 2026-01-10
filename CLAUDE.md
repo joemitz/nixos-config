@@ -193,6 +193,7 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
 - AMD GPU driver loaded early in initrd for proper display detection before SDDM
 - KVM module (kvm-amd) enabled for virtualization
 - AMD CPU microcode updates enabled
+- Module function parameters: Only explicitly required parameters are included in module headers (unused `config` and `pkgs` parameters removed to keep code clean)
 
 ## Hardware & Kernel
 
