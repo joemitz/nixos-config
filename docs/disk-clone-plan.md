@@ -578,3 +578,207 @@ sudo btrfs device stats /
 - Verify system boots to correct disk with `lsblk -f`
 - Check btrfs status, swap, and snapshots
 - Run `btrfs scrub start /` and verify 0 errors after completion
+
+---
+
+## Post-Clone Plan (If System Boots Successfully)
+
+**Note:** If the cloned system boots successfully without Phase 6 modifications, most post-clone steps are unnecessary. Clonezilla performed a perfect sector-by-sector clone including:
+- ✅ Partition table with correct UUIDs
+- ✅ GRUB bootloader from BIOS boot partition
+- ✅ All configuration files (/etc/fstab, GRUB config, initramfs)
+
+### Post-Clone Verification and Optimization (From Booted openSUSE System)
+
+All of these steps can be performed **online** from the running openSUSE system. No live USB required.
+
+---
+
+#### Step 1: Verify Partition Layout
+
+**Check the cloned disk layout:**
+```bash
+# Identify your disk (likely sda or sdb)
+lsblk -f
+
+# Check partition sizes
+sudo fdisk -l /dev/sda  # Replace sda with your actual disk
+```
+
+**Expected layout on 500GB disk:**
+- p1: 66.7 MB (BIOS boot)
+- p2: ~435 GiB (btrfs)
+- p3: 16.7 GiB (swap)
+
+---
+
+#### Step 2: Verify Btrfs Filesystem Size
+
+**Check current filesystem size vs partition size:**
+```bash
+# Show filesystem size
+sudo btrfs filesystem show /
+
+# Show filesystem usage
+sudo btrfs filesystem usage /
+
+# Check partition size
+sudo parted /dev/sda unit GiB print  # Replace sda with your disk
+```
+
+**If partition is larger than filesystem:** You have free space that can be used by expanding the filesystem.
+
+---
+
+#### Step 3: Expand Btrfs Filesystem (Optional)
+
+**If there's unused space in the partition, expand the filesystem:**
+```bash
+# Expand filesystem to use all available space in partition
+sudo btrfs filesystem resize max /
+
+# Verify expansion
+sudo btrfs filesystem show /
+```
+
+**Expected result:**
+- Filesystem size should now match partition size
+- Additional GiB available for use
+
+---
+
+#### Step 4: Verify Swap is Active
+
+**Check swap status:**
+```bash
+# Show active swap devices
+swapon --show
+
+# Show memory and swap usage
+free -h
+```
+
+**Expected output:**
+- Swap partition should be listed and active
+- Size should show ~16.7 GiB
+
+**If swap is not active:**
+```bash
+# Get swap UUID
+sudo blkid /dev/sda3  # Replace sda3 with your swap partition
+
+# Check /etc/fstab for swap entry
+cat /etc/fstab | grep swap
+
+# Activate swap manually
+sudo swapon /dev/sda3
+```
+
+---
+
+#### Step 5: Verify UUIDs Match
+
+**Verify fstab configuration matches actual UUIDs:**
+```bash
+# Show current UUIDs
+sudo blkid | grep /dev/sda
+
+# Check fstab entries
+cat /etc/fstab
+
+# Compare - they should match
+```
+
+**If Clonezilla cloned correctly:** UUIDs should be identical to the original disk and fstab should be correct.
+
+---
+
+#### Step 6: Run Btrfs Scrub (Data Integrity Check)
+
+**Verify all data was cloned correctly:**
+```bash
+# Start scrub (runs in background)
+sudo btrfs scrub start /
+
+# Monitor progress
+watch -n 10 'sudo btrfs scrub status /'
+
+# Or check status once
+sudo btrfs scrub status /
+```
+
+**Expected duration:** 30-60 minutes depending on data size
+
+**After completion, verify:**
+```bash
+# Should show 0 errors
+sudo btrfs scrub status /
+
+# Check device statistics
+sudo btrfs device stats /
+```
+
+**Expected output:**
+- Total errors: 0
+- Unrecoverable errors: 0
+
+---
+
+#### Step 7: Verify Snapshots
+
+**Confirm all snapshots are intact:**
+```bash
+# List snapshots
+sudo snapper list
+
+# Check snapshot subvolumes
+sudo btrfs subvolume list / | grep snapshots
+
+# Verify boot snapshot (should match current boot)
+cat /proc/cmdline
+# Should show: subvol=/@/.snapshots/3142/snapshot (or similar)
+```
+
+---
+
+#### Step 8: Check System Health
+
+**Final system health checks:**
+```bash
+# Check for boot errors
+sudo journalctl -b -p err
+
+# Verify disk free space
+df -h
+
+# Check btrfs status
+sudo btrfs filesystem show /
+```
+
+---
+
+### Summary Checklist
+
+**Post-Clone Verification:**
+- [ ] Partition layout verified (p1: 66.7MB, p2: ~435GiB, p3: 16.7GiB)
+- [ ] Btrfs filesystem expanded to use full partition (if extra space available)
+- [ ] Swap active and working (swapon --show)
+- [ ] UUIDs in /etc/fstab match actual device UUIDs
+- [ ] Btrfs scrub completed with 0 errors
+- [ ] All snapshots present and accessible
+- [ ] System boots correctly from cloned disk
+- [ ] No errors in journal (journalctl -b -p err)
+
+**Estimated Total Time:** 1-2 hours (mostly btrfs scrub)
+
+**Risk Level:** Low - all operations can be performed online and are non-destructive
+
+---
+
+### Optional: Remove Old Disk
+
+Once you've verified everything works:
+1. Boot from new 500GB disk multiple times over a few days
+2. Confirm stability and all functionality
+3. Keep the old 1TB disk as backup until confident
+4. After 1-2 weeks of stable operation, old disk can be repurposed or securely wiped
