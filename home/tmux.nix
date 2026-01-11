@@ -39,12 +39,6 @@ _:
       set -g status on
       set -g status-left "[#S] "
       set -g status-right ""
-
-      # Pane border styling - all 4 sides including edges
-      set -g pane-border-status top
-      set -g pane-border-format ""
-      set -g pane-border-style "fg=colour240"
-      set -g pane-active-border-style "fg=colour39"
     '';
   };
 }

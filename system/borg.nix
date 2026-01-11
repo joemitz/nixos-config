@@ -9,8 +9,6 @@
       "/persist-userfiles"   # User documents and projects
     ];
 
-    persistentTimer = false;  # Don't catch up missed backups after boot/wake
-
     exclude = [
       # Exclude all cache directories (can be rebuilt)
       "/persist-root/**/.cache"
