@@ -39,8 +39,7 @@ nixos-config/
 │   └── desktop-entries.nix     # XDG desktop entries (guvcview, tiny4linux)
 ├── cachix/
 │   ├── default.nix            # Auto-imports all cachix configs
-│   ├── claude-code.nix        # Claude Code binary cache
-│   └── nix-community.nix      # Community binary cache
+│   └── claude-code.nix        # Claude Code binary cache
 ├── secrets/
 │   ├── secrets.yaml           # Encrypted secrets (committed)
 │   └── secrets-template.yaml  # Template (not committed)
@@ -56,7 +55,7 @@ nixos-config/
 - `home/*.nix`: Modular home configuration split by program (packages, git, ssh, direnv, bash, tmux, alacritty, firefox, desktop-entries)
 - `system/hardware-configuration.nix`: Hardware-specific configuration with Btrfs subvolumes (generated, not typically edited manually)
 - `pkgs/tiny4linux.nix`: Custom package for OBSBOT Tiny2 camera controller
-- `cachix/`: Binary cache configurations (claude-code, nix-community). Auto-import system uses cleanup of unused parameters for code hygiene.
+- `cachix/`: Binary cache configurations (claude-code). Auto-import system uses cleanup of unused parameters for code hygiene.
 - `secrets/`: Encrypted secrets managed by sops-nix
 
 **Key Design Decisions**:
@@ -71,7 +70,7 @@ nixos-config/
 - Btrfs filesystem with compression (zstd) and snapshots via Snapper
 - Automated backups via Borg to remote server
 - LTS kernel to avoid AMD GPU bugs in newer kernels
-- Binary caches configured: cache.nixos.org, claude-code.cachix.org, nix-community.cachix.org
+- Binary caches configured: cache.nixos.org, claude-code.cachix.org
 
 ## Building and Deploying
 
