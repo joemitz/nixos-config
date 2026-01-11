@@ -11,7 +11,10 @@ _:
   services.xserver.videoDrivers = [ "amdgpu" ];
 
   # Enable Bluetooth (built-in and USB dongles)
-  hardware.bluetooth.enable = true;
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;
+  };
 
   # Enable firmware updates
   services.fwupd.enable = true;

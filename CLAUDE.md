@@ -144,7 +144,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 
 **System Configuration** (modular structure in system/):
 - **boot.nix**: systemd-boot with EFI, kernel 6.6 LTS (pkgs.linuxPackages_6_6), root rollback on boot
-- **hardware.nix**: AMD GPU with amdgpu driver early loading, hardware acceleration, Bluetooth, firmware updates, NFS mount (TrueNAS at 192.168.0.55)
+- **hardware.nix**: AMD GPU with amdgpu driver early loading, hardware acceleration, Bluetooth with power-on-boot enabled, firmware updates, NFS mount (TrueNAS at 192.168.0.55)
 - **desktop.nix**: KDE Plasma 6 with SDDM (Wayland enabled, breeze theme, Opal wallpaper background), PipeWire audio, printing, kde-rounded-corners
 - **networking.nix**: NetworkManager, Wake-on-LAN on enp6s0, Tailscale VPN, firewall, OpenSSH (port 22, password auth enabled)
 - **users.nix**: User accounts (joemitz with groups: networkmanager, wheel, docker, adbusers, kvm; root), timezone (America/Los_Angeles), locale, polkit, passwordless sudo
