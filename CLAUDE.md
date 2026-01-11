@@ -345,6 +345,7 @@ The secrets.env template includes both secrets and non-secret constants:
 - Ctrl+K to clear console
 - Ctrl+_ mapped to Shift-Tab
 - Status bar enabled with session name
+- Pane border styling: Top border with inactive panes (colour240) and active pane (colour39) highlighting
 
 **Alacritty Terminal**:
 - Theme: moonfly
@@ -443,6 +444,7 @@ This system uses **full impermanence** - both root and home filesystems are wipe
 - Desktop notifications: Success (low urgency, 5s) and failure (critical urgency) notifications via libnotify
 - Network dependencies: Waits for network-online.target and NetworkManager-wait-online.service
 - Automatic retry: 3 total attempts (1 initial + 2 retries) with 2 minute delay between attempts, restart mode set to direct (OnFailure only triggers on final failure)
+- Persistent timer disabled: Won't catch up missed backups after system sleep/wake or boot
 
 **Backup Retention**:
 - Hourly: 2 backups
