@@ -104,6 +104,17 @@
       # Skip OnFailure during auto-restarts, only trigger on final failure
       RestartMode = "direct";
     };
+
+    # Time-check wrapper: only allow backups within first 5 minutes of the hour
+    # This prevents catch-up backups after suspend/wake (e.g., waking at 12:52 won't trigger backup)
+    preStart = ''
+      CURRENT_MINUTE=$(date +%M)
+      if [ "$CURRENT_MINUTE" -gt 5 ]; then
+        echo "Skipping backup: not within first 5 minutes of the hour (current minute: $CURRENT_MINUTE)"
+        exit 0
+      fi
+      echo "Starting backup: within allowed window (current minute: $CURRENT_MINUTE)"
+    '';
   };
 
   systemd.services."borg-backup-success-notify" = {

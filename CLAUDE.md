@@ -438,11 +438,12 @@ This system uses **full impermanence** - both root and home filesystems are wipe
 - Repository: ssh://borg@192.168.0.100:2222/backup/nixos-persist
 - Encryption: repokey-blake2 with passphrase from sops secrets
 - Compression: auto,lz4 for good balance of speed and size
-- Schedule: Runs hourly
+- Schedule: Runs hourly, but only allows backups within first 5 minutes of each hour (prevents catch-up backups after suspend/wake)
 - SSH key: /home/joemitz/.ssh/id_ed25519_borg (auto-accept new hosts)
 - Desktop notifications: Success (low urgency, 5s) and failure (critical urgency) notifications via libnotify
 - Network dependencies: Waits for network-online.target and NetworkManager-wait-online.service
 - Automatic retry: 3 total attempts (1 initial + 2 retries) with 2 minute delay between attempts, restart mode set to direct (OnFailure only triggers on final failure)
+- Time-check wrapper: `preStart` script ensures backups only run within first 5 minutes of the hour (e.g., waking at 12:52 will skip the backup until 1:00-1:05)
 
 **Backup Retention**:
 - Hourly: 2 backups
