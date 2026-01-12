@@ -6,6 +6,8 @@
     claude-code.packages.x86_64-linux.default
     pkgs.gh
     pkgs.jq
+    pkgs.awscli2
+    pkgs.awslogs
     pkgs.vscodium
     pkgs.postman
     pkgs.zoom-us
