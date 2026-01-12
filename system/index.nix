@@ -13,6 +13,7 @@
     ./persistence.nix
     ./snapper.nix
     ./borg.nix
+    ./kopia-server.nix
     ../cachix
   ];
 

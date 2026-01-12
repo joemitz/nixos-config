@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+_:
 
 {
   # Allow unfree packages
@@ -32,16 +32,6 @@
   system.activationScripts.fix-nixos-config-permissions = ''
     chown -R joemitz:users /home/joemitz/nixos-config/*.nix /home/joemitz/nixos-config/flake.lock 2>/dev/null || true
   '';
-
-  # Grant Kopia the capability to read any file (for backing up system files)
-  # This allows kopia-ui to backup /persist-root without running as root
-  # Creates a wrapper at /run/wrappers/bin/kopia with read capabilities
-  security.wrappers.kopia = {
-    source = "${pkgs.kopia}/bin/kopia";
-    capabilities = "cap_dac_read_search=+ep";
-    owner = "root";
-    group = "root";
-  };
 
   # Nix settings
   nix.settings = {

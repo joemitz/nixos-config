@@ -23,6 +23,7 @@ _:
       "/var/lib/geoclue"
       "/var/lib/upower"
       "/var/lib/sddm"
+      "/root/.config/kopia"
     ];
 
     files = [

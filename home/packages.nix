@@ -28,16 +28,6 @@
     pkgs.nixf
     pkgs.statix
     pkgs.deadnix
-
-    # Kopia UI wrapped to use capability-enabled kopia binary
-    (pkgs.symlinkJoin {
-      name = "kopia-ui-wrapped";
-      paths = [ pkgs.kopia-ui ];
-      buildInputs = [ pkgs.makeWrapper ];
-      postBuild = ''
-        wrapProgram $out/bin/kopia-ui \
-          --prefix PATH : /run/wrappers/bin
-      '';
-    })
+    pkgs.kopia-ui
   ];
 }
