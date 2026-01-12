@@ -28,6 +28,6 @@
     pkgs.nixf
     pkgs.statix
     pkgs.deadnix
-    pkgs.kopia-ui
+    pkgs.sops
   ];
 }

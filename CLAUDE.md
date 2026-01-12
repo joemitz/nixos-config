@@ -150,14 +150,13 @@ The activation script ensures proper file ownership to allow NH to update flake.
 - **users.nix**: User accounts (joemitz with groups: networkmanager, wheel, docker, adbusers, kvm; root), timezone (America/Los_Angeles), locale, polkit, passwordless sudo
 - **secrets.nix**: Complete sops-nix configuration for encrypted secrets management
 - **services.nix**: Docker, ADB for Android, NFS client, nix-ld (for Android SDK tools), NH (Nix Helper), Nix settings (experimental features, trusted-users for signing and remote builds)
-- **persistence.nix**: Impermanence configuration - root and home wipe on boot, state persisted to three subvolumes (includes /root/.config/kopia)
+- **persistence.nix**: Impermanence configuration - root and home wipe on boot, state persisted to three subvolumes
 - **snapper.nix**: Snapper configuration for Btrfs snapshots of persistence subvolumes (joemitz allowed user)
 - **borg.nix**: Borg hourly backups to remote server (192.168.0.100) with desktop notifications, automatic retries, excludes Snapper snapshots and Docker images
-- **kopia-server.nix**: Kopia repository server running as root (systemd service on localhost:51515), proxies to remote repository (192.168.0.100:51515), uses `--insecure` flag for localhost connections (safe for local-only access), reads password from secrets at runtime, hourly automated backups of three persistence subvolumes, desktop notifications
 - **Filesystem**: Btrfs with subvolumes (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles) and zstd compression
 
 **User Configuration** (modular structure in home/):
-- **packages.nix**: All user packages - CLI tools (claude-code, gh, jq, awscli2, awslogs, devbox, nodejs_24, btop, eza), Nix tools (nixd, nixpkgs-fmt, nixf, statix, deadnix), development apps (vscodium, postman, android-studio, android-tools, jdk11), applications (zoom-us, tidal-hifi, vlc, gimp, guvcview, remmina, kopia-ui), custom packages (tiny4linux). Module header cleaned to include only required parameters (removed unused `config`). Note: tmux enabled via programs.tmux in tmux.nix, not listed here
+- **packages.nix**: All user packages - CLI tools (claude-code, gh, jq, awscli2, awslogs, devbox, nodejs_24, btop, eza), Nix tools (nixd, nixpkgs-fmt, nixf, statix, deadnix, sops), development apps (vscodium, postman, android-studio, android-tools, jdk11), applications (zoom-us, tidal-hifi, vlc, gimp, guvcview, remmina), custom packages (tiny4linux). Module header cleaned to include only required parameters (removed unused `config`). Note: tmux enabled via programs.tmux in tmux.nix, not listed here
 - **git.nix**: Git with gitFull package, user config, useful aliases (co, st, br, hi, lb, ma, type, dump, pu, ad, ch, cp), LFS support, libsecret credential helper (KDE Wallet)
 - **ssh.nix**: SSH configuration with macbook host (192.168.0.232)
 - **direnv.nix**: direnv with bash integration and nix-direnv support
@@ -307,7 +306,7 @@ nix-shell -p sops --run "sops secrets/secrets.yaml"
 - API Keys: NPM_TOKEN, GEMINI_API_KEY, OPENAI_API_KEY, ANTHROPIC_API_KEY, CIRCLECI_TOKEN
 - Android: ANDROID_RELEASE_KEYSTORE_PASSWORD, ANDROID_RELEASE_KEY_PASSWORD, ANDROID_KEYSTORE_PASSWORD
 - Production: APC_WSS_ADMIN_BEARER_TOKEN, APC_WSS_FIREBASE_ADMIN_CONFIG, APC_WSS_A3_PG_PASSWORD
-- Backup: borg_passphrase (root-owned, mode 0400, for Borg backups), kopia_server_password (root-owned, mode 0400, for Kopia server authentication, read at runtime via bash command substitution)
+- Backup: borg_passphrase (root-owned, mode 0400, for Borg backups)
 
 **Generated Environment Variables**:
 The secrets.env template includes both secrets and non-secret constants:
