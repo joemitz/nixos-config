@@ -33,14 +33,19 @@
     chown -R joemitz:users /home/joemitz/nixos-config/*.nix /home/joemitz/nixos-config/flake.lock 2>/dev/null || true
   '';
 
-  # Grant Kopia UI the capability to read any file (for backing up system files)
+  # Grant Kopia the capability to read any file (for backing up system files)
   # This allows kopia-ui to backup /persist-root without running as root
-  # Capability must be reapplied after each kopia-ui update
+  # Capability is automatically reapplied after each kopia update
   system.activationScripts.kopia-capabilities = ''
-    KOPIA_BIN=$(find /nix/store -path "*/kopia-ui-*/libexec/kopia-ui/resources/server/kopia" 2>/dev/null | head -n1)
+    # Find kopia binary by extracting path from kopia-ui wrapper script
+    KOPIA_UI_WRAPPER=$(${pkgs.coreutils}/bin/readlink -f ${pkgs.kopia-ui}/bin/kopia-ui)
+    KOPIA_BIN=$(${pkgs.gnugrep}/bin/grep -oP '/nix/store/[^/]+kopia-[0-9.]+/bin' "$KOPIA_UI_WRAPPER" | ${pkgs.coreutils}/bin/head -n1)/kopia
+
     if [ -n "$KOPIA_BIN" ] && [ -f "$KOPIA_BIN" ]; then
       ${pkgs.libcap}/bin/setcap cap_dac_read_search=+ep "$KOPIA_BIN" 2>/dev/null || true
-      echo "Set capabilities on $KOPIA_BIN"
+      echo "Set read capabilities on $KOPIA_BIN"
+    else
+      echo "Warning: Could not find kopia binary for capability setting"
     fi
   '';
 

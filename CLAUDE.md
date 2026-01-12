@@ -149,7 +149,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 - **networking.nix**: NetworkManager, Wake-on-LAN on enp6s0, Tailscale VPN, firewall, OpenSSH (port 22, password auth enabled)
 - **users.nix**: User accounts (joemitz with groups: networkmanager, wheel, docker, adbusers, kvm; root), timezone (America/Los_Angeles), locale, polkit, passwordless sudo
 - **secrets.nix**: Complete sops-nix configuration for encrypted secrets management
-- **services.nix**: Docker, ADB for Android, NFS client, nix-ld (for Android SDK tools), Kopia capabilities (cap_dac_read_search for file backup access), NH (Nix Helper), Nix settings (experimental features, trusted-users for signing and remote builds)
+- **services.nix**: Docker, ADB for Android, NFS client, nix-ld (for Android SDK tools), Kopia capabilities (cap_dac_read_search for file backup access, auto-reapplied after updates), NH (Nix Helper), Nix settings (experimental features, trusted-users for signing and remote builds)
 - **persistence.nix**: Impermanence configuration - root and home wipe on boot, state persisted to three subvolumes
 - **snapper.nix**: Snapper configuration for Btrfs snapshots of persistence subvolumes (joemitz allowed user)
 - **borg.nix**: Borg hourly backups to remote server (192.168.0.100) with desktop notifications, automatic retries, excludes Snapper snapshots and Docker images
