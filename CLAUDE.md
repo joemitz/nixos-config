@@ -165,7 +165,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 - **alacritty.nix**: Terminal with moonfly theme and pure black background (#000000)
 - **firefox.nix**: Firefox browser enabled
 - **nixd.nix**: Nixd language server configuration with nixpkgs, NixOS, and home-manager IDE features (autocomplete, diagnostics, go-to-definition, formatting)
-- **desktop-entries.nix**: XDG desktop entries for guvcview (with -z flag) and tiny4linux-gui
+- **desktop-entries.nix**: XDG desktop entries for guvcview (with -z flag), tiny4linux-gui, and kopia-ui (root)
 
 ## Git Workflow
 
