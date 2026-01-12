@@ -217,6 +217,7 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
 - /persist-userfiles: User documents and projects (nixos-config, anova, Documents, Downloads, etc.)
 - All home files not explicitly persisted are wiped on reboot (stateless home)
 - TrueNAS NFS share mounted at /mnt/truenas/plex (read-only)
+- OpenSUSE home subvolume mounted at /mnt/opensuse-home (read-only, for accessing files from OpenSUSE installation)
 
 **Snapper Snapshots**:
 - Configured for persist-root, persist-dotfiles, and persist-userfiles
