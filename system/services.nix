@@ -35,19 +35,13 @@
 
   # Grant Kopia the capability to read any file (for backing up system files)
   # This allows kopia-ui to backup /persist-root without running as root
-  # Capability is automatically reapplied after each kopia update
-  system.activationScripts.kopia-capabilities = ''
-    # Find kopia binary by extracting path from kopia-ui wrapper script
-    KOPIA_UI_WRAPPER=$(${pkgs.coreutils}/bin/readlink -f ${pkgs.kopia-ui}/bin/kopia-ui)
-    KOPIA_BIN=$(${pkgs.gnugrep}/bin/grep -oP '/nix/store/[^/]+kopia-[0-9.]+/bin' "$KOPIA_UI_WRAPPER" | ${pkgs.coreutils}/bin/head -n1)/kopia
-
-    if [ -n "$KOPIA_BIN" ] && [ -f "$KOPIA_BIN" ]; then
-      ${pkgs.libcap}/bin/setcap cap_dac_read_search=+ep "$KOPIA_BIN" 2>/dev/null || true
-      echo "Set read capabilities on $KOPIA_BIN"
-    else
-      echo "Warning: Could not find kopia binary for capability setting"
-    fi
-  '';
+  # Creates a wrapper at /run/wrappers/bin/kopia with read capabilities
+  security.wrappers.kopia = {
+    source = "${pkgs.kopia}/bin/kopia";
+    capabilities = "cap_dac_read_search=+ep";
+    owner = "root";
+    group = "root";
+  };
 
   # Nix settings
   nix.settings = {
