@@ -1,4 +1,4 @@
-_:
+{ pkgs, ... }:
 
 {
   # Allow unfree packages
@@ -31,6 +31,17 @@ _:
   # Ensures nh can update flake.lock without permission errors
   system.activationScripts.fix-nixos-config-permissions = ''
     chown -R joemitz:users /home/joemitz/nixos-config/*.nix /home/joemitz/nixos-config/flake.lock 2>/dev/null || true
+  '';
+
+  # Grant Kopia UI the capability to read any file (for backing up system files)
+  # This allows kopia-ui to backup /persist-root without running as root
+  # Capability must be reapplied after each kopia-ui update
+  system.activationScripts.kopia-capabilities = ''
+    KOPIA_BIN=$(find /nix/store -path "*/kopia-ui-*/libexec/kopia-ui/resources/server/kopia" 2>/dev/null | head -n1)
+    if [ -n "$KOPIA_BIN" ] && [ -f "$KOPIA_BIN" ]; then
+      ${pkgs.libcap}/bin/setcap cap_dac_read_search=+ep "$KOPIA_BIN" 2>/dev/null || true
+      echo "Set capabilities on $KOPIA_BIN"
+    fi
   '';
 
   # Nix settings

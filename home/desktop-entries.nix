@@ -18,13 +18,4 @@ _:
     categories = [ "AudioVideo" "Video" ];
     comment = "Control OBSBOT Tiny2 camera";
   };
-
-  xdg.desktopEntries.kopia-ui-root = {
-    name = "Kopia (Root)";
-    exec = "pkexec kopia-ui";
-    icon = "kopia-ui";
-    terminal = false;
-    categories = [ "System" ];
-    comment = "Kopia Backup UI with root access for system backups";
-  };
 }
