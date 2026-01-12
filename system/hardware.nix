@@ -27,7 +27,7 @@ _:
   };
 
   # Mount OpenSUSE home subvolume (read-only)
-  fileSystems."/mnt/opensuse-home" = {
+  fileSystems."/mnt/opensuse" = {
     device = "/dev/disk/by-uuid/8590c09a-138e-4615-b02d-c982580e3bf8";
     fsType = "btrfs";
     options = [ "ro" "subvol=@/home" "compress=zstd" "noatime" ];
