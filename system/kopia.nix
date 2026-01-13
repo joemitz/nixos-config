@@ -1,12 +1,13 @@
-{ pkgs, ... }:
+{ pkgs, config, ... }:
 
 {
   environment.systemPackages = [ pkgs.kopia ];
 
-  # Create credentials file for HTTP basic auth
+  # Create credentials file for HTTP basic auth and remote repository password
   environment.etc."kopia-server-control".text = ''
     KOPIA_SERVER_USERNAME=joemitz
     KOPIA_SERVER_PASSWORD=kopia-local-pass
+    KOPIA_PASSWORD=${config.sops.placeholder.kopia_password}
   '';
 
   systemd.services.kopia-server = {
