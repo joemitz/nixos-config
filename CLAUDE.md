@@ -478,7 +478,7 @@ This system uses **full impermanence** - both root and home filesystems are wipe
 **Kopia Backup Configuration**:
 - Service: `kopia-server` runs local Kopia backup server as backup/restore UI alternative to Borg CLI
 - Installed: kopia-ui package in home.packages for easy local backups via GUI
-- Server address: https://127.0.0.1:51515 with TLS certificate auto-generation
+- Server address: https://127.0.0.1:51515 with TLS certificate auto-generation and built-in web UI (`--ui` flag)
 - Authentication: None (local-only server, no credentials needed)
 - Data persisted: `/root/.config/kopia` (Kopia configuration and metadata), `/root/.cache/kopia` (Kopia cache)
 - Service dependencies: Waits for network-online.target before starting

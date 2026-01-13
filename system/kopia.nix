@@ -13,7 +13,7 @@
       Type = "simple";
       User = "root";
       Environment = "HOME=/root";
-      ExecStart = "${pkgs.kopia}/bin/kopia server start --address=https://127.0.0.1:51515 --tls-generate-cert";
+      ExecStart = "${pkgs.kopia}/bin/kopia server start --address=https://127.0.0.1:51515 --tls-generate-cert --ui";
 
       # Auto-restart if it crashes
       Restart = "on-failure";
