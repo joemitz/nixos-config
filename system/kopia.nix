@@ -20,7 +20,7 @@
       User = "root";
       Environment = "HOME=/root";
       EnvironmentFile = "/etc/kopia-server-control";
-      ExecStart = "${pkgs.kopia}/bin/kopia server start --address=https://127.0.0.1:51515 --tls-generate-cert --server-username=$KOPIA_SERVER_USERNAME --server-password=$KOPIA_SERVER_PASSWORD";
+      ExecStart = "${pkgs.kopia}/bin/kopia server start --address=https://127.0.0.1:51515 --tls-generate-cert --server-username=\${KOPIA_SERVER_USERNAME} --server-password=\${KOPIA_SERVER_PASSWORD}";
 
       # Auto-restart if it crashes
       Restart = "on-failure";
