@@ -12,7 +12,11 @@
     serviceConfig = {
       Type = "simple";
       User = "root";
-      Environment = "HOME=/root";
+      Environment = [
+        "HOME=/root"
+        "KOPIA_SERVER_CONTROL_USER=admin"
+        "KOPIA_SERVER_CONTROL_PASSWORD=password"
+      ];
       ExecStart = "${pkgs.kopia}/bin/kopia server start --address=https://127.0.0.1:51515 --tls-generate-cert";
 
       # Auto-restart if it crashes

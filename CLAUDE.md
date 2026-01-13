@@ -479,6 +479,7 @@ This system uses **full impermanence** - both root and home filesystems are wipe
 - Service: `kopia-server` runs local Kopia backup server as backup/restore UI alternative to Borg CLI
 - Installed: kopia-ui package in home.packages for easy local backups via GUI
 - Password: kopia_password (root-owned, mode 0400, stored in sops secrets)
+- Control credentials: KOPIA_SERVER_CONTROL_USER=admin, KOPIA_SERVER_CONTROL_PASSWORD=password (set via environment)
 - Data persisted: `/root/.config/kopia` (Kopia configuration and metadata)
 - Service dependencies: Waits for network-online.target before starting
 - Purpose: GUI-based backup management alongside Borg CLI backups
