@@ -3,6 +3,12 @@
 {
   environment.systemPackages = [ pkgs.kopia ];
 
+  # Create credentials file for server control
+  environment.etc."kopia-server-control".text = ''
+    KOPIA_SERVER_CONTROL_USER=admin
+    KOPIA_SERVER_CONTROL_PASSWORD=password
+  '';
+
   systemd.services.kopia-server = {
     description = "Kopia backup server";
     after = [ "network-online.target" ];
@@ -12,11 +18,8 @@
     serviceConfig = {
       Type = "simple";
       User = "root";
-      Environment = [
-        "HOME=/root"
-        "KOPIA_SERVER_CONTROL_USER=admin"
-        "KOPIA_SERVER_CONTROL_PASSWORD=password"
-      ];
+      Environment = "HOME=/root";
+      EnvironmentFile = "/etc/kopia-server-control";
       ExecStart = "${pkgs.kopia}/bin/kopia server start --address=https://127.0.0.1:51515 --tls-generate-cert";
 
       # Auto-restart if it crashes
