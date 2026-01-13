@@ -24,6 +24,7 @@ _:
       "/var/lib/upower"
       "/var/lib/sddm"
       "/root/.config/kopia"
+      "/root/.cache/kopia"
     ];
 
     files = [
