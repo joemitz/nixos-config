@@ -59,7 +59,7 @@ nixos-config/
 - `secrets/`: Encrypted secrets managed by sops-nix
 
 **Key Design Decisions**:
-- Uses `nixos-25.11` stable channel
+- Uses `nixos-25.11` stable channel with regular updates to nixpkgs inputs
 - home-manager integrated as a NixOS module (not standalone)
 - Experimental features enabled: `nix-command` and `flakes`
 - **Full system impermanence**: Root and home filesystems roll back to pristine state on every boot
