@@ -20,6 +20,7 @@
       "apc_wss_firebase_admin_config" = { owner = "joemitz"; };
       "apc_wss_a3_pg_password" = { owner = "joemitz"; };
       "borg_passphrase" = { owner = "root"; mode = "0400"; };
+      "kopia_password" = { owner = "root"; mode = "0400"; };
     };
 
     # Create a templated secrets.env file for bash to source

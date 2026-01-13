@@ -475,6 +475,14 @@ This system uses **full impermanence** - both root and home filesystems are wipe
 - / (root) - Wiped on every boot, fully reproducible from config
 - /nix - Nix store is reproducible from configuration
 
+**Kopia Backup Configuration**:
+- Service: `kopia-server` runs local Kopia backup server as backup/restore UI alternative to Borg CLI
+- Installed: kopia-ui package in home.packages for easy local backups via GUI
+- Password: kopia_password (root-owned, mode 0400, stored in sops secrets)
+- Data persisted: `/root/.config/kopia` (Kopia configuration and metadata)
+- Service dependencies: Waits for network-online.target before starting
+- Purpose: GUI-based backup management alongside Borg CLI backups
+
 **Recovery**:
 To restore from backup after a catastrophic failure:
 1. Reinstall NixOS with same subvolume structure (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles)

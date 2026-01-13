@@ -29,5 +29,6 @@
     pkgs.statix
     pkgs.deadnix
     pkgs.sops
+    pkgs.kopia-ui
   ];
 }
