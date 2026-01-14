@@ -156,7 +156,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 - **Filesystem**: Btrfs with subvolumes (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles) and zstd compression
 
 **User Configuration** (modular structure in home/):
-- **packages.nix**: All user packages - CLI tools (claude-code, gh, jq, awscli2, awslogs, devbox, nodejs_24, btop, eza), Nix tools (nixd, nixpkgs-fmt, nixf, statix, deadnix, sops), development apps (vscodium, postman, android-studio, android-tools, jdk11), applications (zoom-us, tidal-hifi, vlc, gimp, guvcview, remmina), custom packages (tiny4linux). Module header cleaned to include only required parameters (removed unused `config`). Note: tmux enabled via programs.tmux in tmux.nix, not listed here
+- **packages.nix**: All user packages - CLI tools (claude-code, gh, jq, awscli2, awslogs, devbox, nodejs_24, btop, eza), Nix tools (nixd, nixpkgs-fmt, nixf, statix, deadnix, sops), development apps (vscodium, postman, android-studio, android-tools, jdk11), applications (zoom-us, tidal-hifi, vlc, gimp, guvcview, remmina), custom packages (tiny4linux). Module header cleaned to include only required parameters (removed unused `config`). Note: tmux enabled via programs.tmux in tmux.nix, not listed here; kopia-ui removed (Borg backups sufficient)
 - **git.nix**: Git with gitFull package, user config, useful aliases (co, st, br, hi, lb, ma, type, dump, pu, ad, ch, cp), LFS support, libsecret credential helper (KDE Wallet)
 - **ssh.nix**: SSH configuration with macbook host (192.168.0.232)
 - **direnv.nix**: direnv with bash integration and nix-direnv support
@@ -475,15 +475,10 @@ This system uses **full impermanence** - both root and home filesystems are wipe
 - / (root) - Wiped on every boot, fully reproducible from config
 - /nix - Nix store is reproducible from configuration
 
-**Kopia Backup Configuration**:
-- Service: `kopia-server` runs local Kopia backup server as backup/restore UI alternative to Borg CLI
-- Installed: kopia-ui package in home.packages for easy local backups via GUI
-- Server address: https://127.0.0.1:51515 with built-in web UI (`--ui` flag)
-- Authentication: Enabled with credentials (username: root@nixos, password: test123)
-- TLS: Enabled with auto-generated certificates (`--tls-generate-cert` flag)
-- Data persisted: `/root/.config/kopia` (Kopia configuration and metadata), `/root/.cache/kopia` (Kopia cache)
-- Service dependencies: Waits for network-online.target before starting
-- Purpose: GUI-based backup management alongside Borg CLI backups
+**Kopia Backup Configuration** (deprecated):
+- Service: `kopia-server` runs local Kopia backup server as backup/restore UI alternative to Borg CLI (no longer needed)
+- kopia-ui package removed from home.packages (Borg backups are sufficient)
+- Borg provides robust CLI-based backup management with proven reliability
 
 **Recovery**:
 To restore from backup after a catastrophic failure:
