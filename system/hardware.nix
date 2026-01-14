@@ -26,6 +26,13 @@ _:
     options = [ "ro" ];
   };
 
+  # Mount TrueNAS Kopia share via NFS (read-write)
+  fileSystems."/mnt/truenas/kopia" = {
+    device = "192.168.0.55:/mnt/main-pool/kopia";
+    fsType = "nfs";
+    options = [ "rw" ];
+  };
+
   # Mount OpenSUSE home subvolume (read-only)
   fileSystems."/mnt/opensuse" = {
     device = "/dev/disk/by-uuid/8590c09a-138e-4615-b02d-c982580e3bf8";
