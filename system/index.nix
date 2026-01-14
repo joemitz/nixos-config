@@ -12,7 +12,6 @@
     ./services.nix
     ./persistence.nix
     ./snapper.nix
-    ./borg.nix
     ./kopia.nix
     ../cachix
   ];

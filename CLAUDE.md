@@ -24,8 +24,7 @@ nixos-config/
 │   ├── secrets.nix             # Sops-nix secrets management
 │   ├── services.nix            # Docker, ADB, NFS, NH, Nix settings
 │   ├── persistence.nix         # Impermanence configuration (3 subvolumes)
-│   ├── snapper.nix             # Snapper snapshots configuration
-│   └── borg.nix                # Borg backup configuration
+│   └── snapper.nix             # Snapper snapshots configuration
 ├── home/
 │   ├── index.nix               # Main entry point (imports all modules)
 │   ├── packages.nix            # Home packages (apps, tools, custom packages)
@@ -50,7 +49,7 @@ nixos-config/
 **Flake Structure**:
 - `flake.nix`: Main entry point defining inputs (nixpkgs stable, home-manager, claude-code, sops-nix, tiny4linux, impermanence) and outputs
 - `system/index.nix`: Main system configuration entry point (imports all system modules)
-- `system/*.nix`: Modular system configuration split by concern (boot, hardware, networking, desktop, users, secrets, services, persistence, snapper, borg)
+- `system/*.nix`: Modular system configuration split by concern (boot, hardware, networking, desktop, users, secrets, services, persistence, snapper)
 - `home/index.nix`: Main home-manager entry point (imports all home modules)
 - `home/*.nix`: Modular home configuration split by program (packages, git, ssh, direnv, bash, tmux, alacritty, firefox, desktop-entries)
 - `system/hardware-configuration.nix`: Hardware-specific configuration with Btrfs subvolumes (generated, not typically edited manually)
@@ -68,7 +67,6 @@ nixos-config/
 - Git hooks disabled globally (`core.hooksPath = "/dev/null"`)
 - Auto-commits configuration changes after successful rebuilds via `nhs` alias
 - Btrfs filesystem with compression (zstd) and snapshots via Snapper
-- Automated backups via Borg to remote server
 - LTS kernel to avoid AMD GPU bugs in newer kernels
 - Binary caches configured: cache.nixos.org, claude-code.cachix.org
 
@@ -152,11 +150,10 @@ The activation script ensures proper file ownership to allow NH to update flake.
 - **services.nix**: Docker, ADB for Android, NFS client, nix-ld (for Android SDK tools), NH (Nix Helper), Nix settings (experimental features, trusted-users for signing and remote builds)
 - **persistence.nix**: Impermanence configuration - root and home wipe on boot, state persisted to three subvolumes
 - **snapper.nix**: Snapper configuration for Btrfs snapshots of persistence subvolumes (joemitz allowed user)
-- **borg.nix**: Borg hourly backups to remote server (192.168.0.100) with desktop notifications, automatic retries, excludes Snapper snapshots and Docker images
 - **Filesystem**: Btrfs with subvolumes (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles) and zstd compression
 
 **User Configuration** (modular structure in home/):
-- **packages.nix**: All user packages - CLI tools (claude-code, gh, jq, awscli2, awslogs, devbox, nodejs_24, btop, eza), Nix tools (nixd, nixpkgs-fmt, nixf, statix, deadnix, sops), development apps (vscodium, postman, android-studio, android-tools, jdk11), applications (zoom-us, tidal-hifi, vlc, gimp, guvcview, remmina), custom packages (tiny4linux). Module header cleaned to include only required parameters (removed unused `config`). Note: tmux enabled via programs.tmux in tmux.nix, not listed here; kopia-ui removed (Borg backups sufficient)
+- **packages.nix**: All user packages - CLI tools (claude-code, gh, jq, awscli2, awslogs, devbox, nodejs_24, btop, eza), Nix tools (nixd, nixpkgs-fmt, nixf, statix, deadnix, sops), development apps (vscodium, postman, android-studio, android-tools, jdk11), applications (zoom-us, tidal-hifi, vlc, gimp, guvcview, remmina), custom packages (tiny4linux). Module header cleaned to include only required parameters (removed unused `config`). Note: tmux enabled via programs.tmux in tmux.nix, not listed here
 - **git.nix**: Git with gitFull package, user config, useful aliases (co, st, br, hi, lb, ma, type, dump, pu, ad, ch, cp), LFS support, libsecret credential helper (KDE Wallet)
 - **ssh.nix**: SSH configuration with macbook host (192.168.0.232)
 - **direnv.nix**: direnv with bash integration and nix-direnv support
@@ -307,7 +304,6 @@ nix-shell -p sops --run "sops secrets/secrets.yaml"
 - API Keys: NPM_TOKEN, GEMINI_API_KEY, OPENAI_API_KEY, ANTHROPIC_API_KEY, CIRCLECI_TOKEN
 - Android: ANDROID_RELEASE_KEYSTORE_PASSWORD, ANDROID_RELEASE_KEY_PASSWORD, ANDROID_KEYSTORE_PASSWORD
 - Production: APC_WSS_ADMIN_BEARER_TOKEN, APC_WSS_FIREBASE_ADMIN_CONFIG, APC_WSS_A3_PG_PASSWORD
-- Backup: borg_passphrase (root-owned, mode 0400, for Borg backups)
 
 **Generated Environment Variables**:
 The secrets.env template includes both secrets and non-secret constants:
@@ -434,56 +430,12 @@ This system uses **full impermanence** - both root and home filesystems are wipe
 
 ## Backup System
 
-**Borg Backup Configuration**:
-- Service: `persist-backup` backs up all three persistence subvolumes to remote Borg repository
-- Repository: ssh://borg@192.168.0.100:2222/backup/nixos-persist
-- Encryption: repokey-blake2 with passphrase from sops secrets
-- Compression: auto,lz4 for good balance of speed and size
-- Schedule: Runs hourly, but only allows backups within first 5 minutes of each hour (prevents catch-up backups after suspend/wake)
-- SSH key: /home/joemitz/.ssh/id_ed25519_borg (auto-accept new hosts)
-- Desktop notifications: Success (low urgency, 5s) and failure (critical urgency) notifications via libnotify
-- Network dependencies: Waits for network-online.target and NetworkManager-wait-online.service
-- Automatic retry: 3 total attempts (1 initial + 2 retries) with 2 minute delay between attempts, restart mode set to direct (OnFailure only triggers on final failure)
-- Time-check wrapper: `preStart` script ensures backups only run within first 5 minutes of the hour (e.g., waking at 12:52 will skip the backup until 1:00-1:05)
-
-**Backup Retention**:
-- Hourly: 2 backups
-- Daily: 7 backups
-- Weekly: 4 backups
-- Monthly: 6 backups
-- Yearly: 2 backups
-
-**What's backed up**:
-- `/persist-root` - System state (NetworkManager, Docker, SSH host keys, logs)
-- `/persist-dotfiles` - User configs and application data
-- `/persist-userfiles` - User documents and projects
-
-**What's excluded from backups** (can be rebuilt):
-- All .cache directories
-- Build/download caches: .gradle, .npm, .cargo, .compose-cache
-- Android AVDs and cache (can be recreated)
-- KDE Baloo indexer cache (rebuilds automatically)
-- Trash and logs (.local/share/Trash, .zoom/logs)
-- node_modules (rebuilt from package.json)
-- Android/iOS build artifacts (build, .gradle, Pods)
-- Build output directories (dist)
-- Test coverage reports (coverage)
-- Docker images (can be rebuilt)
-- Snapper snapshots (redundant with Borg versioning, saves ~139GB)
-
-**What's NOT backed up** (doesn't need to be):
-- / (root) - Wiped on every boot, fully reproducible from config
-- /nix - Nix store is reproducible from configuration
-
-**Kopia Backup Configuration** (deprecated):
+**Kopia Backup Configuration**:
 - Service: `kopia-server` runs local Kopia backup server on http://127.0.0.1:51515 (no authentication)
 - Configuration: Insecure mode enabled (--insecure), no TLS, no password (--without-password)
-- kopia-ui package removed from home.packages (Borg backups are sufficient)
-- Borg provides robust CLI-based backup management with proven reliability
 - Note: Kopia server runs without authentication - use only on trusted networks
 
-**Recovery**:
-To restore from backup after a catastrophic failure:
-1. Reinstall NixOS with same subvolume structure (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles)
-2. Restore all persist subvolumes from Borg: `borg extract ssh://borg@192.168.0.100:2222/backup/nixos-persist::archive-name`
-3. Run `nhs` to rebuild system from configuration in /persist-userfiles/home/joemitz/nixos-config
+**Backup Status**:
+- Borg backup service has been removed
+- System relies on Snapper snapshots for local point-in-time recovery
+- Manual backup tools (Kopia) available for offsite backup if needed
