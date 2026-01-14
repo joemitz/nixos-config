@@ -476,9 +476,11 @@ This system uses **full impermanence** - both root and home filesystems are wipe
 - /nix - Nix store is reproducible from configuration
 
 **Kopia Backup Configuration** (deprecated):
-- Service: `kopia-server` runs local Kopia backup server as backup/restore UI alternative to Borg CLI (no longer needed)
+- Service: `kopia-server` runs local Kopia backup server on http://127.0.0.1:51515 (no authentication)
+- Configuration: Insecure mode enabled (--insecure), no TLS, no password (--without-password)
 - kopia-ui package removed from home.packages (Borg backups are sufficient)
 - Borg provides robust CLI-based backup management with proven reliability
+- Note: Kopia server runs without authentication - use only on trusted networks
 
 **Recovery**:
 To restore from backup after a catastrophic failure:
