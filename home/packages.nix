@@ -1,8 +1,8 @@
-{ pkgs, claude-code, tiny4linux, ... }:
+{ pkgs, claude-code, tiny4linux, pkgs-tiny4linux, pkgs-android-studio, ... }:
 
 {
   home.packages = [
-    (pkgs.callPackage ../pkgs/tiny4linux.nix { src = tiny4linux; })
+    (pkgs-tiny4linux.callPackage ../pkgs/tiny4linux.nix { src = tiny4linux; })
     claude-code.packages.x86_64-linux.default
     pkgs.gh
     pkgs.jq
@@ -17,7 +17,7 @@
     pkgs.vlc
     pkgs.gimp
     pkgs.remmina
-    pkgs.android-studio
+    pkgs-android-studio.android-studio
     pkgs.android-tools
     pkgs.jdk11
     pkgs.nodejs_24
