@@ -7,9 +7,6 @@
     # Pinned nixpkgs for tiny4linux to avoid rebuilds on Rust updates
     nixpkgs-tiny4linux.url = "github:NixOS/nixpkgs/2c3e5ec5df46d3aeee2a1da0bfedd74e21f4bf3a";
 
-    # Pinned nixpkgs for android-studio to use cached version
-    nixpkgs-android-studio.url = "github:NixOS/nixpkgs/3c9db02515ef1d9b6b709fc60ba9a540957f661c";
-
     home-manager = {
       url = "github:nix-community/home-manager/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -26,7 +23,7 @@
     };
   };
 
-  outputs = { nixpkgs, nixpkgs-tiny4linux, nixpkgs-android-studio, home-manager, claude-code, sops-nix, tiny4linux, impermanence, ... }: {
+  outputs = { nixpkgs, nixpkgs-tiny4linux, home-manager, claude-code, sops-nix, tiny4linux, impermanence, ... }: {
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
@@ -41,10 +38,6 @@
           home-manager.extraSpecialArgs = {
             inherit claude-code tiny4linux;
             pkgs-tiny4linux = import nixpkgs-tiny4linux {
-              system = "x86_64-linux";
-              config.allowUnfree = true;
-            };
-            pkgs-android-studio = import nixpkgs-android-studio {
               system = "x86_64-linux";
               config.allowUnfree = true;
             };

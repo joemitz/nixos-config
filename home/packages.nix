@@ -1,4 +1,4 @@
-{ pkgs, claude-code, tiny4linux, pkgs-tiny4linux, pkgs-android-studio, ... }:
+{ pkgs, claude-code, tiny4linux, pkgs-tiny4linux, ... }:
 
 {
   home.packages = [
@@ -17,7 +17,7 @@
     pkgs.vlc
     pkgs.gimp
     pkgs.remmina
-    pkgs-android-studio.android-studio
+    pkgs.android-studio
     pkgs.android-tools
     pkgs.jdk17
     pkgs.nodejs_24

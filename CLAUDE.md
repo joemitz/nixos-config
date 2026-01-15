@@ -47,7 +47,7 @@ nixos-config/
 ```
 
 **Flake Structure**:
-- `flake.nix`: Main entry point defining inputs (nixpkgs stable, home-manager, claude-code, sops-nix, tiny4linux, impermanence, pinned nixpkgs for tiny4linux and android-studio) and outputs
+- `flake.nix`: Main entry point defining inputs (nixpkgs stable, home-manager, claude-code, sops-nix, tiny4linux, impermanence, pinned nixpkgs for tiny4linux) and outputs
 - `system/index.nix`: Main system configuration entry point (imports all system modules)
 - `system/*.nix`: Modular system configuration split by concern (boot, hardware, networking, desktop, users, secrets, services, persistence, snapper)
 - `home/index.nix`: Main home-manager entry point (imports all home modules)
@@ -71,7 +71,6 @@ nixos-config/
 - Binary caches configured: cache.nixos.org, claude-code.cachix.org
 - Pinned nixpkgs inputs for heavy dependencies to avoid unnecessary rebuilds:
   - `nixpkgs-tiny4linux`: Pinned to 2c3e5ec (avoid Rust updates)
-  - `nixpkgs-android-studio`: Pinned to 3c9db02 (use cached binary)
 
 ## Building and Deploying
 
@@ -156,7 +155,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 - **Filesystem**: Btrfs with subvolumes (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles) and zstd compression
 
 **User Configuration** (modular structure in home/):
-- **packages.nix**: All user packages - CLI tools (claude-code, gh, jq, awscli2, awslogs, devbox, nodejs_24, btop, eza), Nix tools (nixd, nixpkgs-fmt, nixf, statix, deadnix, sops), development apps (vscodium, postman, android-studio, android-tools, jdk17), applications (zoom-us, tidal-hifi, vlc, gimp, guvcview, remmina), custom packages (tiny4linux). Uses pinned nixpkgs inputs: tiny4linux built from nixpkgs-tiny4linux, android-studio from nixpkgs-android-studio (to avoid unnecessary rebuilds of heavy dependencies). Module header cleaned to include only required parameters (removed unused `config`). Note: tmux enabled via programs.tmux in tmux.nix, not listed here
+- **packages.nix**: All user packages - CLI tools (claude-code, gh, jq, awscli2, awslogs, devbox, nodejs_24, btop, eza), Nix tools (nixd, nixpkgs-fmt, nixf, statix, deadnix, sops), development apps (vscodium, postman, android-studio, android-tools, jdk17), applications (zoom-us, tidal-hifi, vlc, gimp, guvcview, remmina), custom packages (tiny4linux). Uses pinned nixpkgs input for tiny4linux built from nixpkgs-tiny4linux (to avoid unnecessary rebuilds on Rust updates). Module header cleaned to include only required parameters (removed unused `config`). Note: tmux enabled via programs.tmux in tmux.nix, not listed here
 - **git.nix**: Git with gitFull package, user config, useful aliases (co, st, br, hi, lb, ma, type, dump, pu, ad, ch, cp), LFS support, libsecret credential helper (KDE Wallet)
 - **ssh.nix**: SSH configuration with macbook host (192.168.0.232)
 - **direnv.nix**: direnv with bash integration and nix-direnv support
