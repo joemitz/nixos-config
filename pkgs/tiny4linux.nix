@@ -12,11 +12,11 @@
 
 rustPlatform.buildRustPackage {
   pname = "tiny4linux";
-  version = "2.2.2";
+  version = "2.2.1";
 
   inherit src;
 
-  cargoHash = "sha256-2o65VzfjOAgTrjFDmSBbooHw+obVTKd+DXeF4tgm7Qg=";
+  cargoHash = "sha256-ZURy8sn2ljW6qrLt5ILM8vnRKCUhYqWdy1s8pExDDnc=";
 
   nativeBuildInputs = [
     pkg-config

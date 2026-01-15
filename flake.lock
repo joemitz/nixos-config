@@ -211,16 +211,16 @@
     "tiny4linux": {
       "flake": false,
       "locked": {
-        "lastModified": 1765192606,
-        "narHash": "sha256-58P4HeG3j9H0WHAFsLdxBIhtngrBLkYSnRpQ58I8x1U=",
+        "lastModified": 1765142583,
+        "narHash": "sha256-eNvFa8h3XDnaSdM1iU6zbncUqBXzPrXgPzPziHJkZLA=",
         "owner": "OpenFoxes",
         "repo": "Tiny4Linux",
-        "rev": "2dff06fbfcc8c141736d044038b1b8ee9e420ac7",
+        "rev": "509632b0ec1692f6291316e15be7a0cb6f8485be",
         "type": "github"
       },
       "original": {
         "owner": "OpenFoxes",
-        "ref": "v2.2.2",
+        "ref": "v2.2.1",
         "repo": "Tiny4Linux",
         "type": "github"
       }

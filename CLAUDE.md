@@ -328,7 +328,7 @@ The secrets.env template includes both secrets and non-secret constants:
 
 **Tiny4Linux** (pkgs/tiny4linux.nix):
 - Linux controller for OBSBOT Tiny2 camera
-- Version: 2.2.2 from github:OpenFoxes/Tiny4Linux
+- Version: 2.2.1 from github:OpenFoxes/Tiny4Linux
 - Built from Rust source with GUI and CLI features
 - Desktop entry created for easy access
 - Launch: `tiny4linux-gui` or from application menu

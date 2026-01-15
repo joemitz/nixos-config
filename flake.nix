@@ -18,7 +18,7 @@
     };
 
     tiny4linux = {
-      url = "github:OpenFoxes/Tiny4Linux/v2.2.2";
+      url = "github:OpenFoxes/Tiny4Linux/v2.2.1";
       flake = false;
     };
   };
