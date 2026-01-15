@@ -19,7 +19,7 @@
     pkgs.remmina
     pkgs-android-studio.android-studio
     pkgs.android-tools
-    pkgs.jdk11
+    pkgs.jdk17
     pkgs.nodejs_24
     pkgs.btop
     pkgs.eza
