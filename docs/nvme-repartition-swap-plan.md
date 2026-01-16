@@ -22,12 +22,12 @@ KWin crashes on wake from sleep due to AMD GPU driver bug. The amdgpu driver req
 Usage: 120GB used, 800GB free (13% utilization)
 ```
 
-## Target Disk Layout
+## Achieved Disk Layout
 ```
 /dev/nvme0n1 (931.5GB total)
-├─ nvme0n1p1: 1GB     - EFI boot partition (unchanged)
-├─ nvme0n1p2: 914.5GB - Btrfs partition (shrunk by 16GB)
-└─ nvme0n1p3: 16GB    - Swap partition (new)
+├─ nvme0n1p1: 1GB / 1 GiB      - EFI boot partition (unchanged)
+├─ nvme0n1p2: 983GB / 915.4GiB - Btrfs partition (shrunk by 15GB)
+└─ nvme0n1p3: 16.2GB / 15.1GiB - Swap partition (new, label: "swap")
 ```
 
 ---
@@ -39,7 +39,23 @@ Usage: 120GB used, 800GB free (13% utilization)
 - ✅ Step 1.2: Btrfs filesystem verified healthy (930GB total, 115GB used, 804GB free)
 - ✅ Step 1.3: Configuration documented (files saved to `/home/joemitz/nixos-config/docs/`)
 
-**→ NEXT: Phase 2** - Repartition NVMe from another Linux system
+**✅ Phase 2 Complete** (Repartitioning from OpenSUSE System)
+- ✅ Step 2.1: NVMe drive identified (/dev/nvme0n1)
+- ✅ Step 2.2: Btrfs filesystem mounted
+- ✅ Step 2.3: Btrfs filesystem shrunk from 930.5GB to 910.5GB
+- ✅ Step 2.4: Filesystem unmounted
+- ✅ Step 2.5: Partition 2 resized to 983GB (915.4 GiB)
+- ✅ Step 2.6: Swap partition created: 16.2GB (15.1 GiB) with label "swap"
+- ✅ Step 2.7: Btrfs expanded to fill partition (915.4 GiB)
+- ✅ Step 2.8: Final verification - Btrfs scrub completed with 0 errors
+- ✅ Step 2.9: Filesystem unmounted and synced
+
+**→ NEXT: Phase 3** - Boot NixOS and configure swap in hardware-configuration.nix
+
+Final partition layout achieved:
+- Partition 1: 1GB - EFI boot (unchanged)
+- Partition 2: 915.4 GiB (983 GB) - Btrfs nixos
+- Partition 3: 15.1 GiB (16.2 GB) - Swap (UUID: 00193ae4-ffe3-4b69-a8c0-ba384c207391)
 
 Configuration backups available at:
 - `/home/joemitz/nixos-config/docs/partition-table-backup.txt`
@@ -118,8 +134,6 @@ sudo shutdown -h now
 ---
 
 ## PHASE 2: REPARTITIONING (From Another Linux System)
-
-**🔹 YOU ARE HERE - START PHASE 2 FROM YOUR OTHER LINUX SYSTEM 🔹**
 
 ### Prerequisites on Second Linux System
 Install required tools:
@@ -316,6 +330,8 @@ sudo shutdown -h now
 ---
 
 ## PHASE 3: CONFIGURE NIXOS (Boot NixOS System)
+
+**🔹 YOU ARE HERE - BOOT NIXOS AND CONFIGURE SWAP 🔹**
 
 ### Step 3.1: Boot NixOS and Verify Partitions
 After reinstalling NVMe in NixOS system, power on and log in:
@@ -555,10 +571,11 @@ sudo journalctl -u systemd-swap.service
 
 ## DISK SPACE CALCULATIONS
 
-- **Before**: 930GB Btrfs (120GB used, 810GB free)
-- **After**: 914GB Btrfs (120GB used, 794GB free), 16GB swap
-- **Lost space**: 16GB (allocated to swap)
-- **Safety margin**: 4.5GB was temporarily used during resize, now reclaimed
+- **Before**: 930.5 GiB Btrfs (115 GiB used, 804 GiB free)
+- **After**: 915.4 GiB Btrfs (115 GiB used, 789 GiB free), 15.1 GiB swap
+- **Lost space**: 15 GiB (allocated to swap)
+- **Safety margin**: 5 GiB was temporarily used during resize, now reclaimed
+- **Actual partition sizes (GB vs GiB)**: 983 GB = 915.4 GiB (Btrfs), 16.2 GB = 15.1 GiB (swap)
 
 ---
 
