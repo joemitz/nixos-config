@@ -12,6 +12,14 @@
   # Load AMD GPU driver early in boot (fixes display detection before SDDM starts)
   boot.initrd.kernelModules = [ "amdgpu" ];
 
+  # AMD GPU kernel parameters for suspend/resume stability
+  # amdgpu.runpm=0: Disable runtime PM (prevents GPU power state issues on RX 6600 XT)
+  # amdgpu.gpu_recovery=1: Enable GPU recovery on errors
+  boot.kernelParams = [
+    "amdgpu.runpm=0"
+    "amdgpu.gpu_recovery=1"
+  ];
+
   # Root impermanence: Rollback root subvolume to pristine state on boot
   boot.initrd.postDeviceCommands = pkgs.lib.mkAfter ''
     mkdir -p /mnt

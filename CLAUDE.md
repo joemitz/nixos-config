@@ -203,6 +203,9 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
 - Driver: amdgpu (loaded early in boot via initrd)
 - Hardware acceleration enabled (32-bit support included)
 - Video driver explicitly set to "amdgpu"
+- Kernel parameters configured for RX 6600 XT stability:
+  - `amdgpu.runpm=0`: Disable runtime power management (prevents GPU power state issues on suspend/resume)
+  - `amdgpu.gpu_recovery=1`: Enable GPU recovery on errors
 
 **Kernel**: 6.6 LTS (linuxPackages_6_6) to avoid stability issues with newer kernels on AMD GPUs
 
