@@ -32,6 +32,22 @@ Usage: 120GB used, 800GB free (13% utilization)
 
 ---
 
+## CURRENT STATUS
+
+**✅ Phase 1 Complete** (Pre-repartitioning Safety)
+- ✅ Step 1.1: Critical data backed up to TrueNAS
+- ✅ Step 1.2: Btrfs filesystem verified healthy (930GB total, 115GB used, 804GB free)
+- ✅ Step 1.3: Configuration documented (files saved to `/home/joemitz/nixos-config/docs/`)
+
+**→ NEXT: Phase 2** - Repartition NVMe from another Linux system
+
+Configuration backups available at:
+- `/home/joemitz/nixos-config/docs/partition-table-backup.txt`
+- `/home/joemitz/nixos-config/docs/btrfs-subvolumes-backup.txt`
+- `/home/joemitz/nixos-config/docs/blkid-backup.txt`
+
+---
+
 ## PHASE 1: PRE-REPARTITIONING SAFETY (From NixOS System)
 
 ### Step 1.1: Backup Critical Data
@@ -80,18 +96,17 @@ Save partition table and filesystem info for recovery if needed:
 
 ```bash
 # Save partition table backup
-sudo parted /dev/nvme0n1 print > ~/partition-table-backup.txt
-sudo fdisk -l /dev/nvme0n1 >> ~/partition-table-backup.txt
+sudo fdisk -l /dev/nvme0n1 > ~/nixos-config/docs/partition-table-backup.txt
 
 # Save Btrfs subvolume list
-sudo btrfs subvolume list / > ~/btrfs-subvolumes-backup.txt
+sudo btrfs subvolume list / > ~/nixos-config/docs/btrfs-subvolumes-backup.txt
 
 # Save filesystem UUIDs
-sudo blkid > ~/blkid-backup.txt
-
-# Backup these files to TrueNAS too
-sudo cp ~/*-backup.txt "$BACKUP_DIR/"
+sudo blkid > ~/nixos-config/docs/blkid-backup.txt
 ```
+
+**Note**: Files are saved to the docs folder and will be committed with the config.
+If you also backed up to TrueNAS, that's even better!
 
 ### Step 1.4: Shutdown NixOS
 Once backups verified, shut down the NixOS system:
@@ -103,6 +118,8 @@ sudo shutdown -h now
 ---
 
 ## PHASE 2: REPARTITIONING (From Another Linux System)
+
+**🔹 YOU ARE HERE - START PHASE 2 FROM YOUR OTHER LINUX SYSTEM 🔹**
 
 ### Prerequisites on Second Linux System
 Install required tools:

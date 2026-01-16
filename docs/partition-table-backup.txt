@@ -1,0 +1,11 @@
+Disk /dev/nvme0n1: 931.51 GiB, 1000204886016 bytes, 1953525168 sectors
+Disk model: Samsung SSD 990 PRO 1TB                 
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: gpt
+Disk identifier: E503036B-2A6C-48EB-ABF2-8B8EF4045C2C
+
+Device           Start        End    Sectors   Size Type
+/dev/nvme0n1p1    2048    2099199    2097152     1G EFI System
+/dev/nvme0n1p2 2099200 1953525134 1951425935 930.5G Linux filesystem
