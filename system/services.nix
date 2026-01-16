@@ -16,6 +16,10 @@ _:
   # Enable Docker
   virtualisation.docker.enable = true;
 
+  # Disable sda3 swap auto-discovery (OpenSUSE swap partition)
+  # NixOS uses nvme0n1p3 for swap; prevent systemd from auto-activating sda3
+  systemd.units."dev-sda3.swap".enable = false;
+
   # NH (Nix Helper) - modern replacement for nixos-rebuild
   programs.nh = {
     enable = true;

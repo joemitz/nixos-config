@@ -212,6 +212,7 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
 **Swap**:
 - Swap partition enabled on NVMe drive (/dev/disk/by-label/swap) for phase 3 nvme repartitioning
 - Phase 1 (backup) and phase 2 (partitioning) completed; phase 3 configuration active
+- sda3 swap auto-discovery disabled (OpenSUSE swap partition) to prevent systemd conflicts with NixOS swap on nvme0n1p3
 
 **Filesystem**:
 - Root filesystem: Btrfs with subvolumes (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles)
