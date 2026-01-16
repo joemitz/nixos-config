@@ -74,11 +74,6 @@ nixos-config/
 
 ## Building and Deploying
 
-**Rebuild the system**:
-```bash
-nh os switch /home/joemitz/nixos-config
-```
-
 **Rebuild with auto-commit and push** (use the `nhs` bash alias):
 ```bash
 nhs
@@ -109,7 +104,7 @@ This alias:
 6. Pushes to git remote
 7. Returns to original directory
 
-**IMPORTANT: Claude Code must NEVER run nhs or nhb automatically**:
+**IMPORTANT: Claude Code must NEVER run nhs, nhb, nh os switch or nh os boot automatically**:
 - Claude should make configuration changes and then stop
 - The user will run `nhs` or `nhb` manually to rebuild and commit
 - Do NOT attempt to run `bash -ic "nhs"`, `bash -ic "nhb"`, or any rebuild commands automatically
@@ -210,9 +205,10 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
 **Kernel**: 6.6 LTS (linuxPackages_6_6) to avoid stability issues with newer kernels on AMD GPUs
 
 **Swap**:
-- Swap partition enabled on NVMe drive (/dev/disk/by-label/swap) for phase 3 nvme repartitioning
+- Swap partition enabled on NVMe drive (/dev/disk/by-label/nixos-swap) for phase 3 nvme repartitioning
 - Phase 1 (backup) and phase 2 (partitioning) completed; phase 3 configuration active
 - sda3 swap auto-discovery disabled (OpenSUSE swap partition) to prevent systemd conflicts with NixOS swap on nvme0n1p3
+- Swap label updated from generic "swap" to "nixos-swap" for clarity and to avoid conflicts with OpenSUSE swap partition
 
 **Filesystem**:
 - Root filesystem: Btrfs with subvolumes (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles)
