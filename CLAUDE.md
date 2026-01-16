@@ -209,6 +209,10 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
 
 **Kernel**: 6.6 LTS (linuxPackages_6_6) to avoid stability issues with newer kernels on AMD GPUs
 
+**Swap**:
+- Swap partition enabled on NVMe drive (/dev/disk/by-label/swap) for phase 3 nvme repartitioning
+- Phase 1 (backup) and phase 2 (partitioning) completed; phase 3 configuration active
+
 **Filesystem**:
 - Root filesystem: Btrfs with subvolumes (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles)
 - Mount options: compress=zstd, noatime, space_cache=v2 (on root), space_cache (on /nix)
