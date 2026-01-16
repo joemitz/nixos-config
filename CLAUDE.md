@@ -205,11 +205,12 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
 **Kernel**: 6.6 LTS (linuxPackages_6_6) to avoid stability issues with newer kernels on AMD GPUs
 
 **Swap**:
-- Swap partition enabled on NVMe drive (/dev/disk/by-label/nixos-swap) for phase 3 nvme repartitioning
-- Phase 1 (backup) and phase 2 (partitioning) completed; phase 3 configuration active
-- OpenSUSE swap auto-discovery disabled by UUID (549e5677-dc32-4b89-81c7-1c83b3eed996) instead of device name to prevent systemd conflicts with NixOS swap on nvme0n1p3
-- Using UUID-based masking ensures swap blocking persists even if device names change (e.g., sda→sdb)
-- Swap label updated from generic "swap" to "nixos-swap" for clarity and to avoid conflicts with OpenSUSE swap partition
+- 15.1 GiB swap partition on NVMe (/dev/nvme0n1p3, label: nixos-swap)
+- Configured in hardware-configuration.nix: `/dev/disk/by-label/nixos-swap`
+- Required for AMD GPU suspend/resume: amdgpu driver needs swap to evacuate 8GB VRAM during suspend
+- OpenSUSE swap (sda3) masked by UUID to prevent auto-activation by systemd
+- UUID-based masking (549e5677-dc32-4b89-81c7-1c83b3eed996) persists even if device names change (sda→sdb)
+- **Suspend/resume tested and working**: KWin no longer crashes on wake from sleep
 
 **Filesystem**:
 - Root filesystem: Btrfs with subvolumes (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles)
