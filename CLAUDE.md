@@ -207,7 +207,8 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
 **Swap**:
 - Swap partition enabled on NVMe drive (/dev/disk/by-label/nixos-swap) for phase 3 nvme repartitioning
 - Phase 1 (backup) and phase 2 (partitioning) completed; phase 3 configuration active
-- sda3 swap auto-discovery disabled (OpenSUSE swap partition) to prevent systemd conflicts with NixOS swap on nvme0n1p3
+- OpenSUSE swap auto-discovery disabled by UUID (549e5677-dc32-4b89-81c7-1c83b3eed996) instead of device name to prevent systemd conflicts with NixOS swap on nvme0n1p3
+- Using UUID-based masking ensures swap blocking persists even if device names change (e.g., sda→sdb)
 - Swap label updated from generic "swap" to "nixos-swap" for clarity and to avoid conflicts with OpenSUSE swap partition
 
 **Filesystem**:

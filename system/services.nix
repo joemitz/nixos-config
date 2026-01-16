@@ -16,9 +16,10 @@ _:
   # Enable Docker
   virtualisation.docker.enable = true;
 
-  # Disable sda3 swap auto-discovery (OpenSUSE swap partition)
-  # NixOS uses nvme0n1p3 for swap; prevent systemd from auto-activating sda3
-  systemd.units."dev-sda3.swap".enable = false;
+  # Disable OpenSUSE swap auto-discovery (by UUID, not device name)
+  # NixOS uses nvme0n1p3 for swap; prevent systemd from auto-activating OpenSUSE swap
+  # Using UUID ensures mask works even if device name changes (sda→sdb)
+  systemd.units."dev-disk-by\\x2duuid-549e5677\\x2ddc32\\x2d4b89\\x2d81c7\\x2d1c83b3eed996.swap".enable = false;
 
   # NH (Nix Helper) - modern replacement for nixos-rebuild
   programs.nh = {
