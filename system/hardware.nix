@@ -19,18 +19,20 @@ _:
   # Enable firmware updates
   services.fwupd.enable = true;
 
-  # Mount TrueNAS Plex share via NFS (read-only)
-  fileSystems."/mnt/truenas/plex" = {
-    device = "192.168.0.55:/mnt/main-pool/plex";
-    fsType = "nfs";
-    options = [ "ro" ];
-  };
-
   # Mount TrueNAS Kopia share via NFS (read-write)
+  # x-systemd.automount: Mount on first access (not at boot)
+  # _netdev: Network filesystem (systemd waits for network automatically)
+  # nofail: Continue boot even if mount fails
   fileSystems."/mnt/truenas/kopia" = {
     device = "192.168.0.55:/mnt/main-pool/kopia";
     fsType = "nfs";
-    options = [ "rw" ];
+    options = [
+      "rw"
+      "x-systemd.automount"
+      "_netdev"
+      "nofail"
+      "x-systemd.mount-timeout=30s"
+    ];
   };
 
   # Mount OpenSUSE home subvolume (read-only)
