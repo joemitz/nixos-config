@@ -144,7 +144,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 - **networking.nix**: NetworkManager, Wake-on-LAN on enp6s0, Tailscale VPN, firewall, OpenSSH (port 22, password auth enabled)
 - **users.nix**: User accounts (joemitz with groups: networkmanager, wheel, docker, adbusers, kvm; root), timezone (America/Los_Angeles), locale, polkit, passwordless sudo
 - **secrets.nix**: Complete sops-nix configuration for encrypted secrets management
-- **services.nix**: Docker, Flatpak, ADB for Android, NFS client, nix-ld (for Android SDK tools), NH (Nix Helper), Nix settings (experimental features, trusted-users for signing and remote builds)
+- **services.nix**: Docker, ADB for Android, NFS client, nix-ld (for Android SDK tools), NH (Nix Helper), Nix settings (experimental features, trusted-users for signing and remote builds)
 - **persistence.nix**: Impermanence configuration - root and home wipe on boot, state persisted to three subvolumes
 - **snapper.nix**: Snapper configuration for Btrfs snapshots of persistence subvolumes (joemitz allowed user)
 - **Filesystem**: Btrfs with subvolumes (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles) and zstd compression
@@ -399,7 +399,7 @@ This system uses **full impermanence** - both root and home filesystems are wipe
 **What persists**:
 - `/nix` - Mounted from @nix subvolume (Nix store, always persistent)
 - `/persist-root` - Mounted from @persist-root subvolume, contains system state:
-  - System state: logs, NetworkManager connections, Docker data, Flatpak apps, Bluetooth pairings
+  - System state: logs, NetworkManager connections, Docker data, Bluetooth pairings
   - Service state: Tailscale, CUPS, SDDM, systemd timers
   - SSH host keys and machine-id
 - `/persist-dotfiles` - Mounted from @persist-dotfiles subvolume, contains user configs:

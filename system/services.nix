@@ -16,9 +16,6 @@ _:
   # Enable Docker
   virtualisation.docker.enable = true;
 
-  # Enable Flatpak
-  services.flatpak.enable = true;
-
   # Disable OpenSUSE swap auto-discovery (by UUID, not device name)
   # NixOS uses nvme0n1p3 for swap; prevent systemd from auto-activating OpenSUSE swap
   # Using UUID ensures mask works even if device name changes (sda→sdb)
