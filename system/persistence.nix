@@ -23,6 +23,7 @@ _:
       "/var/lib/geoclue"
       "/var/lib/upower"
       "/var/lib/sddm"
+      "/var/lib/flatpak"
       "/root/.config/kopia"
       "/root/.cache/kopia"
     ];
