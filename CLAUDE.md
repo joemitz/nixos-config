@@ -35,6 +35,7 @@ nixos-config/
 │   ├── tmux.nix                # Tmux configuration and keybindings
 │   ├── alacritty.nix           # Terminal theme and colors
 │   ├── firefox.nix             # Firefox browser
+│   ├── niri.nix                # Niri tiling compositor configuration
 │   └── desktop-entries.nix     # XDG desktop entries (guvcview, tiny4linux)
 ├── cachix/
 │   ├── default.nix            # Auto-imports all cachix configs
@@ -51,7 +52,7 @@ nixos-config/
 - `system/index.nix`: Main system configuration entry point (imports all system modules)
 - `system/*.nix`: Modular system configuration split by concern (boot, hardware, networking, desktop, users, secrets, services, persistence, snapper)
 - `home/index.nix`: Main home-manager entry point (imports all home modules)
-- `home/*.nix`: Modular home configuration split by program (packages, git, ssh, direnv, bash, tmux, alacritty, firefox, desktop-entries)
+- `home/*.nix`: Modular home configuration split by program (packages, git, ssh, direnv, bash, tmux, alacritty, firefox, niri, desktop-entries)
 - `system/hardware-configuration.nix`: Hardware-specific configuration with Btrfs subvolumes (generated, not typically edited manually)
 - `pkgs/tiny4linux.nix`: Custom package for OBSBOT Tiny2 camera controller
 - `cachix/`: Binary cache configurations (claude-code). Auto-import system uses cleanup of unused parameters for code hygiene.
@@ -140,7 +141,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 **System Configuration** (modular structure in system/):
 - **boot.nix**: systemd-boot with EFI, kernel 6.6 LTS (pkgs.linuxPackages_6_6), root rollback on boot
 - **hardware.nix**: AMD GPU with amdgpu driver early loading, hardware acceleration, Bluetooth with power-on-boot enabled, firmware updates, NFS mount (TrueNAS Kopia at 192.168.0.55:/mnt/main-pool/kopia with automount and nofail options; removed Plex mount)
-- **desktop.nix**: KDE Plasma 6 with SDDM (Wayland enabled, breeze theme, Opal wallpaper background), PipeWire audio, printing, kde-rounded-corners
+- **desktop.nix**: KDE Plasma 6 with SDDM (Wayland enabled, breeze theme, Opal wallpaper background), PipeWire audio, printing, kde-rounded-corners, Niri tiling compositor (alternative to KDE Plasma)
 - **networking.nix**: NetworkManager, Wake-on-LAN on enp6s0, Tailscale VPN, firewall, OpenSSH (port 22, password auth enabled)
 - **users.nix**: User accounts (joemitz with groups: networkmanager, wheel, docker, adbusers, kvm; root), timezone (America/Los_Angeles), locale, polkit, passwordless sudo
 - **secrets.nix**: Complete sops-nix configuration for encrypted secrets management
@@ -150,7 +151,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 - **Filesystem**: Btrfs with subvolumes (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles) and zstd compression
 
 **User Configuration** (modular structure in home/):
-- **packages.nix**: All user packages - CLI tools (claude-code, gh, jq, awscli2, awslogs, devbox, nodejs_24, btop, eza), Nix tools (nixd, nixpkgs-fmt, nixf, statix, deadnix, sops), development apps (vscodium, postman, android-studio, android-tools, jdk17), applications (zoom-us, tidal-hifi, vlc, gimp, guvcview, remmina), custom packages (tiny4linux). Uses pinned nixpkgs input for tiny4linux built from nixpkgs-tiny4linux (to avoid unnecessary rebuilds on Rust updates). Module header cleaned to include only required parameters (removed unused `config`). Note: tmux enabled via programs.tmux in tmux.nix, not listed here
+- **packages.nix**: All user packages - CLI tools (claude-code, gh, jq, awscli2, awslogs, devbox, nodejs_24, btop, eza), Nix tools (nixd, nixpkgs-fmt, nixf, statix, deadnix, sops), development apps (vscodium, postman, android-studio, android-tools, jdk17), applications (zoom-us, tidal-hifi, vlc, gimp, guvcview, remmina), custom packages (tiny4linux), Niri essentials (waybar, fuzzel, mako). Uses pinned nixpkgs input for tiny4linux built from nixpkgs-tiny4linux (to avoid unnecessary rebuilds on Rust updates). Module header cleaned to include only required parameters (removed unused `config`). Note: tmux enabled via programs.tmux in tmux.nix, not listed here
 - **git.nix**: Git with gitFull package, user config, useful aliases (co, st, br, hi, lb, ma, type, dump, pu, ad, ch, cp), LFS support, libsecret credential helper (KDE Wallet)
 - **ssh.nix**: SSH configuration with macbook host (192.168.0.232)
 - **direnv.nix**: direnv with bash integration and nix-direnv support
@@ -158,6 +159,13 @@ The activation script ensures proper file ownership to allow NH to update flake.
 - **tmux.nix**: Tmux with custom keybindings (h/v for splits, n for new window, w/x for kill, Ctrl+K to clear, Ctrl+_ for Shift-Tab), mouse support, status bar
 - **alacritty.nix**: Terminal with moonfly theme and pure black background (#000000)
 - **firefox.nix**: Firefox browser enabled
+- **niri.nix**: Niri scrollable-tiling Wayland compositor configuration with keybindings, layout settings, and auto-spawned waybar/mako
+  - 3840x2160@60Hz display output (DP-1)
+  - Column-based tiling layout with 8px gaps
+  - Focus rings and borders with colors (#7fc8ff active, #505050 inactive)
+  - Keybindings: Mod+T (terminal), Mod+D (app launcher), Mod+{H,J,K,L} (navigate), Mod+Ctrl+{H,J,K,L} (move), workspaces via Mod+{1-9}, window management (maximize, fullscreen, center, resize)
+  - Cursor theme: breeze_cursors at 24px
+  - Auto-spawns waybar (status bar) and mako (notification daemon)
 - **nixd.nix**: Nixd language server configuration with nixpkgs, NixOS, and home-manager IDE features (autocomplete, diagnostics, go-to-definition, formatting)
 - **desktop-entries.nix**: XDG desktop entries for guvcview (with -z flag) and tiny4linux-gui
 
