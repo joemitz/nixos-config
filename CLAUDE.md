@@ -358,7 +358,7 @@ The secrets.env template includes both secrets and non-secret constants:
 
 **Handy** (pkgs/handy.nix):
 - Handy AppImage wrapper
-- Built from AppImage source
+- Built from AppImage source with runtime dependencies (gtk3, glib, gobject-introspection)
 - Desktop entry created for easy access
 - Launch: `handy` or from application menu
 

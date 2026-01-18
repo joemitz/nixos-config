@@ -19,6 +19,12 @@ in
 appimageTools.wrapType2 {
   inherit pname version src;
 
+  extraPkgs = pkgs: with pkgs; [
+    gtk3
+    glib
+    gobject-introspection
+  ];
+
   extraInstallCommands = ''
     install -Dm444 ${appimageContents}/Handy.desktop $out/share/applications/handy.desktop
     install -Dm444 ${appimageContents}/Handy.png $out/share/pixmaps/handy.png
