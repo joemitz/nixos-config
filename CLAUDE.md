@@ -377,6 +377,7 @@ The secrets.env template includes both secrets and non-secret constants:
 **Alacritty Terminal**:
 - Theme: moonfly
 - Background: pure black (#000000)
+- Window decorations: full (native window decorations enabled)
 - Custom magenta colors (#d79600 normal, #ffbf5f bright)
 
 **Bash Configuration**:
