@@ -26,9 +26,11 @@ appimageTools.wrapType2 {
 
   multiArch = false;
 
+  # Bind Wayland socket for proper display authorization
   extraBwrapArgs = [
+    "--ro-bind-try /run/user/1000/wayland-0 /run/user/1000/wayland-0"
+    "--ro-bind-try /run/user/1000/wayland-1 /run/user/1000/wayland-1"
     "--setenv GDK_BACKEND wayland"
-    "--setenv QT_QPA_PLATFORM wayland"
   ];
 
   extraInstallCommands = ''

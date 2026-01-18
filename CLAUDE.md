@@ -359,7 +359,7 @@ The secrets.env template includes both secrets and non-secret constants:
 **Handy** (pkgs/handy.nix):
 - Handy AppImage wrapper
 - Built from AppImage source with runtime dependencies (gtk3, glib)
-- Wayland backend configured via extraBwrapArgs (GDK_BACKEND and QT_QPA_PLATFORM set to wayland)
+- Wayland backend configured via extraBwrapArgs (GDK_BACKEND set to wayland, Wayland sockets bound for display authorization)
 - Single-arch binary (multiArch disabled for simpler Wayland-only operation)
 - Desktop entry created for easy access
 - Launch: `handy` or from application menu
