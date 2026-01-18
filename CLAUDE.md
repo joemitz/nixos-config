@@ -280,6 +280,7 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
 - NODE_ENV=development
 - DEVICE_IP=192.168.0.249
 - HUSKY=0 (disables git hooks)
+- ELECTRON_OZONE_PLATFORM_HINT=wayland (enables Wayland for Electron apps on KDE Plasma)
 - ANDROID_HOME=$HOME/Android/Sdk
 
 ## Secrets Management

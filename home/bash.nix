@@ -18,6 +18,9 @@ _:
       DEVICE_IP = "192.168.0.249";
       HUSKY = "0";
 
+      # Electron apps use Wayland
+      ELECTRON_OZONE_PLATFORM_HINT = "wayland";
+
       # Android SDK paths
       ANDROID_HOME = "$HOME/Android/Sdk";
     };
