@@ -24,11 +24,12 @@ appimageTools.wrapType2 {
     glib
   ];
 
-  # appimageTools automatically mounts XDG_RUNTIME_DIR which includes the Wayland socket
-  # Just need to ensure GTK uses Wayland
-  profile = ''
-    export GDK_BACKEND=wayland
-  '';
+  multiArch = false;
+
+  extraBwrapArgs = [
+    "--setenv GDK_BACKEND wayland"
+    "--setenv QT_QPA_PLATFORM wayland"
+  ];
 
   extraInstallCommands = ''
     install -Dm444 ${appimageContents}/Handy.desktop $out/share/applications/handy.desktop
