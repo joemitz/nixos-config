@@ -22,11 +22,12 @@ appimageTools.wrapType2 {
   extraPkgs = pkgs: with pkgs; [
     gtk3
     glib
-    xorg.xhost
   ];
 
+  # appimageTools automatically mounts XDG_RUNTIME_DIR which includes the Wayland socket
+  # Just need to ensure GTK uses Wayland
   profile = ''
-    export GDK_BACKEND=wayland,x11
+    export GDK_BACKEND=wayland
   '';
 
   extraInstallCommands = ''
