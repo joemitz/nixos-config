@@ -114,6 +114,22 @@
         "type": "github"
       }
     },
+    "nixpkgs-handy": {
+      "locked": {
+        "lastModified": 1748026106,
+        "narHash": "sha256-6m1Y3/4pVw1RWTsrkAK2VMYSzG4MMIj7sqUy7o8th1o=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "063f43f2dbdef86376cc29ad646c45c46e93234c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "063f43f2dbdef86376cc29ad646c45c46e93234c",
+        "type": "github"
+      }
+    },
     "nixpkgs-tiny4linux": {
       "locked": {
         "lastModified": 1768323494,
@@ -168,6 +184,7 @@
         "home-manager": "home-manager",
         "impermanence": "impermanence",
         "nixpkgs": "nixpkgs_3",
+        "nixpkgs-handy": "nixpkgs-handy",
         "nixpkgs-tiny4linux": "nixpkgs-tiny4linux",
         "sops-nix": "sops-nix",
         "tiny4linux": "tiny4linux"
