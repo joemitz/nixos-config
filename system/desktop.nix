@@ -13,9 +13,6 @@
   };
   services.desktopManager.plasma6.enable = true;
 
-  # Enable niri compositor (scrollable-tiling Wayland)
-  programs.niri.enable = true;
-
   # Configure keymap in X11
   services.xserver.xkb = {
     layout = "us";

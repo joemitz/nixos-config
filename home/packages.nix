@@ -29,9 +29,5 @@
     pkgs.statix
     pkgs.deadnix
     pkgs.sops
-    # niri essential tools
-    pkgs.waybar
-    pkgs.fuzzel
-    pkgs.mako
   ];
 }

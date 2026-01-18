@@ -12,7 +12,6 @@
     ./firefox.nix
     ./desktop-entries.nix
     ./nixd.nix
-    ./niri.nix
   ];
 
   home.stateVersion = "25.11";
