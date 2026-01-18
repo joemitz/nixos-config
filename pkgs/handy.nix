@@ -22,8 +22,12 @@ appimageTools.wrapType2 {
   extraPkgs = pkgs: with pkgs; [
     gtk3
     glib
-    gobject-introspection
+    xorg.xhost
   ];
+
+  profile = ''
+    export GDK_BACKEND=wayland,x11
+  '';
 
   extraInstallCommands = ''
     install -Dm444 ${appimageContents}/Handy.desktop $out/share/applications/handy.desktop
