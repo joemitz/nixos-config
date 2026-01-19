@@ -373,7 +373,7 @@ The secrets.env template includes both secrets and non-secret constants:
 - Sources ~/.alias if exists
 - Auto-sources ~/.config/secrets.env
 - Auto-attaches to tmux "main" session on login (unless already in tmux)
-- Custom prompt: Shows username, current directory, and git branch (if in a repo): `user:dir(branch)$` (username in green, dir in blue, branch in yellow)
+- Custom prompt: Shows current directory and git branch (if in a repo): `dir(branch)$` (dir in blue, branch in yellow)
 - Shell aliases: `ls`→`eza`, `top`→`btop`, `code`→`codium`, `c`→`claude`, `nano`→`micro`, `zzz`→`systemctl suspend`
 - `nhs` alias: Full rebuild + auto-commit + push workflow (invokes Claude Haiku to generate commit message and update CLAUDE.md with important changes only)
 - `nhb` alias: Stage for boot + auto-commit + push workflow
