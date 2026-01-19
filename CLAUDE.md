@@ -125,6 +125,17 @@ nix flake check
 nix flake show
 ```
 
+**Dry build to check configuration** (without applying changes):
+```bash
+# Using nix build (preferred for flakes)
+nix build .#nixosConfigurations.nixos.config.system.build.toplevel --dry-run
+
+# Using nixos-rebuild (alternative)
+sudo nixos-rebuild dry-build --flake .#nixos
+```
+
+**Important**: Do NOT use `nh os build` for dry builds - it may require user permissions. Use `nix build` or `nixos-rebuild` instead.
+
 ## NH (Nix Helper) Configuration
 
 NH is configured in services.nix with:
@@ -362,6 +373,7 @@ The secrets.env template includes both secrets and non-secret constants:
 - Sources ~/.alias if exists
 - Auto-sources ~/.config/secrets.env
 - Auto-attaches to tmux "main" session on login (unless already in tmux)
+- Custom prompt: Shows current directory and git branch (if in a repo): `pwd(branch)$`
 - Shell aliases: `ls`→`eza`, `top`→`btop`, `code`→`codium`, `c`→`claude`, `nano`→`micro`, `zzz`→`systemctl suspend`
 - `nhs` alias: Full rebuild + auto-commit + push workflow (invokes Claude Haiku to generate commit message and update CLAUDE.md with important changes only)
 - `nhb` alias: Stage for boot + auto-commit + push workflow

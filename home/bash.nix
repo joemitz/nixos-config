@@ -25,6 +25,9 @@ _:
       ANDROID_HOME = "$HOME/Android/Sdk";
     };
     initExtra = ''
+      # Custom prompt: pwd(branch)$ for repos, pwd$ otherwise
+      export PS1='\[\033[01;34m\]\w\[\033[01;33m\]$(git rev-parse --abbrev-ref HEAD 2>/dev/null | sed "s/.*/(&)/")\[\033[00m\]\$ '
+
       # Source alias file if it exists
       test -s ~/.alias && . ~/.alias || true
 
