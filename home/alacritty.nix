@@ -5,7 +5,6 @@ _:
     enable = true;
     theme = "moonfly";
     settings = {
-      window.decorations = "full";
       colors.primary.background = "#000000";
       colors.normal.magenta = "#d79600";
       colors.bright.magenta = "#ffbf5f";

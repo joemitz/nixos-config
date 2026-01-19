@@ -1,9 +1,8 @@
-{ pkgs, claude-code, tiny4linux, pkgs-tiny4linux, pkgs-handy, ... }:
+{ pkgs, claude-code, tiny4linux, pkgs-tiny4linux, ... }:
 
 {
   home.packages = [
     (pkgs-tiny4linux.callPackage ../pkgs/tiny4linux.nix { src = tiny4linux; })
-    (pkgs-handy.callPackage ../pkgs/handy.nix { })
     claude-code.packages.x86_64-linux.default
     pkgs.gh
     pkgs.jq
@@ -30,6 +29,5 @@
     pkgs.statix
     pkgs.deadnix
     pkgs.sops
-    pkgs.wtype
   ];
 }
