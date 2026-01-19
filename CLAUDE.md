@@ -150,7 +150,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 - **Filesystem**: Btrfs with subvolumes (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles) and zstd compression
 
 **User Configuration** (modular structure in home/):
-- **packages.nix**: All user packages - CLI tools (claude-code, gh, jq, awscli2, awslogs, devbox, nodejs_24, btop, eza), Nix tools (nixd, nixpkgs-fmt, nixf, statix, deadnix, sops), development apps (vscodium, postman, android-studio, android-tools, jdk17), applications (zoom-us, tidal-hifi, vlc, gimp, guvcview, remmina), custom packages (tiny4linux). Uses pinned nixpkgs input for tiny4linux built from nixpkgs-tiny4linux (to avoid unnecessary rebuilds on Rust updates). Module header cleaned to include only required parameters (removed unused `config`). Note: tmux enabled via programs.tmux in tmux.nix, not listed here
+- **packages.nix**: All user packages - CLI tools (claude-code, gh, jq, awscli2, awslogs, devbox, nodejs_24, btop, eza), Nix tools (nixd, nixpkgs-fmt, nixf, statix, deadnix, sops), development apps (vscodium, postman, android-studio, android-tools, jdk17), applications (zoom-us, tidal-hifi, vlc, gimp, guvcview, remmina), fonts (nerd-fonts.jetbrains-mono), custom packages (tiny4linux). Uses pinned nixpkgs input for tiny4linux built from nixpkgs-tiny4linux (to avoid unnecessary rebuilds on Rust updates). Module header cleaned to include only required parameters (removed unused `config`). Note: tmux enabled via programs.tmux in tmux.nix, not listed here
 - **git.nix**: Git with gitFull package, user config, useful aliases (co, st, br, hi, lb, ma, type, dump, pu, ad, ch, cp), LFS support, libsecret credential helper (KDE Wallet)
 - **ssh.nix**: SSH configuration with macbook host (192.168.0.232)
 - **direnv.nix**: direnv with bash integration and nix-direnv support
@@ -354,6 +354,7 @@ The secrets.env template includes both secrets and non-secret constants:
 
 **Alacritty Terminal**:
 - Theme: moonfly
+- Font: JetBrainsMono Nerd Font (Regular, Bold, Italic), size 12.0
 - Background: pure black (#000000)
 - Custom magenta colors (#d79600 normal, #ffbf5f bright)
 
