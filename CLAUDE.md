@@ -139,8 +139,8 @@ sudo nixos-rebuild dry-build --flake .#nixos
 ## NH (Nix Helper) Configuration
 
 NH is configured in services.nix with:
-- Automatic weekly garbage collection
-- Keeps last 10 generations and anything from last 10 days
+- **Automatic garbage collection disabled** - run manually with `nix-collect-garbage -d` when needed
+- Keeps last 10 generations and anything from last 10 days (when manual GC is run)
 - Flake path: `/home/joemitz/nixos-config`
 - Download buffer size: 512 MiB for faster downloads
 

@@ -26,7 +26,7 @@ _:
     enable = true;
     flake = "/home/joemitz/nixos-config";
     clean = {
-      enable = true;
+      enable = false;  # Disabled - run manually with: nix-collect-garbage -d
       dates = "weekly";
       extraArgs = "--keep 10 --keep-since 10d";
     };
