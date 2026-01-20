@@ -18,6 +18,7 @@
     pkgs.vlc
     pkgs.gimp
     pkgs.remmina
+    pkgs.nomachine-client
     pkgs.android-studio
     pkgs.android-tools
     pkgs.jdk17
