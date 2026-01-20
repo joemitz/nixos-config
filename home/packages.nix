@@ -4,7 +4,7 @@
   home.packages = [
     (pkgs-tiny4linux.callPackage ../pkgs/tiny4linux.nix { src = tiny4linux; })
     claude-code.packages.x86_64-linux.default
-    pkgs.nerd-fonts.hack
+    pkgs.nerd-fonts.jetbrains-mono
     pkgs.gh
     pkgs.jq
     pkgs.awscli2
