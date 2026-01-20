@@ -7,15 +7,15 @@ _:
     settings = {
       font = {
         normal = {
-          family = "JetBrainsMono Nerd Font";
+          family = "Hack Nerd Font";
           style = "Regular";
         };
         bold = {
-          family = "JetBrainsMono Nerd Font";
+          family = "Hack Nerd Font";
           style = "Bold";
         };
         italic = {
-          family = "JetBrainsMono Nerd Font";
+          family = "Hack Nerd Font";
           style = "Italic";
         };
         size = 12.0;
