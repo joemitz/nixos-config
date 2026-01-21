@@ -417,7 +417,7 @@ This system uses **full impermanence** - both root and home filesystems are wipe
   - Service state: Tailscale, CUPS, SDDM, systemd timers
   - SSH host keys and machine-id
 - `/persist-dotfiles` - Mounted from @persist-dotfiles subvolume, contains user configs:
-  - Application configs: .config, .local, .ssh, .claude, .aws
+  - Application configs: .config, .local, .ssh, .claude, .aws, .parsec
   - Development caches: .gradle, .npm, .cargo, .compose-cache, .android
   - Development settings: .react-native-cli, .java
   - Browser data: .mozilla, .cache

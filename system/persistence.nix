@@ -46,6 +46,7 @@ _:
         ".ssh"                     # SSH keys and known_hosts
         ".claude"                  # Claude Code data
         ".aws"                     # AWS CLI configuration and credentials
+        ".parsec"                  # Parsec remote desktop settings and credentials
         ".config"                  # All application configs including KDE Plasma
         ".local/share"             # Application data, KDE data, keyrings
         ".local/state"             # Application state, wireplumber
