@@ -52,6 +52,7 @@ _:
         ".local/state"             # Application state, wireplumber
         ".android"                 # Android Studio settings and AVDs
         ".mozilla"                 # Firefox profiles and data
+        ".thunderbird"             # Thunderbird profiles and email data
         ".vscode-oss"              # VSCodium settings and extensions
         ".zoom"                    # Zoom settings
         ".gradle"                  # Gradle build cache

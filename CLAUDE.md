@@ -420,7 +420,7 @@ This system uses **full impermanence** - both root and home filesystems are wipe
   - Application configs: .config, .local, .ssh, .claude, .aws, .parsec
   - Development caches: .gradle, .npm, .cargo, .compose-cache, .android
   - Development settings: .react-native-cli, .java
-  - Browser data: .mozilla, .cache
+  - Browser data: .mozilla, .thunderbird, .cache
   - Application data: .zoom, .vscode-oss, .var (flatpak)
   - Visual customization: .icons, .pki
 - `/persist-userfiles` - Mounted from @persist-userfiles subvolume, contains user data:
