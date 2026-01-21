@@ -18,7 +18,6 @@
     pkgs.vlc
     pkgs.gimp
     pkgs.remmina
-    pkgs.nomachine-client
     pkgs.parsec-bin
     pkgs.android-studio
     pkgs.android-tools
