@@ -17,6 +17,7 @@
     pkgs.guvcview
     pkgs.vlc
     pkgs.gimp
+    pkgs.thunderbird
     pkgs.remmina
     pkgs.parsec-bin
     pkgs.android-studio
