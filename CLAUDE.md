@@ -35,7 +35,8 @@ nixos-config/
 │   ├── tmux.nix                # Tmux configuration and keybindings
 │   ├── alacritty.nix           # Terminal theme and colors
 │   ├── firefox.nix             # Firefox browser
-│   └── desktop-entries.nix     # XDG desktop entries (guvcview, tiny4linux)
+│   ├── desktop-entries.nix     # XDG desktop entries (guvcview, tiny4linux)
+│   └── autostart.nix           # User systemd services (teams-for-linux autostart)
 ├── cachix/
 │   ├── default.nix            # Auto-imports all cachix configs
 │   └── claude-code.nix        # Claude Code binary cache
@@ -171,6 +172,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 - **firefox.nix**: Firefox browser enabled
 - **nixd.nix**: Nixd language server configuration with nixpkgs, NixOS, and home-manager IDE features (autocomplete, diagnostics, go-to-definition, formatting)
 - **desktop-entries.nix**: XDG desktop entries for guvcview (with -z flag) and tiny4linux-gui
+- **autostart.nix**: User systemd services for application autostart (teams-for-linux starts on graphical session target with restart on failure)
 
 ## Working with Packages
 
