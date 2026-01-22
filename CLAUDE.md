@@ -161,7 +161,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 - **Filesystem**: Btrfs with subvolumes (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles) and zstd compression
 
 **User Configuration** (modular structure in home/):
-- **packages.nix**: All user packages - CLI tools (claude-code, gh, jq, awscli2, awslogs, devbox, nodejs_24, btop, eza), Nix tools (nixd, nixpkgs-fmt, nixf, statix, deadnix, sops), development apps (vscodium, postman, android-studio, android-tools, jdk17), applications (zoom-us, teams-for-linux, tidal-hifi, vlc, gimp, thunderbird, kdePackages.merkuro, guvcview, remmina, parsec-bin), fonts (nerd-fonts.jetbrains-mono), custom packages (tiny4linux). Uses pinned nixpkgs input for tiny4linux built from nixpkgs-tiny4linux (to avoid unnecessary rebuilds on Rust updates). Module header cleaned to include only required parameters (removed unused `config`). Note: tmux enabled via programs.tmux in tmux.nix, not listed here
+- **packages.nix**: All user packages - CLI tools (claude-code, gh, jq, awscli2, awslogs, devbox, nodejs_24, btop, eza), Nix tools (nixd, nixpkgs-fmt, nixf, statix, deadnix, sops), development apps (vscodium, postman, android-studio, android-tools, jdk17), applications (zoom-us, teams-for-linux, tidal-hifi, vlc, gimp, thunderbird, mailspring, guvcview, remmina, parsec-bin), fonts (nerd-fonts.jetbrains-mono), custom packages (tiny4linux). Uses pinned nixpkgs input for tiny4linux built from nixpkgs-tiny4linux (to avoid unnecessary rebuilds on Rust updates). Module header cleaned to include only required parameters (removed unused `config`). Note: tmux enabled via programs.tmux in tmux.nix, not listed here
 - **git.nix**: Git with gitFull package, user config, useful aliases (co, st, br, hi, lb, ma, type, dump, pu, ad, ch, cp), LFS support, libsecret credential helper (KDE Wallet)
 - **ssh.nix**: SSH configuration with macbook host (192.168.0.232)
 - **direnv.nix**: direnv with bash integration and nix-direnv support
@@ -171,6 +171,61 @@ The activation script ensures proper file ownership to allow NH to update flake.
 - **firefox.nix**: Firefox browser enabled
 - **nixd.nix**: Nixd language server configuration with nixpkgs, NixOS, and home-manager IDE features (autocomplete, diagnostics, go-to-definition, formatting)
 - **desktop-entries.nix**: XDG desktop entries for guvcview (with -z flag) and tiny4linux-gui
+
+## Working with Packages
+
+**Adding New Packages (IMPORTANT)**:
+
+Before adding a package to `home/packages.nix` or system configuration, **ALWAYS verify the package name exists**:
+
+1. **Search nixpkgs** to confirm the exact package name:
+   ```bash
+   nix search nixpkgs <package-name>
+   ```
+
+   Examples:
+   ```bash
+   nix search nixpkgs firefox
+   nix search nixpkgs mail      # Search for mail-related packages
+   nix search nixpkgs ^         # List ALL packages (slow)
+   ```
+
+2. **Check package attribute path** - some packages are nested:
+   - Wrong: `pkgs.merkuro` ❌
+   - Correct: `pkgs.kdePackages.merkuro` ✅
+   - Examples of nested packages:
+     - `pkgs.kdePackages.*` - KDE applications
+     - `pkgs.gnome.*` - GNOME applications
+     - `pkgs.nodePackages.*` - Node.js packages
+     - `pkgs.python3Packages.*` - Python packages
+
+   Search within specific attribute:
+   ```bash
+   nix search nixpkgs#kdePackages merkuro
+   ```
+
+3. **Web search** if unsure:
+   - Search: "nixos [package-name]" or "nixpkgs [package-name]"
+   - Check https://search.nixos.org/packages
+   - Check https://mynixos.com
+
+**Common Mistakes**:
+- Assuming package name matches upstream project name
+- Not checking if package is in a nested attribute set
+- Adding packages that don't exist in nixpkgs stable (may only be in unstable)
+- Using `nix search nixpkgs#<package>` instead of `nix search nixpkgs <package>`
+
+**Example Workflow**:
+```bash
+# User wants to install "foobar"
+nix search nixpkgs foobar
+
+# If not found, search variations:
+nix search nixpkgs foo-bar
+nix search nixpkgs foo
+
+# Check online if still not found
+```
 
 ## Git Workflow
 
