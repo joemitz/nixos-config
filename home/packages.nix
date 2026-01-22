@@ -19,7 +19,7 @@
     pkgs.vlc
     pkgs.gimp
     pkgs.thunderbird
-    pkgs.merkuro
+    pkgs.kdePackages.merkuro
     pkgs.remmina
     pkgs.parsec-bin
     pkgs.android-studio
