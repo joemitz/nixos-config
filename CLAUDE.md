@@ -161,7 +161,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 - **Filesystem**: Btrfs with subvolumes (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles) and zstd compression
 
 **User Configuration** (modular structure in home/):
-- **packages.nix**: All user packages - CLI tools (claude-code, gh, jq, awscli2, awslogs, devbox, nodejs_24, btop, eza), Nix tools (nixd, nixpkgs-fmt, nixf, statix, deadnix, sops), development apps (vscodium, postman, android-studio, android-tools, jdk17), applications (zoom-us, teams-for-linux, tidal-hifi, vlc, gimp, thunderbird, guvcview, remmina, parsec-bin), fonts (nerd-fonts.jetbrains-mono), custom packages (tiny4linux). Uses pinned nixpkgs input for tiny4linux built from nixpkgs-tiny4linux (to avoid unnecessary rebuilds on Rust updates). Module header cleaned to include only required parameters (removed unused `config`). Note: tmux enabled via programs.tmux in tmux.nix, not listed here
+- **packages.nix**: All user packages - CLI tools (claude-code, gh, jq, awscli2, awslogs, devbox, nodejs_24, btop, eza), Nix tools (nixd, nixpkgs-fmt, nixf, statix, deadnix, sops), development apps (vscodium, postman, android-studio, android-tools, jdk17), applications (zoom-us, teams-for-linux, tidal-hifi, vlc, gimp, thunderbird, geary, guvcview, remmina, parsec-bin), fonts (nerd-fonts.jetbrains-mono), custom packages (tiny4linux). Uses pinned nixpkgs input for tiny4linux built from nixpkgs-tiny4linux (to avoid unnecessary rebuilds on Rust updates). Module header cleaned to include only required parameters (removed unused `config`). Note: tmux enabled via programs.tmux in tmux.nix, not listed here
 - **git.nix**: Git with gitFull package, user config, useful aliases (co, st, br, hi, lb, ma, type, dump, pu, ad, ch, cp), LFS support, libsecret credential helper (KDE Wallet)
 - **ssh.nix**: SSH configuration with macbook host (192.168.0.232)
 - **direnv.nix**: direnv with bash integration and nix-direnv support
@@ -449,6 +449,87 @@ This system uses **full impermanence** - both root and home filesystems are wipe
 - Three separate persistence points for organized state management
 - hideMounts enabled to keep persistence mounts hidden from file browsers
 - Directories and files explicitly listed for persistence in system/persistence.nix
+
+### Adding Persistence to Existing Directories (CRITICAL)
+
+**⚠️ WARNING**: When adding impermanence configuration to a directory that already contains data, the bind mount will **shadow/hide** the existing files, making them inaccessible. This is a common pitfall that can cause apparent data loss.
+
+**How Bind Mounts Work**:
+- When impermanence creates a bind mount from `/persist-*/path` to `~/path`, it mounts the persistent storage location OVER the target
+- Any files that already existed at `~/path` become hidden underneath the mount
+- Hidden files are NOT accessible and will be permanently deleted on next reboot (when root is wiped)
+
+**Correct Workflow for Adding Persistence to Existing Data**:
+
+1. **BEFORE adding to persistence.nix**: Manually copy existing data to persistent storage
+   ```bash
+   # Example: Adding persistence for ~/.thunderbird
+   sudo cp -a ~/.thunderbird /persist-dotfiles/home/joemitz/
+   sudo chown -R joemitz:users /persist-dotfiles/home/joemitz/.thunderbird
+   ```
+
+2. **Add the directory to `system/persistence.nix`**:
+   ```nix
+   environment.persistence."/persist-dotfiles" = {
+     users.joemitz = {
+       directories = [
+         ".thunderbird"  # Now safe to add
+         # ... other dirs
+       ];
+     };
+   };
+   ```
+
+3. **Rebuild and verify**:
+   ```bash
+   nhs  # or sudo nixos-rebuild switch
+   ```
+
+**Recovery Procedure (If You Forgot to Migrate First)**:
+
+If you already added persistence and your data disappeared:
+
+1. **Stop any applications using the directory** (e.g., `pkill -f thunderbird`)
+
+2. **Unmount the bind mount to reveal hidden data**:
+   ```bash
+   sudo umount ~/.thunderbird
+   ```
+
+3. **Check if original data exists underneath**:
+   ```bash
+   ls -la ~/.thunderbird/
+   du -sh ~/.thunderbird/  # Check size
+   ```
+
+4. **If data exists, migrate it to persistent storage**:
+   ```bash
+   # Remove empty persistent directory
+   sudo rm -rf /persist-dotfiles/home/joemitz/.thunderbird
+
+   # Copy original data to persistent storage
+   sudo cp -a ~/.thunderbird /persist-dotfiles/home/joemitz/
+   sudo chown -R joemitz:users /persist-dotfiles/home/joemitz/.thunderbird
+
+   # Remount bind mount
+   sudo mount --bind /persist-dotfiles/home/joemitz/.thunderbird ~/.thunderbird
+   ```
+
+5. **Verify data is accessible and correct**:
+   ```bash
+   ls -la ~/.thunderbird/
+   # Start application and verify settings are restored
+   ```
+
+**Important Notes**:
+- The impermanence module does NOT automatically migrate existing data
+- Hidden files underneath bind mounts will NOT survive a reboot
+- Always verify data is in persistent storage before rebooting: `ls -la /persist-dotfiles/home/joemitz/<directory>`
+- Lesson learned from Thunderbird incident (Jan 22, 2026): 2 email accounts were hidden by bind mount and nearly lost
+
+**References**:
+- [GitHub Issue #169 - Handle bind mount of directory that already has content](https://github.com/nix-community/impermanence/issues/169)
+- [NixOS Wiki - Impermanence](https://nixos.wiki/wiki/Impermanence)
 
 ## Backup System
 

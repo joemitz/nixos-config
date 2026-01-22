@@ -19,6 +19,7 @@
     pkgs.vlc
     pkgs.gimp
     pkgs.thunderbird
+    pkgs.geary
     pkgs.remmina
     pkgs.parsec-bin
     pkgs.android-studio
