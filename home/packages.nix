@@ -31,6 +31,7 @@
     pkgs.sops
 
     # Media
+    pkgs.audacity
     pkgs.tidal-hifi
     pkgs.vlc
 
