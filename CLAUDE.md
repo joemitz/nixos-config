@@ -180,15 +180,21 @@ Before adding a package to `home/packages.nix` or system configuration, **ALWAYS
 
 1. **Search nixpkgs** to confirm the exact package name:
    ```bash
-   nix search nixpkgs <package-name>
+   nix-env -qaP | grep -i <package-name>
    ```
 
    Examples:
    ```bash
-   nix search nixpkgs firefox
-   nix search nixpkgs mail      # Search for mail-related packages
-   nix search nixpkgs ^         # List ALL packages (slow)
+   nix-env -qaP | grep -i firefox
+   nix-env -qaP | grep -i mail      # Search for mail-related packages
+   nix-env -qaP | grep -i audacity  # Find audio editor
    ```
+
+   **Why this method?**
+   - Much faster than `nix search` (doesn't freeze)
+   - Shows package attribute path (e.g., `nixos.audacity`)
+   - Shows version number
+   - Returns results in seconds instead of minutes
 
 2. **Check package attribute path** - some packages are nested:
    - Wrong: `pkgs.merkuro` ❌
@@ -199,9 +205,9 @@ Before adding a package to `home/packages.nix` or system configuration, **ALWAYS
      - `pkgs.nodePackages.*` - Node.js packages
      - `pkgs.python3Packages.*` - Python packages
 
-   Search within specific attribute:
+   Search within specific attribute namespace:
    ```bash
-   nix search nixpkgs#kdePackages merkuro
+   nix-env -qaP | grep -i "kdePackages.*merkuro"
    ```
 
 3. **Web search** if unsure:
@@ -213,16 +219,16 @@ Before adding a package to `home/packages.nix` or system configuration, **ALWAYS
 - Assuming package name matches upstream project name
 - Not checking if package is in a nested attribute set
 - Adding packages that don't exist in nixpkgs stable (may only be in unstable)
-- Using `nix search nixpkgs#<package>` instead of `nix search nixpkgs <package>`
+- Using `nix search` (slow and may freeze)
 
 **Example Workflow**:
 ```bash
 # User wants to install "foobar"
-nix search nixpkgs foobar
+nix-env -qaP | grep -i foobar
 
 # If not found, search variations:
-nix search nixpkgs foo-bar
-nix search nixpkgs foo
+nix-env -qaP | grep -i foo-bar
+nix-env -qaP | grep -i foo
 
 # Check online if still not found
 ```
