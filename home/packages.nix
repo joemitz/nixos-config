@@ -19,7 +19,6 @@
     pkgs.vlc
     pkgs.gimp
     pkgs.thunderbird
-    pkgs.mailspring
     pkgs.remmina
     pkgs.parsec-bin
     pkgs.android-studio
