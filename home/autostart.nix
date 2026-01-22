@@ -1,19 +1,12 @@
 _:
 
 {
-  systemd.user.services.teams-for-linux = {
-    Unit = {
-      Description = "Microsoft Teams for Linux";
-      After = [ "graphical-session.target" ];
-      PartOf = [ "graphical-session.target" ];
-    };
-    Service = {
-      ExecStart = "/run/current-system/sw/bin/teams-for-linux";
-      Restart = "on-failure";
-      RestartSec = 5;
-    };
-    Install = {
-      WantedBy = [ "graphical-session.target" ];
-    };
-  };
+  xdg.configFile."autostart/teams-for-linux.desktop".text = ''
+    [Desktop Entry]
+    Type=Application
+    Name=Teams for Linux
+    Exec=teams-for-linux
+    X-GNOME-Autostart-enabled=true
+    Hidden=false
+  '';
 }
