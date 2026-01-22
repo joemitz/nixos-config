@@ -12,6 +12,7 @@
     pkgs.vscodium
     pkgs.postman
     pkgs.zoom-us
+    pkgs.teams-for-linux
     pkgs.devbox
     pkgs.tidal-hifi
     pkgs.guvcview
