@@ -45,6 +45,7 @@
     pkgs.gimp
     pkgs.thunderbird
     pkgs.kdePackages.kmail
+    pkgs.kdePackages.kmail-account-wizard
 
     # Remote Desktop
     pkgs.remmina
