@@ -44,6 +44,7 @@
     pkgs.teams-for-linux
     pkgs.gimp
     pkgs.thunderbird
+    pkgs.kdePackages.kmail
 
     # Remote Desktop
     pkgs.remmina
