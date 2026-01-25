@@ -34,6 +34,7 @@
     pkgs.audacity
     pkgs.tidal-hifi
     pkgs.vlc
+    pkgs.mpv
 
     # Meetings
     (pkgs-tiny4linux.callPackage ../pkgs/tiny4linux.nix { src = tiny4linux; })
