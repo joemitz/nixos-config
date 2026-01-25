@@ -35,19 +35,6 @@ _:
     ];
   };
 
-  # Mount TrueNAS mac-backup share via NFS (read-only)
-  fileSystems."/mnt/truenas/mac-backup" = {
-    device = "192.168.0.55:/mnt/main-pool/mac-backup";
-    fsType = "nfs";
-    options = [
-      "ro"
-      "x-systemd.automount"
-      "_netdev"
-      "nofail"
-      "x-systemd.mount-timeout=30s"
-    ];
-  };
-
   # Mount OpenSUSE home subvolume (read-only)
   fileSystems."/mnt/opensuse" = {
     device = "/dev/disk/by-uuid/8590c09a-138e-4615-b02d-c982580e3bf8";
