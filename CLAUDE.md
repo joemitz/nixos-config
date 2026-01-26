@@ -153,7 +153,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 - **boot.nix**: systemd-boot with EFI, kernel 6.6 LTS (pkgs.linuxPackages_6_6), root rollback on boot
 - **hardware.nix**: AMD GPU with amdgpu driver early loading, hardware acceleration, Bluetooth with power-on-boot enabled, firmware updates, OpenSUSE home subvolume mount
 - **desktop.nix**: KDE Plasma 6 with SDDM (Wayland enabled, breeze theme, Opal wallpaper background), PipeWire audio, printing, kde-rounded-corners
-- **networking.nix**: NetworkManager, Wake-on-LAN on enp6s0, Tailscale VPN, firewall, OpenSSH (port 22, password auth enabled)
+- **networking.nix**: NetworkManager, Wake-on-LAN on enp6s0, Tailscale VPN, firewall (TCP ports 22 SSH and 51515 Kopia), OpenSSH (port 22, password auth enabled)
 - **users.nix**: User accounts (joemitz with groups: networkmanager, wheel, docker, adbusers, kvm; root), timezone (America/Los_Angeles), locale, polkit, passwordless sudo
 - **secrets.nix**: Complete sops-nix configuration for encrypted secrets management
 - **services.nix**: Docker, ADB for Android, NFS client, nix-ld (for Android SDK tools), NH (Nix Helper), Nix settings (experimental features, trusted-users for signing and remote builds)
@@ -595,9 +595,10 @@ If you already added persistence and your data disappeared:
 ## Backup System
 
 **Kopia Backup Configuration**:
-- Service: `kopia-server` runs local Kopia backup server on http://127.0.0.1:51515 (no authentication)
+- Service: `kopia-server` runs local Kopia backup server on http://0.0.0.0:51515 (no authentication)
 - Configuration: Insecure mode enabled (--insecure), no TLS, no password (--without-password)
 - Note: Kopia server runs without authentication - use only on trusted networks
+- Firewall: TCP port 51515 open for network access (in addition to SSH port 22)
 
 **Backup Status**:
 - Borg backup service has been removed

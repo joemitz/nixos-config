@@ -13,7 +13,7 @@
       Type = "simple";
       User = "root";
       Environment = "HOME=/root";
-      ExecStart = "${pkgs.kopia}/bin/kopia server start --address=http://127.0.0.1:51515 --insecure --without-password --ui";
+      ExecStart = "${pkgs.kopia}/bin/kopia server start --address=http://0.0.0.0:51515 --insecure --without-password --ui";
 
       # Auto-restart if it crashes
       Restart = "on-failure";

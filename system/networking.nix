@@ -10,7 +10,7 @@ _:
   networking.interfaces.enp6s0.wakeOnLan.enable = true;
 
   # Open ports in the firewall
-  networking.firewall.allowedTCPPorts = [ 22 ];
+  networking.firewall.allowedTCPPorts = [ 22 51515 ]; # SSH, Kopia
   networking.firewall.allowedUDPPorts = [ 41641 ]; # Tailscale
 
   # Enable the OpenSSH daemon
