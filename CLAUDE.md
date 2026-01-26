@@ -151,7 +151,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 
 **System Configuration** (modular structure in system/):
 - **boot.nix**: systemd-boot with EFI, kernel 6.6 LTS (pkgs.linuxPackages_6_6), root rollback on boot
-- **hardware.nix**: AMD GPU with amdgpu driver early loading, hardware acceleration, Bluetooth with power-on-boot enabled, firmware updates, NFS mount (TrueNAS Kopia at 192.168.0.55:/mnt/main-pool/kopia with automount and nofail options)
+- **hardware.nix**: AMD GPU with amdgpu driver early loading, hardware acceleration, Bluetooth with power-on-boot enabled, firmware updates, OpenSUSE home subvolume mount
 - **desktop.nix**: KDE Plasma 6 with SDDM (Wayland enabled, breeze theme, Opal wallpaper background), PipeWire audio, printing, kde-rounded-corners
 - **networking.nix**: NetworkManager, Wake-on-LAN on enp6s0, Tailscale VPN, firewall, OpenSSH (port 22, password auth enabled)
 - **users.nix**: User accounts (joemitz with groups: networkmanager, wheel, docker, adbusers, kvm; root), timezone (America/Los_Angeles), locale, polkit, passwordless sudo
@@ -295,7 +295,6 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
 - /persist-dotfiles: User configs and application data (.config, .local, .ssh, .claude, etc.)
 - /persist-userfiles: User documents and projects (nixos-config, anova, Documents, Downloads, etc.)
 - All home files not explicitly persisted are wiped on reboot (stateless home)
-- TrueNAS Kopia share mounted at /mnt/truenas/kopia (Kopia backups, read-write, automounted on access, mac-backup mount removed)
 - OpenSUSE home subvolume mounted at /mnt/opensuse (read-only, for accessing files from OpenSUSE installation)
 
 **Snapper Snapshots**:
@@ -456,7 +455,6 @@ The secrets.env template includes both secrets and non-secret constants:
 
 **NFS Client**:
 - rpcbind enabled for NFS support
-- TrueNAS Kopia share (192.168.0.55:/mnt/main-pool/kopia) mounted at /mnt/truenas/kopia (read-write) with automount (x-systemd.automount), nofail, and 30s mount timeout
 
 **Wake-on-LAN**:
 - Enabled on interface enp6s0
