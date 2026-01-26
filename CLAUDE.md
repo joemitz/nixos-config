@@ -596,7 +596,7 @@ If you already added persistence and your data disappeared:
 
 **Kopia Backup Configuration**:
 - Service: `kopia-server` runs local Kopia backup server on http://0.0.0.0:51515 (no authentication)
-- Configuration: Insecure mode enabled (--insecure), no TLS, no password (--without-password)
+- Configuration: Insecure mode enabled (--insecure), no TLS, no password (--without-password), CSRF token checks disabled (--disable-csrf-token-checks)
 - Note: Kopia server runs without authentication - use only on trusted networks
 - Firewall: TCP port 51515 open for network access (in addition to SSH port 22)
 
