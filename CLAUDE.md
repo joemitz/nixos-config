@@ -151,7 +151,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 
 **System Configuration** (modular structure in system/):
 - **boot.nix**: systemd-boot with EFI, kernel 6.6 LTS (pkgs.linuxPackages_6_6), root rollback on boot
-- **hardware.nix**: AMD GPU with amdgpu driver early loading, hardware acceleration, Bluetooth with power-on-boot enabled, firmware updates, OpenSUSE home subvolume mount
+- **hardware.nix**: AMD GPU with amdgpu driver early loading, hardware acceleration, Bluetooth with power-on-boot enabled, firmware updates, OpenSUSE home subvolume mount, TrueNAS NFS mounts
 - **desktop.nix**: KDE Plasma 6 with SDDM (Wayland enabled, breeze theme, Opal wallpaper background), PipeWire audio, printing, kde-rounded-corners
 - **networking.nix**: NetworkManager, Wake-on-LAN on enp6s0, Tailscale VPN, firewall (TCP ports 22 SSH and 51515 Kopia), OpenSSH (port 22, password auth enabled)
 - **users.nix**: User accounts (joemitz with groups: networkmanager, wheel, docker, adbusers, kvm; root), timezone (America/Los_Angeles), locale, polkit, passwordless sudo
@@ -296,6 +296,9 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
 - /persist-userfiles: User documents and projects (nixos-config, anova, Documents, Downloads, etc.)
 - All home files not explicitly persisted are wiped on reboot (stateless home)
 - OpenSUSE home subvolume mounted at /mnt/opensuse (read-only, for accessing files from OpenSUSE installation)
+- TrueNAS NFS mounts (192.168.0.55):
+  - /mnt/truenas/misc: NFS share of /mnt/main-pool/misc with automount (600s idle timeout)
+  - /mnt/truenas/music: NFS share of /mnt/main-pool/music with automount (600s idle timeout)
 
 **Snapper Snapshots**:
 - Configured for persist-root, persist-dotfiles, and persist-userfiles
