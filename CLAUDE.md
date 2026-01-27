@@ -151,7 +151,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 
 **System Configuration** (modular structure in system/):
 - **boot.nix**: systemd-boot with EFI, kernel 6.6 LTS (pkgs.linuxPackages_6_6), root rollback on boot
-- **hardware.nix**: AMD GPU with amdgpu driver early loading, hardware acceleration, Bluetooth with power-on-boot enabled, firmware updates, OpenSUSE home subvolume mount, TrueNAS NFS mounts
+- **hardware.nix**: AMD GPU with amdgpu driver early loading, hardware acceleration, Bluetooth with power-on-boot enabled, firmware updates, OpenSUSE home subvolume mount, TrueNAS NFS mount
 - **desktop.nix**: KDE Plasma 6 with SDDM (Wayland enabled, breeze theme, Opal wallpaper background), PipeWire audio, printing, kde-rounded-corners
 - **networking.nix**: NetworkManager, Wake-on-LAN on enp6s0, Tailscale VPN, firewall (TCP ports 22 SSH and 51515 Kopia), OpenSSH (port 22, password auth enabled)
 - **users.nix**: User accounts (joemitz with groups: networkmanager, wheel, docker, adbusers, kvm; root), timezone (America/Los_Angeles), locale, polkit, passwordless sudo
@@ -163,7 +163,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 
 **User Configuration** (modular structure in home/):
 - **packages.nix**: All user packages organized by category - AWS (awscli2, awslogs), Android (android-studio, android-tools, jdk17), Dev (claude-code, gh, vscodium, nodejs_24, devbox, jq, postman), Nix tools (nixd, nixpkgs-fmt, nixf, statix, deadnix, sops), Media (audacity, tidal-hifi, vlc), Meetings (tiny4linux, zoom-us, guvcview), Productivity (teams-for-linux, gimp, thunderbird), Remote Desktop (remmina, parsec-bin), Terminal (btop, eza). Uses pinned nixpkgs input for tiny4linux built from nixpkgs-tiny4linux (to avoid unnecessary rebuilds on Rust updates). Module header cleaned to include only required parameters (removed unused `config`). Note: tmux enabled via programs.tmux in tmux.nix, not listed here
-- **git.nix**: Git with gitFull package, user config, useful aliases (co, st, br, hi, lb, ma, type, dump, pu, ad, ch, cp), LFS support, libsecret credential helper (KDE Wallet)
+- **git.nix**: Git with gitFull package, user config, useful aliases (co, st, br, hi, lb, ma, type, dump, pu, ad, ch, cp), editor set to nano, LFS support, libsecret credential helper (KDE Wallet)
 - **ssh.nix**: SSH configuration with macbook host (192.168.0.232)
 - **direnv.nix**: direnv with bash integration and nix-direnv support
 - **bash.nix**: Shell aliases (ls→eza, top→btop, code→codium, c→claude, zzz→suspend), nhs alias (rebuild+commit+push), nhb alias (stage for boot+commit+push), session variables (NODE_ENV, DEVICE_IP, HUSKY, ANDROID_HOME), Android SDK paths, secrets sourcing, tmux auto-attach
@@ -296,9 +296,8 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
 - /persist-userfiles: User documents and projects (nixos-config, anova, Documents, Downloads, etc.)
 - All home files not explicitly persisted are wiped on reboot (stateless home)
 - OpenSUSE home subvolume mounted at /mnt/opensuse (read-only, for accessing files from OpenSUSE installation)
-- TrueNAS NFS mounts (192.168.0.55):
+- TrueNAS NFS mount (192.168.0.55):
   - /mnt/truenas/misc: NFS share of /mnt/main-pool/misc with automount (600s idle timeout)
-  - /mnt/truenas/music: NFS share of /mnt/main-pool/music with automount (600s idle timeout)
 
 **Snapper Snapshots**:
 - Configured for persist-root, persist-dotfiles, and persist-userfiles

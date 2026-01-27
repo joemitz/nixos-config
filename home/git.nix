@@ -12,7 +12,7 @@
       init.defaultBranch = "main";
       color.ui = "auto";
       core = {
-        editor = "micro";
+        editor = "nano";
         autocrlf = "input";
         safecrlf = true;
         hooksPath = "/dev/null";
