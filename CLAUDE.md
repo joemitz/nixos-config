@@ -235,6 +235,36 @@ nix-env -qaP | grep -i foo
 # Check online if still not found
 ```
 
+**Checking Persistence After Installing New Software (CRITICAL)**:
+
+After installing new packages/applications, **ALWAYS check if new directories need to be persisted**. This system uses full impermanence - root and home are wiped on every boot.
+
+1. **Run the application and configure it** - let it create its data directories
+
+2. **Find where it stores data**:
+   ```bash
+   find ~/.config ~/.local/share ~/.cache -type d -mtime -1 -iname "*appname*"
+   ```
+
+3. **Check if already covered by existing persistence**:
+   - `.config`, `.local/share`, `.local/state`, `.cache` are broadly persisted
+   - See `system/persistence.nix` for full list
+
+4. **If new top-level directories are created** (e.g., `~/.newapp`):
+   - Add them to `system/persistence.nix` in the appropriate section
+   - See "Full System Impermanence" section below for details on persistence configuration
+
+5. **Test after reboot** to ensure important data persists
+
+**Common locations already persisted:**
+- `.config` - Application configs including KDE Plasma
+- `.local/share` - Application data, KDE data, keyrings
+- `.local/state` - Application state
+- `.cache` - Application caches
+- `.ssh` - SSH keys and known_hosts
+- `.mozilla` - Firefox profiles and data
+- `.vscode-oss` - VSCodium settings and extensions
+
 ## Git Workflow
 
 Git is configured with several useful aliases:
