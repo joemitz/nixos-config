@@ -156,7 +156,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 - **networking.nix**: NetworkManager, Wake-on-LAN on enp6s0, Tailscale VPN, firewall (TCP ports 22 SSH and 51515 Kopia), OpenSSH (port 22, password auth enabled)
 - **users.nix**: User accounts (joemitz with groups: networkmanager, wheel, docker, adbusers, kvm; root), timezone (America/Los_Angeles), locale, polkit, passwordless sudo
 - **secrets.nix**: Complete sops-nix configuration for encrypted secrets management
-- **services.nix**: Docker, ADB for Android, NFS client, nix-ld (for Android SDK tools), NH (Nix Helper), Nix settings (experimental features, trusted-users for signing and remote builds)
+- **services.nix**: Docker, ADB for Android, NFS client, nix-ld (for Android SDK tools), 1Password CLI and GUI (with polkit), NH (Nix Helper), Nix settings (experimental features, trusted-users for signing and remote builds)
 - **persistence.nix**: Impermanence configuration - root and home wipe on boot, state persisted to three subvolumes
 - **snapper.nix**: Snapper configuration for Btrfs snapshots of persistence subvolumes (joemitz allowed user)
 - **Filesystem**: Btrfs with subvolumes (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles) and zstd compression
@@ -354,6 +354,7 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
 **Additional Environment Variables**:
 - NODE_ENV=development
 - DEVICE_IP=192.168.0.249
+- PHONE_ID=RFCWC0Q2F6R (Android device identifier)
 - HUSKY=0 (disables git hooks)
 - ELECTRON_OZONE_PLATFORM_HINT=wayland (enables Wayland for Electron apps on KDE Plasma)
 - ANDROID_HOME=$HOME/Android/Sdk

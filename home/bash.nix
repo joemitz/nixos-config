@@ -16,6 +16,7 @@ _:
       # Non-secret environment variables
       NODE_ENV = "development";
       DEVICE_IP = "192.168.0.249";
+      PHONE_ID = "RFCWC0Q2F6R";
       HUSKY = "0";
 
       # Electron apps use Wayland

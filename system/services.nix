@@ -10,6 +10,14 @@ _:
   # Enable nix-ld for running dynamically linked executables (Android SDK tools)
   programs.nix-ld.enable = true;
 
+  # Enable 1Password CLI and GUI
+  programs._1password.enable = true;
+  programs._1password-gui = {
+    enable = true;
+    # Allow unlocking with system password (requires polkit)
+    polkitPolicyOwners = [ "joemitz" ];
+  };
+
   # Enable NFS client support
   services.rpcbind.enable = true;
 
