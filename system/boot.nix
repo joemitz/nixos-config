@@ -15,9 +15,11 @@
   # AMD GPU kernel parameters for suspend/resume stability
   # amdgpu.runpm=0: Disable runtime PM (prevents GPU power state issues on RX 6600 XT)
   # amdgpu.gpu_recovery=1: Enable GPU recovery on errors
+  # amdgpu.dc_mst_support=0: Disable DisplayPort MST (not needed for single monitor, fixes ACT timeout errors after resume)
   boot.kernelParams = [
     "amdgpu.runpm=0"
     "amdgpu.gpu_recovery=1"
+    "amdgpu.dc_mst_support=0"
   ];
 
   # Root impermanence: Rollback root subvolume to pristine state on boot
