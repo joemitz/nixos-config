@@ -40,8 +40,6 @@ nixos-config/
 ├── cachix/
 │   ├── default.nix            # Auto-imports all cachix configs
 │   └── claude-code.nix        # Claude Code binary cache
-├── containers/
-│   └── plex.nix               # Plex NixOS container configuration
 ├── secrets/
 │   ├── secrets.yaml           # Encrypted secrets (committed)
 │   └── secrets-template.yaml  # Template (not committed)
@@ -153,8 +151,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 
 **System Configuration** (modular structure in system/):
 - **boot.nix**: systemd-boot with EFI, kernel 6.6 LTS (pkgs.linuxPackages_6_6), root rollback on boot
-- **hardware.nix**: AMD GPU with amdgpu driver early loading, hardware acceleration, Bluetooth with power-on-boot enabled, firmware updates, OpenSUSE home subvolume mount, TrueNAS Plex NFS mount (192.168.0.55, read-only, automount with 10min idle timeout)
-- **containers/plex.nix**: Plex NixOS container with media directories bound from TrueNAS NFS mount at `/mnt/truenas/plex/*` to container root paths (`/movies`, `/tv`, `/shared-movies`, `/shared-tv`, `/mom-movies`, `/mom-tv`, `/studio-ghibli`, `/harry-potter`) matching Docker image layout for proper path discovery
+- **hardware.nix**: AMD GPU with amdgpu driver early loading, hardware acceleration, Bluetooth with power-on-boot enabled, firmware updates, OpenSUSE home subvolume mount
 - **desktop.nix**: KDE Plasma 6 with SDDM (Wayland enabled, breeze theme, Opal wallpaper background), PipeWire audio, printing, kde-rounded-corners, native Wayland support for Electron apps (NIXOS_OZONE_WL), XDG Desktop Portal for screen sharing
 - **networking.nix**: NetworkManager, Wake-on-LAN on enp6s0, Tailscale VPN, firewall (TCP ports 22 SSH and 51515 Kopia), OpenSSH (port 22, password auth enabled)
 - **users.nix**: User accounts (joemitz with groups: networkmanager, wheel, docker, adbusers, kvm; root), timezone (America/Los_Angeles), locale, polkit, passwordless sudo
