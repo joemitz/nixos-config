@@ -152,7 +152,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 **System Configuration** (modular structure in system/):
 - **boot.nix**: systemd-boot with EFI, kernel 6.6 LTS (pkgs.linuxPackages_6_6), root rollback on boot
 - **hardware.nix**: AMD GPU with amdgpu driver early loading, hardware acceleration, Bluetooth with power-on-boot enabled, firmware updates, OpenSUSE home subvolume mount, TrueNAS NFS mount
-- **desktop.nix**: KDE Plasma 6 with SDDM (Wayland enabled, breeze theme, Opal wallpaper background), PipeWire audio, printing, kde-rounded-corners
+- **desktop.nix**: KDE Plasma 6 with SDDM (Wayland enabled, breeze theme, Opal wallpaper background), PipeWire audio, printing, kde-rounded-corners, native Wayland support for Electron apps (NIXOS_OZONE_WL), XDG Desktop Portal for screen sharing
 - **networking.nix**: NetworkManager, Wake-on-LAN on enp6s0, Tailscale VPN, firewall (TCP ports 22 SSH and 51515 Kopia), OpenSSH (port 22, password auth enabled)
 - **users.nix**: User accounts (joemitz with groups: networkmanager, wheel, docker, adbusers, kvm; root), timezone (America/Los_Angeles), locale, polkit, passwordless sudo
 - **secrets.nix**: Complete sops-nix configuration for encrypted secrets management
@@ -162,7 +162,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 - **Filesystem**: Btrfs with subvolumes (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles) and zstd compression
 
 **User Configuration** (modular structure in home/):
-- **packages.nix**: All user packages organized by category - AWS (awscli2, awslogs), Android (android-studio, android-tools, jdk17), Dev (claude-code, gh, vscodium, nodejs_24, devbox, jq, postman), Nix tools (nixd, nixpkgs-fmt, nixf, statix, deadnix, sops), Media (audacity, tidal-hifi, vlc), Meetings (tiny4linux, zoom-us, guvcview), Productivity (teams-for-linux, gimp, thunderbird), Remote Desktop (remmina, parsec-bin), Terminal (btop, eza). Uses pinned nixpkgs input for tiny4linux built from nixpkgs-tiny4linux (to avoid unnecessary rebuilds on Rust updates). Module header cleaned to include only required parameters (removed unused `config`). Note: tmux enabled via programs.tmux in tmux.nix, not listed here
+- **packages.nix**: All user packages organized by category - AWS (awscli2, awslogs), Android (android-studio, android-tools, jdk17), Dev (claude-code, gh, vscodium, nodejs_24, devbox, jq, postman), Nix tools (nixd, nixpkgs-fmt, nixf, statix, deadnix, sops), Media (audacity, tidal-hifi, vlc), Meetings (tiny4linux, zoom-us, guvcview), Productivity (teams-for-linux, slack, gimp, thunderbird), Remote Desktop (remmina, parsec-bin), Terminal (btop, eza). Uses pinned nixpkgs input for tiny4linux built from nixpkgs-tiny4linux (to avoid unnecessary rebuilds on Rust updates). Module header cleaned to include only required parameters (removed unused `config`). Note: tmux enabled via programs.tmux in tmux.nix, not listed here
 - **git.nix**: Git with gitFull package, user config, useful aliases (co, st, br, hi, lb, ma, type, dump, pu, ad, ch, cp), editor set to nano, LFS support, libsecret credential helper (KDE Wallet)
 - **ssh.nix**: SSH configuration with macbook host (192.168.0.232)
 - **direnv.nix**: direnv with bash integration and nix-direnv support

@@ -42,6 +42,7 @@
 
     # Productivity
     pkgs.teams-for-linux
+    pkgs.slack
     pkgs.gimp
     pkgs.thunderbird
 

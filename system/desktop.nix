@@ -13,6 +13,18 @@
   };
   services.desktopManager.plasma6.enable = true;
 
+  # Enable native Wayland support for Electron apps (Slack, etc.)
+  environment.sessionVariables.NIXOS_OZONE_WL = "1";
+
+  # Enable XDG Desktop Portal for screen sharing on Wayland
+  xdg.portal = {
+    enable = true;
+    extraPortals = with pkgs; [
+      xdg-desktop-portal-wlr
+      xdg-desktop-portal-gtk
+    ];
+  };
+
   # Configure keymap in X11
   services.xserver.xkb = {
     layout = "us";
