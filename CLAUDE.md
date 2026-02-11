@@ -50,9 +50,7 @@ nixos-config/
 ```
 
 **Flake Structure**:
-- `flake.nix`: Main entry point defining inputs (nixpkgs stable, nixpkgs-unstable, home-manager, claude-code, sops-nix, tiny4linux, impermanence, pinned nixpkgs for tiny4linux) and outputs
-  - `nixpkgs-unstable` input: Used for Plex to get the latest version
-  - Unstable packages passed via specialArgs as `pkgs-unstable` to containers module
+- `flake.nix`: Main entry point defining inputs (nixpkgs stable, home-manager, claude-code, sops-nix, tiny4linux, impermanence, pinned nixpkgs for tiny4linux) and outputs
 - `system/index.nix`: Main system configuration entry point (imports all system modules)
 - `system/*.nix`: Modular system configuration split by concern (boot, hardware, networking, desktop, users, secrets, services, persistence, snapper)
 - `home/index.nix`: Main home-manager entry point (imports all home modules)
@@ -64,7 +62,6 @@ nixos-config/
 
 **Key Design Decisions**:
 - Uses `nixos-25.11` stable channel with regular updates to nixpkgs inputs
-- `nixpkgs-unstable` input available for packages requiring latest versions (e.g., Plex)
 - home-manager integrated as a NixOS module (not standalone)
 - Experimental features enabled: `nix-command` and `flakes`
 - **Full system impermanence**: Root and home filesystems roll back to pristine state on every boot
@@ -77,7 +74,6 @@ nixos-config/
 - Binary caches configured: cache.nixos.org, claude-code.cachix.org
 - Pinned nixpkgs inputs for heavy dependencies to avoid unnecessary rebuilds:
   - `nixpkgs-tiny4linux`: Pinned to 2c3e5ec (avoid Rust updates)
-  - `nixpkgs-unstable`: Tracks nixos-unstable for latest software versions
 
 ## Building and Deploying
 
@@ -158,7 +154,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 **System Configuration** (modular structure in system/):
 - **boot.nix**: systemd-boot with EFI, kernel 6.6 LTS (pkgs.linuxPackages_6_6), root rollback on boot
 - **hardware.nix**: AMD GPU with amdgpu driver early loading, hardware acceleration, Bluetooth with power-on-boot enabled, firmware updates, OpenSUSE home subvolume mount, TrueNAS Plex NFS mount (192.168.0.55, read-only, automount with 10min idle timeout)
-- **containers/plex.nix**: Plex NixOS container with media directories bound from TrueNAS NFS mount at `/mnt/truenas/plex/*` to container root paths (`/movies`, `/tv`, `/shared-movies`, `/shared-tv`, `/mom-movies`, `/mom-tv`, `/studio-ghibli`, `/harry-potter`) matching Docker image layout for proper path discovery. Uses unstable Plex package for latest version via `pkgs-unstable.plex`
+- **containers/plex.nix**: Plex NixOS container with media directories bound from TrueNAS NFS mount at `/mnt/truenas/plex/*` to container root paths (`/movies`, `/tv`, `/shared-movies`, `/shared-tv`, `/mom-movies`, `/mom-tv`, `/studio-ghibli`, `/harry-potter`) matching Docker image layout for proper path discovery
 - **desktop.nix**: KDE Plasma 6 with SDDM (Wayland enabled, breeze theme, Opal wallpaper background), PipeWire audio, printing, kde-rounded-corners, native Wayland support for Electron apps (NIXOS_OZONE_WL), XDG Desktop Portal for screen sharing
 - **networking.nix**: NetworkManager, Wake-on-LAN on enp6s0, Tailscale VPN, firewall (TCP ports 22 SSH and 51515 Kopia), OpenSSH (port 22, password auth enabled)
 - **users.nix**: User accounts (joemitz with groups: networkmanager, wheel, docker, adbusers, kvm; root), timezone (America/Los_Angeles), locale, polkit, passwordless sudo

@@ -1,4 +1,4 @@
-{ lib, pkgs-unstable, ... }:
+{ lib, ... }:
 
 {
   # Plex NixOS Container
@@ -64,10 +64,9 @@
       system.stateVersion = "24.11";
       time.timeZone = "America/Los_Angeles";
 
-      # Enable Plex Media Server (using unstable channel for latest version)
+      # Enable Plex Media Server
       services.plex = {
         enable = true;
-        package = pkgs-unstable.plex;
         dataDir = "/config";
         openFirewall = true;  # Open port 32400
       };
