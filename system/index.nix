@@ -14,6 +14,7 @@
     ./snapper.nix
     ./kopia.nix
     ../cachix
+    ../containers/plex.nix
   ];
 
   # This value determines the NixOS release from which the default

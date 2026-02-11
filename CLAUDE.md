@@ -40,6 +40,8 @@ nixos-config/
 ├── cachix/
 │   ├── default.nix            # Auto-imports all cachix configs
 │   └── claude-code.nix        # Claude Code binary cache
+├── containers/
+│   └── plex.nix               # Plex NixOS container configuration
 ├── secrets/
 │   ├── secrets.yaml           # Encrypted secrets (committed)
 │   └── secrets-template.yaml  # Template (not committed)
