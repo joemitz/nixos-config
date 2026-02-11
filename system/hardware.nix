@@ -25,11 +25,4 @@ _:
     fsType = "btrfs";
     options = [ "ro" "subvol=@/home" "compress=zstd" "noatime" ];
   };
-
-  # Mount TrueNAS NFS share
-  fileSystems."/mnt/truenas/misc" = {
-    device = "192.168.0.55:/mnt/main-pool/misc";
-    fsType = "nfs";
-    options = [ "rw" "nofail" "x-systemd.automount" "x-systemd.idle-timeout=600" ];
-  };
 }
