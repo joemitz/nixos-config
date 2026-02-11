@@ -5,7 +5,7 @@
   # Portable declarative container for Plex Media Server
   # Configuration in ~/nixos-config/containers/plex.nix
   # Data stored in ~/Documents/plex/data/plex/config
-  # Media bind mounted from /mnt/truenas/plex/*
+  # Media bind mounted from /mnt/truenas/plex/* to /{movies,tv,...}
 
   containers.plex = {
     autoStart = true;
@@ -25,36 +25,36 @@
         isReadOnly = false;
       };
 
-      # Media directories (read-only)
-      "/media/movies" = {
+      # Media directories (read-only) - matching Docker paths
+      "/movies" = {
         hostPath = "/mnt/truenas/plex/movies";
         isReadOnly = true;
       };
-      "/media/shared-movies" = {
+      "/shared-movies" = {
         hostPath = "/mnt/truenas/plex/shared-movies";
         isReadOnly = true;
       };
-      "/media/tv" = {
+      "/tv" = {
         hostPath = "/mnt/truenas/plex/tv";
         isReadOnly = true;
       };
-      "/media/mom-tv" = {
+      "/mom-tv" = {
         hostPath = "/mnt/truenas/plex/mom-tv";
         isReadOnly = true;
       };
-      "/media/mom-movies" = {
+      "/mom-movies" = {
         hostPath = "/mnt/truenas/plex/mom-movies";
         isReadOnly = true;
       };
-      "/media/shared-tv" = {
+      "/shared-tv" = {
         hostPath = "/mnt/truenas/plex/shared-tv";
         isReadOnly = true;
       };
-      "/media/studio-ghibli" = {
+      "/studio-ghibli" = {
         hostPath = "/mnt/truenas/plex/studio-ghibli";
         isReadOnly = true;
       };
-      "/media/harry-potter" = {
+      "/harry-potter" = {
         hostPath = "/mnt/truenas/plex/harry-potter";
         isReadOnly = true;
       };
