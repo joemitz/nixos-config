@@ -476,6 +476,7 @@ The secrets.env template includes both secrets and non-secret constants:
 
 **SSH Configuration**:
 - Macbook host: 192.168.0.232 (user: joemitz)
+- NixOS server host: 192.168.0.115 (user: joemitz) - configured with bash shell, SSH keep-alive (60s interval, 3 retries), and TTY allocation
 
 **OpenSSH Server**:
 - Port: 22 (TCP)
