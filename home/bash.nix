@@ -4,6 +4,7 @@ _:
   programs.bash = {
     enable = true;
     shellAliases = {
+      adb-reset = "adb kill-server && adb start-server";
       code = "codium";
       c = "claude";
       ls = "eza";

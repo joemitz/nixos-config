@@ -166,12 +166,12 @@ The activation script ensures proper file ownership to allow NH to update flake.
 - **git.nix**: Git with gitFull package, user config, useful aliases (co, st, br, hi, lb, ma, type, dump, pu, ad, ch, cp), editor set to nano, LFS support, libsecret credential helper (KDE Wallet)
 - **ssh.nix**: SSH configuration with macbook host (192.168.0.232)
 - **direnv.nix**: direnv with bash integration and nix-direnv support
-- **bash.nix**: Shell aliases (ls→eza, top→btop, code→codium, c→claude, zzz→suspend), nhs alias (rebuild+commit+push), nhb alias (stage for boot+commit+push), session variables (NODE_ENV, DEVICE_IP, HUSKY, ANDROID_HOME), Android SDK paths, secrets sourcing, tmux auto-attach
+- **bash.nix**: Shell aliases (ls→eza, top→btop, code→codium, c→claude, zzz→suspend, adb-reset→adb kill-server && adb start-server), nhs alias (rebuild+commit+push), nhb alias (stage for boot+commit+push), session variables (NODE_ENV, DEVICE_IP, HUSKY, ANDROID_HOME), Android SDK paths, secrets sourcing, tmux auto-attach
 - **tmux.nix**: Tmux with custom keybindings (h/v for splits, n for new window, w/x for kill, Ctrl+K to clear, Ctrl+_ for Shift-Tab), mouse support, status bar
 - **alacritty.nix**: Terminal with moonfly theme, JetBrainsMono Nerd Font, and pure black background (#000000)
 - **firefox.nix**: Firefox browser enabled
 - **nixd.nix**: Nixd language server configuration with nixpkgs, NixOS, and home-manager IDE features (autocomplete, diagnostics, go-to-definition, formatting)
-- **desktop-entries.nix**: XDG desktop entries for guvcview (with -z flag) and tiny4linux-gui
+- **desktop-entries.nix**: XDG desktop entries for guvcview (with -z flag), tiny4linux-gui, and VSCodium (with Wayland support flags)
 - **autostart.nix**: XDG autostart entries for application autostart (teams-for-linux configured as desktop entry with autostart enabled)
 
 ## Working with Packages
