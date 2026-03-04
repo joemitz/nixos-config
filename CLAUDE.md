@@ -62,7 +62,7 @@ nixos-config/
 - Uses `nixos-25.11` stable channel with regular updates to nixpkgs inputs
 - home-manager integrated as a NixOS module (not standalone)
 - Experimental features enabled: `nix-command` and `flakes`
-- Unfree packages allowed in home-manager for imperative nix commands (nix-shell, nix-env, etc.)
+- Unfree packages allowed via `NIXPKGS_ALLOW_UNFREE=1` environment variable for imperative nix commands (nix-shell, nix-env, etc.)
 - **Full system impermanence**: Root and home filesystems roll back to pristine state on every boot
 - Important state persisted via three subvolumes: `/persist-root`, `/persist-dotfiles`, `/persist-userfiles`
 - NH (Nix Helper) configured as modern replacement for nixos-rebuild
@@ -167,7 +167,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 - **git.nix**: Git with gitFull package, user config, useful aliases (co, st, br, hi, lb, ma, type, dump, pu, ad, ch, cp), editor set to nano, LFS support, libsecret credential helper (KDE Wallet)
 - **ssh.nix**: SSH configuration with macbook host (192.168.0.232)
 - **direnv.nix**: direnv with bash integration and nix-direnv support
-- **bash.nix**: Shell aliases (ls→eza, top→btop, code→codium, c→claude, zzz→suspend, adb-reset→adb kill-server && adb start-server), nhs alias (rebuild+commit+push), nhb alias (stage for boot+commit+push), session variables (NODE_ENV, DEVICE_IP, HUSKY, ANDROID_HOME), Android SDK paths, secrets sourcing, tmux auto-attach
+- **bash.nix**: Shell aliases (ls→eza, top→btop, code→codium, c→claude, zzz→suspend, adb-reset→adb kill-server && adb start-server), nhs alias (rebuild+commit+push), nhb alias (stage for boot+commit+push), session variables (NODE_ENV, DEVICE_IP, HUSKY, NIXPKGS_ALLOW_UNFREE, ANDROID_HOME), Android SDK paths, secrets sourcing, tmux auto-attach
 - **tmux.nix**: Tmux with custom keybindings (h/v for splits, n for new window, w/x for kill, Ctrl+K to clear, Ctrl+_ for Shift-Tab), mouse support, status bar
 - **alacritty.nix**: Terminal with moonfly theme, JetBrainsMono Nerd Font, and pure black background (#000000)
 - **firefox.nix**: Firefox browser enabled
@@ -386,6 +386,7 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
 - DEVICE_IP=192.168.0.249
 - PHONE_ID=RFCWC0Q2F6R (Android device identifier)
 - HUSKY=0 (disables git hooks)
+- NIXPKGS_ALLOW_UNFREE=1 (allows unfree packages in nix-shell, nix-env, and other imperative nix commands)
 - ELECTRON_OZONE_PLATFORM_HINT=wayland (enables Wayland for Electron apps on KDE Plasma)
 - ANDROID_HOME=$HOME/Android/Sdk
 

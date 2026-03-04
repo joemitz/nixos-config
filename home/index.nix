@@ -15,8 +15,5 @@
     ./autostart.nix
   ];
 
-  # Allow unfree packages in imperative nix commands (nix-shell, nix-env, etc.)
-  nixpkgs.config.allowUnfree = true;
-
   home.stateVersion = "25.11";
 }

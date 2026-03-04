@@ -20,6 +20,9 @@ _:
       PHONE_ID = "RFCWC0Q2F6R";
       HUSKY = "0";
 
+      # Allow unfree packages in nix-shell and other imperative nix commands
+      NIXPKGS_ALLOW_UNFREE = "1";
+
       # Electron apps use Wayland
       ELECTRON_OZONE_PLATFORM_HINT = "wayland";
 
