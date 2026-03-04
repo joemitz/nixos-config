@@ -62,6 +62,7 @@ nixos-config/
 - Uses `nixos-25.11` stable channel with regular updates to nixpkgs inputs
 - home-manager integrated as a NixOS module (not standalone)
 - Experimental features enabled: `nix-command` and `flakes`
+- Unfree packages allowed in home-manager for imperative nix commands (nix-shell, nix-env, etc.)
 - **Full system impermanence**: Root and home filesystems roll back to pristine state on every boot
 - Important state persisted via three subvolumes: `/persist-root`, `/persist-dotfiles`, `/persist-userfiles`
 - NH (Nix Helper) configured as modern replacement for nixos-rebuild
