@@ -173,7 +173,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 - **firefox.nix**: Firefox browser enabled
 - **nixd.nix**: Nixd language server configuration with nixpkgs, NixOS, and home-manager IDE features (autocomplete, diagnostics, go-to-definition, formatting)
 - **desktop-entries.nix**: XDG desktop entries for guvcview (with -z flag), tiny4linux-gui, and VSCodium (with Wayland support flags)
-- **autostart.nix**: XDG autostart entries for application autostart (teams-for-linux configured as desktop entry with autostart enabled)
+- **autostart.nix**: XDG autostart entries for application autostart (teams-for-linux configured as hidden with autostart disabled)
 
 ## Working with Packages
 

@@ -6,7 +6,7 @@ _:
     Type=Application
     Name=Teams for Linux
     Exec=teams-for-linux
-    X-GNOME-Autostart-enabled=true
-    Hidden=false
+    X-GNOME-Autostart-enabled=false
+    Hidden=true
   '';
 }
