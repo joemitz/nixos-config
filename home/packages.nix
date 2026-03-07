@@ -53,6 +53,5 @@
     # Terminal
     pkgs.btop
     pkgs.eza
-    pkgs.sox
   ];
 }
