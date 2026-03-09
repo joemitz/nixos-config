@@ -19,7 +19,6 @@
     pkgs.gh
     pkgs.vscodium
     pkgs.nodejs_24
-    pkgs.copilot-cli
     pkgs.devbox
     pkgs.jq
     pkgs.postman
