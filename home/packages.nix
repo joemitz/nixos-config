@@ -2,7 +2,7 @@
 
 {
   home.packages = [
-    
+
     # AWS
     pkgs.awscli2
     pkgs.awslogs
@@ -17,6 +17,7 @@
     pkgs.gemini-cli
     pkgs.nerd-fonts.jetbrains-mono
     pkgs.gh
+    pkgs.github-copilot-cli
     pkgs.vscodium
     pkgs.nodejs_24
     pkgs.devbox
