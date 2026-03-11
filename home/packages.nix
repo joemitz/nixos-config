@@ -1,4 +1,4 @@
-{ pkgs, claude-code, tiny4linux, pkgs-tiny4linux, ... }:
+{ pkgs, pkgs-unstable, claude-code, tiny4linux, pkgs-tiny4linux, ... }:
 
 {
   home.packages = [
@@ -14,7 +14,7 @@
 
     # Dev
     claude-code.packages.x86_64-linux.default
-    pkgs.gemini-cli
+    pkgs-unstable.gemini-cli
     pkgs.nerd-fonts.jetbrains-mono
     pkgs.gh
     pkgs.github-copilot-cli

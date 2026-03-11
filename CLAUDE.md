@@ -48,7 +48,8 @@ nixos-config/
 ```
 
 **Flake Structure**:
-- `flake.nix`: Main entry point defining inputs (nixpkgs stable, home-manager, claude-code, sops-nix, tiny4linux, impermanence, pinned nixpkgs for tiny4linux) and outputs
+- `flake.nix`: Main entry point defining inputs (nixpkgs stable, nixpkgs-unstable, home-manager, claude-code, sops-nix, tiny4linux, impermanence, pinned nixpkgs for tiny4linux) and outputs
+  - `nixpkgs-unstable`: Tracking nixos-unstable channel for packages only available in unstable (e.g., gemini-cli)
 - `system/index.nix`: Main system configuration entry point (imports all system modules)
 - `system/*.nix`: Modular system configuration split by concern (boot, hardware, networking, desktop, users, secrets, services, persistence, snapper)
 - `home/index.nix`: Main home-manager entry point (imports all home modules)
@@ -71,8 +72,9 @@ nixos-config/
 - Btrfs filesystem with compression (zstd) and snapshots via Snapper
 - LTS kernel to avoid AMD GPU bugs in newer kernels
 - Binary caches configured: cache.nixos.org, claude-code.cachix.org
-- Pinned nixpkgs inputs for heavy dependencies to avoid unnecessary rebuilds:
+- Pinned and unstable nixpkgs inputs for specific use cases:
   - `nixpkgs-tiny4linux`: Pinned to 2c3e5ec (avoid Rust updates)
+  - `nixpkgs-unstable`: Tracks nixos-unstable for packages only available in unstable (e.g., gemini-cli)
 
 ## Building and Deploying
 
