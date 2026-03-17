@@ -51,17 +51,17 @@ _:
   # ShapeCorners tries to render with stale GL state. Fixed in Plasma 6.6 (KWin MR !8677);
   # remove this when nixos-25.11 upgrades to Plasma 6.6 (expected with NixOS 26.05).
   powerManagement.powerDownCommands = ''
-    runuser -l joemitz -c \
+    /run/current-system/sw/bin/runuser -l joemitz -c \
       "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus \
-       dbus-send --session --type=method_call \
+       /run/current-system/sw/bin/dbus-send --session --type=method_call \
        --dest=org.kde.KWin /Effects \
        org.kde.kwin.Effects.unloadEffect string:kwin4_effect_shapecorners" || true
   '';
   powerManagement.resumeCommands = ''
     sleep 2
-    runuser -l joemitz -c \
+    /run/current-system/sw/bin/runuser -l joemitz -c \
       "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus \
-       dbus-send --session --type=method_call \
+       /run/current-system/sw/bin/dbus-send --session --type=method_call \
        --dest=org.kde.KWin /Effects \
        org.kde.kwin.Effects.loadEffect string:kwin4_effect_shapecorners" || true
   '';
