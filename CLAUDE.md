@@ -156,7 +156,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 - **boot.nix**: systemd-boot with EFI, kernel 6.6 LTS (pkgs.linuxPackages_6_6), root rollback on boot
 - **hardware.nix**: AMD GPU with amdgpu driver early loading, hardware acceleration, Bluetooth with power-on-boot enabled, firmware updates, OpenSUSE home subvolume mount
 - **desktop.nix**: KDE Plasma 6 with SDDM (Wayland enabled, breeze theme, Opal wallpaper background), PipeWire audio, printing, kde-rounded-corners, native Wayland support for Electron apps (NIXOS_OZONE_WL), XDG Desktop Portal for screen sharing
-- **networking.nix**: NetworkManager, Wake-on-LAN on enp6s0, Tailscale VPN, firewall (TCP ports 22 SSH and 51515 Kopia), OpenSSH (port 22, password auth enabled)
+- **networking.nix**: NetworkManager, Wake-on-LAN on enp6s0, Tailscale VPN, firewall disabled (all ports open), OpenSSH (port 22, password auth enabled)
 - **users.nix**: User accounts (joemitz with groups: networkmanager, wheel, docker, adbusers, kvm; root), timezone (America/Los_Angeles), locale, polkit, passwordless sudo
 - **secrets.nix**: Complete sops-nix configuration for encrypted secrets management
 - **services.nix**: Docker, ADB for Android, NFS client, nix-ld (for Android SDK tools), 1Password CLI and GUI (with polkit), NH (Nix Helper), Nix settings (experimental features, trusted-users for signing and remote builds)
@@ -488,13 +488,16 @@ The secrets.env template includes both secrets and non-secret constants:
 
 **Tailscale VPN**:
 - Enabled for secure remote access
-- UDP port 41641 open in firewall
+- Firewall disabled - all ports open
 
 **NFS Client**:
 - rpcbind enabled for NFS support
 
 **Wake-on-LAN**:
 - Enabled on interface enp6s0
+
+**Firewall**:
+- Disabled - all ports open, no filtering
 
 ## Full System Impermanence
 
@@ -641,3 +644,4 @@ If you already added persistence and your data disappeared:
 - Borg backup service has been removed
 - System relies on Snapper snapshots for local point-in-time recovery
 - Manual backup tools (Kopia) available for offsite backup if needed
+- Kopia server accessible on port 51515 (firewall disabled)
