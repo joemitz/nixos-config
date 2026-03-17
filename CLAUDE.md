@@ -318,7 +318,7 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
 - Required for AMD GPU suspend/resume: amdgpu driver needs swap to evacuate 8GB VRAM during suspend
 - OpenSUSE swap (sda3) masked by UUID to prevent auto-activation by systemd
 - UUID-based masking (549e5677-dc32-4b89-81c7-1c83b3eed996) persists even if device names change (sda→sdb)
-- **Suspend/resume tested and working**: KWin no longer crashes on wake from sleep
+- **Suspend/resume working with ShapeCorners fix**: KWin crashes on wake from sleep when AMD GPU resets OpenGL context and ShapeCorners (kde-rounded-corners) tries to render with stale GL state. Fixed by unloading ShapeCorners during suspend via DBus and reloading on resume (fixed in Plasma 6.6 KWin MR !8677; remove this workaround when NixOS 26.05 upgrades to Plasma 6.6)
 
 **Filesystem**:
 - Root filesystem: Btrfs with subvolumes (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles)

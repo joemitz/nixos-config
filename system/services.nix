@@ -46,6 +46,26 @@ _:
     chown -R joemitz:users /home/joemitz/nixos-config/*.nix /home/joemitz/nixos-config/flake.lock 2>/dev/null || true
   '';
 
+  # Unload ShapeCorners (kde-rounded-corners) before suspend and reload on resume.
+  # KWin crashes on wake from sleep because the AMD GPU resets its OpenGL context and
+  # ShapeCorners tries to render with stale GL state. Fixed in Plasma 6.6 (KWin MR !8677);
+  # remove this when nixos-25.11 upgrades to Plasma 6.6 (expected with NixOS 26.05).
+  powerManagement.powerDownCommands = ''
+    runuser -l joemitz -c \
+      "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus \
+       dbus-send --session --type=method_call \
+       --dest=org.kde.KWin /Effects \
+       org.kde.kwin.Effects.unloadEffect string:kwin4_effect_shapecorners" || true
+  '';
+  powerManagement.resumeCommands = ''
+    sleep 2
+    runuser -l joemitz -c \
+      "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus \
+       dbus-send --session --type=method_call \
+       --dest=org.kde.KWin /Effects \
+       org.kde.kwin.Effects.loadEffect string:kwin4_effect_shapecorners" || true
+  '';
+
   # Nix settings
   nix.settings = {
     experimental-features = [ "nix-command" "flakes" ];
