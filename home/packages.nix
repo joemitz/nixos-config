@@ -13,6 +13,7 @@
     pkgs.jdk17
 
     # Dev
+    pkgs.watchman
     claude-code.packages.x86_64-linux.default
     pkgs-unstable.gemini-cli
     pkgs.nerd-fonts.jetbrains-mono
