@@ -31,8 +31,11 @@
     variant = "";
   };
 
-  # Enable CUPS to print documents
-  services.printing.enable = true;
+  # Enable CUPS to print documents, disable auto-discovery to avoid duplicate printers
+  services.printing = {
+    enable = true;
+    browsing = false;
+  };
 
   # Enable Avahi for mDNS (.local hostname resolution and printer discovery)
   services.avahi = {
