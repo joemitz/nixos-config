@@ -35,7 +35,11 @@
   services.printing = {
     enable = true;
     browsing = false;
+    drivers = with pkgs; [ brlaser ];
   };
+
+  # Disable cups-browsed which auto-adds network printers as duplicates
+  systemd.services.cups-browsed.enable = false;
 
   # Enable Avahi for mDNS (.local hostname resolution and printer discovery)
   services.avahi = {
