@@ -1,6 +1,12 @@
 _:
 
 {
+  # Enable numlock in KDE Plasma (0=on, 1=off, 2=unchanged)
+  home.file.".config/kcminputrc".text = ''
+    [Keyboard]
+    NumLock=0
+  '';
+
   xdg.desktopEntries.guvcview = {
     name = "guvcview";
     exec = "guvcview -z";

@@ -10,6 +10,7 @@
     enable = true;
     wayland.enable = true;
     theme = "breeze";
+    settings.General.Numlock = "on";
   };
   services.desktopManager.plasma6.enable = true;
 
