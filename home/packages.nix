@@ -35,7 +35,6 @@
 
     # Media
     pkgs.audacity
-    pkgs.qimgv
     pkgs.tidal-hifi
     pkgs.vlc
 
