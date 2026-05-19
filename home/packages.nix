@@ -44,6 +44,7 @@
     pkgs.guvcview
 
     # Productivity
+    pkgs.google-chrome
     pkgs.teams-for-linux
     pkgs.slack
     pkgs.gimp
