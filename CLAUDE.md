@@ -413,6 +413,19 @@ This configuration uses [sops-nix](https://github.com/Mic92/sops-nix) to manage 
 nix-shell -p sops --run "sops secrets/secrets.yaml"
 ```
 
+**Updating a Single Secret Non-Interactively**:
+
+Keys in `secrets.yaml` use **lowercase snake_case** (e.g., `npm_token`, not `NPM_TOKEN`). Always verify the exact key name first, then use `--set`:
+```bash
+# Check exact key names
+nix-shell -p sops --run "sops --decrypt secrets/secrets.yaml" | grep -v '^sops:' | grep '^[a-zA-Z]' | cut -d: -f1
+
+# Update a key (use the exact lowercase name from above)
+nix-shell -p sops --run "sops --set '[\"npm_token\"] \"<value>\"' secrets/secrets.yaml"
+```
+
+**WARNING**: `sops --set` silently creates a new key if the key name doesn't match — always verify the key name before using `--set`, or use the interactive editor instead.
+
 **Adding New Secrets**:
 1. Edit encrypted file: `nix-shell -p sops --run "sops secrets/secrets.yaml"`
 2. Update `system/secrets.nix`: Add to `sops.secrets` and `sops.templates."secrets.env".content`
