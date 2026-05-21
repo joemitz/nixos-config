@@ -12,6 +12,7 @@
     pkgs.android-tools
     pkgs.jdk17
     pkgs.dotslash
+    pkgs.steam-run
 
     # Dev
     pkgs.watchman

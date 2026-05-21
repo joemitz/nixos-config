@@ -349,6 +349,7 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
 - Android Studio and android-tools installed
 - ADB enabled system-wide
 - nix-ld enabled for running Android SDK dynamically linked executables (AAPT2, CMake, Ninja, NDK tools)
+- steam-run available as complementary FHS container environment for dynamically linked applications
 - Environment variables configured in home.nix:
   - ANDROID_HOME: $HOME/Android/Sdk
   - PATH includes emulator and platform-tools
