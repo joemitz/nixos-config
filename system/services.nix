@@ -20,7 +20,7 @@
       xorg.libXfixes xorg.libXrandr xorg.libxcb
       libxkbcommon expat
       alsa-lib udev
-      mesa
+      mesa libgbm
     ];
   };
 
