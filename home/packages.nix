@@ -11,6 +11,7 @@
     pkgs.android-studio
     pkgs.android-tools
     pkgs.jdk17
+    pkgs.dotslash
 
     # Dev
     pkgs.watchman
