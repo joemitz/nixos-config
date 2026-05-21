@@ -1,4 +1,4 @@
-_:
+{ pkgs, ... }:
 
 {
   # Allow unfree packages
@@ -7,8 +7,22 @@ _:
   # Enable ADB for Android development
   programs.adb.enable = true;
 
-  # Enable nix-ld for running dynamically linked executables (Android SDK tools)
-  programs.nix-ld.enable = true;
+  # Enable nix-ld for running dynamically linked executables (Android SDK tools, Electron)
+  programs.nix-ld = {
+    enable = true;
+    libraries = with pkgs; [
+      glib gtk3 gdk-pixbuf dbus
+      nss nspr
+      atk at-spi2-atk at-spi2-core
+      cups libdrm
+      cairo pango
+      xorg.libX11 xorg.libXcomposite xorg.libXdamage xorg.libXext
+      xorg.libXfixes xorg.libXrandr xorg.libxcb
+      libxkbcommon expat
+      alsa-lib udev
+      mesa
+    ];
+  };
 
   # Enable 1Password CLI and GUI
   programs._1password.enable = true;
