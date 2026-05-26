@@ -159,7 +159,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 - **networking.nix**: NetworkManager, Wake-on-LAN on enp6s0, Tailscale VPN, firewall disabled (all ports open), OpenSSH (port 22, password auth enabled)
 - **users.nix**: User accounts (joemitz with groups: networkmanager, wheel, docker, adbusers, kvm; root), timezone (America/Los_Angeles), locale, polkit, passwordless sudo
 - **secrets.nix**: Complete sops-nix configuration for encrypted secrets management
-- **services.nix**: Docker, ADB for Android, NFS client, nix-ld (for Android SDK tools), 1Password CLI and GUI (with polkit), NH (Nix Helper), Nix settings (experimental features, trusted-users for signing and remote builds)
+- **services.nix**: Docker, ADB for Android, NFS client, nix-ld (for Android SDK tools), 1Password CLI and GUI (with polkit), Bluetooth autopower service (powers on adapter after boot to workaround CSR dongle timeout), NH (Nix Helper), Nix settings (experimental features, trusted-users for signing and remote builds)
 - **persistence.nix**: Impermanence configuration - root and home wipe on boot, state persisted to three subvolumes
 - **snapper.nix**: Snapper configuration for Btrfs snapshots of persistence subvolumes (joemitz allowed user)
 - **Filesystem**: Btrfs with subvolumes (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles) and zstd compression

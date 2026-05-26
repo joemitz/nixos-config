@@ -80,6 +80,22 @@
        org.kde.kwin.Effects.loadEffect string:kwin4_effect_shapecorners" || true
   '';
 
+  # Power on Bluetooth adapter at boot.
+  # The CSR clone dongle (0a12:0001) times out during HCI_OP_RESET on init,
+  # leaving the adapter DOWN when bluetoothd's AutoEnable runs. A short delay
+  # lets the adapter settle before we explicitly power it on.
+  systemd.services.bluetooth-autopower = {
+    description = "Power on Bluetooth adapter after boot";
+    after = [ "bluetooth.service" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStartPre = "${pkgs.coreutils}/bin/sleep 5";
+      ExecStart = "${pkgs.bluez}/bin/bluetoothctl power on";
+      RemainAfterExit = true;
+    };
+  };
+
   # Nix settings
   nix.settings = {
     experimental-features = [ "nix-command" "flakes" ];
