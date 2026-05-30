@@ -60,7 +60,7 @@ nixos-config/
 - `secrets/`: Encrypted secrets managed by sops-nix
 
 **Key Design Decisions**:
-- Uses `nixos-25.11` stable channel with regular updates to nixpkgs inputs
+- Uses `nixos-26.05` stable channel with regular updates to nixpkgs inputs
 - home-manager integrated as a NixOS module (not standalone)
 - Experimental features enabled: `nix-command` and `flakes`
 - Unfree packages allowed via `NIXPKGS_ALLOW_UNFREE=1` environment variable for imperative nix commands (nix-shell, nix-env, etc.)
@@ -153,13 +153,13 @@ The activation script ensures proper file ownership to allow NH to update flake.
 ## Configuration Layout
 
 **System Configuration** (modular structure in system/):
-- **boot.nix**: systemd-boot with EFI, kernel 6.6 LTS (pkgs.linuxPackages_6_6), root rollback on boot
+- **boot.nix**: systemd-boot with EFI, kernel 6.6 LTS (pkgs.linuxPackages_6_6), root rollback via systemd initrd service
 - **hardware.nix**: AMD GPU with amdgpu driver early loading, hardware acceleration, Bluetooth with power-on-boot enabled, firmware updates, OpenSUSE home subvolume mount
 - **desktop.nix**: KDE Plasma 6 with SDDM (Wayland enabled, breeze theme, Opal wallpaper background, NumLock enabled), PipeWire audio, printing with CUPS browsing disabled (browsing=false, cups-browsed service disabled to prevent duplicate printers) and Avahi for mDNS (.local hostname resolution and printer discovery), kde-rounded-corners, native Wayland support for Electron apps (NIXOS_OZONE_WL), XDG Desktop Portal for screen sharing
 - **networking.nix**: NetworkManager, Wake-on-LAN on enp6s0, Tailscale VPN, firewall disabled (all ports open), OpenSSH (port 22, password auth enabled)
-- **users.nix**: User accounts (joemitz with groups: networkmanager, wheel, docker, adbusers, kvm; root), timezone (America/Los_Angeles), locale, polkit, passwordless sudo
+- **users.nix**: User accounts (joemitz with groups: networkmanager, wheel, docker, kvm; root), timezone (America/Los_Angeles), locale, polkit, passwordless sudo
 - **secrets.nix**: Complete sops-nix configuration for encrypted secrets management
-- **services.nix**: Docker, ADB for Android, NFS client, nix-ld (for Android SDK tools), 1Password CLI and GUI (with polkit), Bluetooth autopower service (powers on adapter after boot to workaround CSR dongle timeout), NH (Nix Helper), Nix settings (experimental features, trusted-users for signing and remote builds)
+- **services.nix**: Docker, NFS client, nix-ld (for Android SDK tools), 1Password CLI and GUI (with polkit), Bluetooth autopower service (powers on adapter after boot to workaround CSR dongle timeout), NH (Nix Helper), Nix settings (experimental features, trusted-users for signing and remote builds)
 - **persistence.nix**: Impermanence configuration - root and home wipe on boot, state persisted to three subvolumes
 - **snapper.nix**: Snapper configuration for Btrfs snapshots of persistence subvolumes (joemitz allowed user)
 - **Filesystem**: Btrfs with subvolumes (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles) and zstd compression
@@ -167,12 +167,12 @@ The activation script ensures proper file ownership to allow NH to update flake.
 **User Configuration** (modular structure in home/):
 - **packages.nix**: All user packages organized by category - AWS (awscli2, awslogs), Android (android-studio, android-tools, jdk17, dotslash), Dev (watchman, claude-code, gh, github-copilot-cli, vscodium, nodejs_24, devbox, jq, postman), Nix tools (nixd, nixpkgs-fmt, nixf, statix, deadnix, sops), Media (audacity, tidal-hifi, vlc), Meetings (tiny4linux, zoom-us, guvcview), Productivity (google-chrome, teams-for-linux, slack, gimp, thunderbird), Remote Desktop (remmina, parsec-bin), Terminal (btop, eza). Uses pinned nixpkgs input for tiny4linux built from nixpkgs-tiny4linux (to avoid unnecessary rebuilds on Rust updates). Module header cleaned to include only required parameters (removed unused `config`). Note: tmux enabled via programs.tmux in tmux.nix, not listed here
 - **git.nix**: Git with gitFull package, user config, useful aliases (co, st, br, hi, lb, ma, type, dump, pu, ad, ch, cp), editor set to nano, LFS support, libsecret credential helper (KDE Wallet)
-- **ssh.nix**: SSH configuration with macbook host (192.168.0.232)
+- **ssh.nix**: SSH configuration with macbook host (192.168.0.232) and nixos-server host (192.168.0.115), modernized to use settings format
 - **direnv.nix**: direnv with bash integration and nix-direnv support
 - **bash.nix**: Shell aliases (ls→eza, top→btop, code→codium, c→claude, zzz→suspend, adb-reset→adb kill-server && adb start-server), nhs alias (rebuild+commit+push), nhb alias (stage for boot+commit+push), session variables (NODE_ENV, DEVICE_IP, HUSKY, NIXPKGS_ALLOW_UNFREE, ANDROID_HOME), Android SDK paths, secrets sourcing, tmux auto-attach
 - **tmux.nix**: Tmux with custom keybindings (h/v for splits, n for new window, w/x for kill, Ctrl+K to clear, Ctrl+_ for Shift-Tab), mouse support, status bar
 - **alacritty.nix**: Terminal with moonfly theme, JetBrainsMono Nerd Font, and pure black background (#000000)
-- **firefox.nix**: Firefox browser enabled
+- **firefox.nix**: Firefox browser enabled with explicit config path (.mozilla/firefox)
 - **nixd.nix**: Nixd language server configuration with nixpkgs, NixOS, and home-manager IDE features (autocomplete, diagnostics, go-to-definition, formatting)
 - **desktop-entries.nix**: XDG desktop entries for guvcview (with -z flag), tiny4linux-gui, and VSCodium (with Wayland support flags); NumLock enabled in KDE Plasma via kcminputrc configuration
 - **autostart.nix**: XDG autostart entries for application autostart (teams-for-linux configured as hidden with autostart disabled)
@@ -288,8 +288,8 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
 
 ## Important Notes
 
-- System state version: 25.11 (do not change without reading documentation)
-- Home state version: 25.11
+- System state version: 26.05 (do not change without reading documentation)
+- Home state version: 26.05
 - Unfree packages are allowed system-wide
 - The configuration auto-commits successfully applied changes to track system generations
 - All .nix files and flake.lock have ownership fixed on activation to allow NH updates
@@ -318,7 +318,7 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
 - Required for AMD GPU suspend/resume: amdgpu driver needs swap to evacuate 8GB VRAM during suspend
 - OpenSUSE swap (sda3) masked by UUID to prevent auto-activation by systemd
 - UUID-based masking (549e5677-dc32-4b89-81c7-1c83b3eed996) persists even if device names change (sda→sdb)
-- **Suspend/resume working with ShapeCorners fix**: KWin crashes on wake from sleep when AMD GPU resets OpenGL context and ShapeCorners (kde-rounded-corners) tries to render with stale GL state. Fixed by unloading ShapeCorners during suspend via DBus and reloading on resume using absolute paths (`/run/current-system/sw/bin/runuser` and `/run/current-system/sw/bin/dbus-send`) for systemd environment reliability (fixed in Plasma 6.6 KWin MR !8677; remove this workaround when NixOS 26.05 upgrades to Plasma 6.6)
+- Suspend/resume: Fully working (ShapeCorners suspend/resume workaround removed, fixed in Plasma 6.6)
 
 **Filesystem**:
 - Root filesystem: Btrfs with subvolumes (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles)

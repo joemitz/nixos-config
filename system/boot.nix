@@ -22,30 +22,32 @@
     "amdgpu.dc_mst_support=0"
   ];
 
-  # Root impermanence: Rollback root subvolume to pristine state on boot
-  boot.initrd.postDeviceCommands = pkgs.lib.mkAfter ''
-    mkdir -p /mnt
-
-    # Mount the btrfs root to /mnt for subvolume manipulation
-    mount -t btrfs -o subvolid=5 /dev/disk/by-label/nixos /mnt
-
-    # Delete all nested subvolumes recursively before removing root
-    while btrfs subvolume list -o /mnt/@ | grep -q .; do
-      btrfs subvolume list -o /mnt/@ |
-      cut -f9 -d' ' |
-      while read subvolume; do
-        echo "deleting /$subvolume subvolume..."
-        btrfs subvolume delete "/mnt/$subvolume" || true
+  # Root impermanence: Rollback root subvolume to pristine state on boot.
+  # Runs as a systemd initrd service (required for NixOS 26.05+ where systemd initrd is default).
+  # Must run after device discovery (initrd-root-device.target) and before root is mounted (sysroot.mount).
+  boot.initrd.systemd.enable = true;
+  boot.initrd.systemd.services.rollback = {
+    description = "Roll back root subvolume to blank snapshot";
+    wantedBy = [ "initrd.target" ];
+    after = [ "initrd-root-device.target" ];
+    before = [ "sysroot.mount" ];
+    unitConfig.DefaultDependencies = "no";
+    serviceConfig.Type = "oneshot";
+    script = ''
+      set -e
+      mkdir -p /mnt
+      mount -t btrfs -o subvolid=5 /dev/disk/by-label/nixos /mnt
+      while btrfs subvolume list -o /mnt/@ | grep -q .; do
+        btrfs subvolume list -o /mnt/@ | cut -f9 -d' ' | while read subvolume; do
+          echo "deleting /$subvolume subvolume..."
+          btrfs subvolume delete "/mnt/$subvolume" || true
+        done
       done
-    done
-
-    echo "deleting /@ subvolume..."
-    btrfs subvolume delete /mnt/@
-
-    echo "restoring blank /@ subvolume..."
-    btrfs subvolume snapshot /mnt/@blank /mnt/@
-
-    # Unmount and continue boot process
-    umount /mnt
-  '';
+      echo "deleting /@ subvolume..."
+      btrfs subvolume delete /mnt/@
+      echo "restoring blank /@ subvolume..."
+      btrfs subvolume snapshot /mnt/@blank /mnt/@
+      umount /mnt
+    '';
+  };
 }

@@ -3,21 +3,18 @@ _:
 {
   programs.ssh = {
     enable = true;
-    enableDefaultConfig = false;
-    matchBlocks = {
+    settings = {
       "macbook" = {
-        hostname = "192.168.0.232";
-        user = "joemitz";
+        Hostname = "192.168.0.232";
+        User = "joemitz";
       };
       "nixos-server" = {
-        hostname = "192.168.0.115";
-        user = "joemitz";
-        extraOptions = {
-          RemoteCommand = "/run/current-system/sw/bin/bash";
-          RequestTTY = "yes";
-          ServerAliveInterval = "60";
-          ServerAliveCountMax = "3";
-        };
+        Hostname = "192.168.0.115";
+        User = "joemitz";
+        RemoteCommand = "/run/current-system/sw/bin/bash";
+        RequestTTY = "yes";
+        ServerAliveInterval = 60;
+        ServerAliveCountMax = 3;
       };
     };
   };

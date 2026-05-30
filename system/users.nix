@@ -5,7 +5,7 @@ _:
   users.users.joemitz = {
     isNormalUser = true;
     description = "joemitz";
-    extraGroups = [ "networkmanager" "wheel" "docker" "adbusers" "kvm" ];
+    extraGroups = [ "networkmanager" "wheel" "docker" "kvm" ];
     hashedPassword = "$6$cdmF4NEMLVzS4BDv$aK9lR1juxe512iK4SWVEFjailBjp96HThTA2zQkMRqOgThGISKIyA9x72Koa1qoVJ8VxbbHBZlni69BA9ZFKd/";
   };
 
