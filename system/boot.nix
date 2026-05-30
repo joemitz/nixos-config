@@ -37,12 +37,16 @@
       set -e
       mkdir -p /mnt
       mount -t btrfs -o subvolid=5 /dev/disk/by-label/nixos /mnt
-      while btrfs subvolume list -o /mnt/@ | grep -q .; do
-        btrfs subvolume list -o /mnt/@ | cut -f9 -d' ' | while read subvolume; do
-          echo "deleting /$subvolume subvolume..."
-          btrfs subvolume delete "/mnt/$subvolume" || true
-        done
+
+      # Delete nested subvolumes using bash built-ins (grep/cut unavailable in systemd initrd)
+      while subvols=$(btrfs subvolume list -o /mnt/@) && [ -n "$subvols" ]; do
+        while IFS= read -r line; do
+          subvol=''${line##* }
+          echo "deleting /$subvol subvolume..."
+          btrfs subvolume delete "/mnt/$subvol" || true
+        done <<< "$subvols"
       done
+
       echo "deleting /@ subvolume..."
       btrfs subvolume delete /mnt/@
       echo "restoring blank /@ subvolume..."

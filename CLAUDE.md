@@ -153,7 +153,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 ## Configuration Layout
 
 **System Configuration** (modular structure in system/):
-- **boot.nix**: systemd-boot with EFI, kernel 6.6 LTS (pkgs.linuxPackages_6_6), root rollback via systemd initrd service
+- **boot.nix**: systemd-boot with EFI, kernel 6.6 LTS (pkgs.linuxPackages_6_6), root rollback via systemd initrd service. Subvolume deletion uses bash built-ins instead of grep/cut (unavailable in initrd), ensuring reliable impermanence boot rollback
 - **hardware.nix**: AMD GPU with amdgpu driver early loading, hardware acceleration, Bluetooth with power-on-boot enabled, firmware updates, OpenSUSE home subvolume mount
 - **desktop.nix**: KDE Plasma 6 with SDDM (Wayland enabled, breeze theme, Opal wallpaper background, NumLock enabled), PipeWire audio, printing with CUPS browsing disabled (browsing=false, cups-browsed service disabled to prevent duplicate printers) and Avahi for mDNS (.local hostname resolution and printer discovery), kde-rounded-corners, native Wayland support for Electron apps (NIXOS_OZONE_WL), XDG Desktop Portal for screen sharing
 - **networking.nix**: NetworkManager, Wake-on-LAN on enp6s0, Tailscale VPN, firewall disabled (all ports open), OpenSSH (port 22, password auth enabled)
