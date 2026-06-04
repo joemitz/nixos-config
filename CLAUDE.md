@@ -461,6 +461,10 @@ The secrets.env template includes both secrets and non-secret constants:
 - Built from Rust source with GUI and CLI features
 - Desktop entry created for easy access
 - Launch: `tiny4linux-gui` or from application menu
+- Build notes:
+  - Uses `fetchCargoVendor` with preBuild hook to patch fetch-cargo-vendor-util (adds User-Agent header for crates.io compatibility)
+  - Both GUI and CLI binaries wrapped with `WGPU_BACKEND=vulkan` for graphics backend support
+  - Library paths: wayland, libxkbcommon, libGL, vulkan-loader
 
 ## Terminal & Shell
 
