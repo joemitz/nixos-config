@@ -489,6 +489,7 @@ The secrets.env template includes both secrets and non-secret constants:
 - Auto-sources ~/.config/secrets.env
 - Auto-attaches to tmux "main" session on login (unless already in tmux)
 - Custom prompt: Shows current directory and git branch (if in a repo): `dir(branch)$` (dir in blue, branch in yellow)
+- PATH includes `$HOME/.local/bin` for native Claude Code installation and other local binaries
 - Shell aliases: `ls`→`eza`, `top`→`btop`, `code`→`codium`, `c`→`claude`, `nano`→`micro`, `zzz`→`systemctl suspend`
 - `nhs` alias: Full rebuild + auto-commit + push workflow (invokes Claude Haiku to generate commit message and update CLAUDE.md with important changes only)
 - `nhb` alias: Stage for boot + auto-commit + push workflow
@@ -662,3 +663,54 @@ If you already added persistence and your data disappeared:
 - System relies on Snapper snapshots for local point-in-time recovery
 - Manual backup tools (Kopia) available for offsite backup if needed
 - Kopia server accessible on port 51515 (firewall disabled)
+
+## MCP-NixOS Server
+
+[mcp-nixos](https://github.com/utensils/mcp-nixos) is an MCP server that gives Claude Code real-time access to NixOS ecosystem data, preventing hallucinations about package names, option names, and configuration syntax.
+
+**What it provides**:
+- 130K+ NixOS packages with metadata and version history
+- 23K+ NixOS system configuration options
+- 5K+ Home Manager options
+- Flake discovery via FlakeHub, Nix function search via Noogle
+- Package version history with nixpkgs commit hashes (via NixHub)
+
+**Installation** (already configured in `~/.claude/settings.json`):
+```json
+{
+  "mcpServers": {
+    "nixos": {
+      "command": "nix",
+      "args": ["run", "github:utensils/mcp-nixos", "--"]
+    }
+  }
+}
+```
+Uses `nix run` so no separate install is needed — Nix downloads and caches it on first use.
+
+**Tools exposed to Claude**:
+- `nix` — unified query tool: search packages, browse NixOS/Home Manager/nix-darwin options, look up flakes and Nix functions, check binary cache status. Supports all channels (nixos-unstable, nixos-24.11, etc.)
+- `nix_versions` — version history tool: retrieve historical package versions and the nixpkgs commit hash for a specific version (useful for pinning)
+
+**When to use it**:
+Always use the `nix` MCP tool proactively whenever it would provide helpful information — do not rely on training data for NixOS/nixpkgs facts that may be stale or hallucinated. This includes:
+- Verifying exact package attribute paths before adding to `home/packages.nix` (faster than `nix-env -qaP`)
+- Looking up correct NixOS or Home Manager option names and their types/defaults
+- Finding the right nixpkgs commit to pin for a specific package version
+- Checking whether a package exists in stable vs unstable
+- Any time you're unsure about a package name, option path, or configuration syntax
+
+**Example queries**:
+```
+# Find exact package name
+nix search packages "firefox" channel:nixos-unstable
+
+# Check a NixOS option
+nix search options "services.tailscale"
+
+# Check a Home Manager option
+nix search home-manager "programs.tmux"
+
+# Get version history for a package
+nix_versions package:"nodejs" channel:nixos-unstable
+```
