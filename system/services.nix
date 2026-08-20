@@ -32,6 +32,14 @@
   # Enable NFS client support
   services.rpcbind.enable = true;
 
+  # Grant the "input" group access to /dev/uinput so dotool (used by Handy for
+  # dictation) can inject keystrokes on Wayland/KWin, which lacks the
+  # virtual-keyboard protocol wtype depends on.
+  boot.kernelModules = [ "uinput" ];
+  services.udev.extraRules = ''
+    KERNEL=="uinput", SUBSYSTEM=="misc", TAG+="uaccess", OPTIONS+="static_node=uinput", GROUP="input", MODE="0660"
+  '';
+
   # Enable Docker
   virtualisation.docker.enable = true;
 

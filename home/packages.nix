@@ -39,6 +39,10 @@
     pkgs.tidal-hifi
     pkgs.vlc
 
+    # Dictation
+    pkgs-unstable.handy
+    pkgs.dotool
+
     # Meetings
     (pkgs-tiny4linux.callPackage ../pkgs/tiny4linux.nix { src = tiny4linux; })
     pkgs.zoom-us
