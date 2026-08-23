@@ -1,5 +1,18 @@
 { pkgs, pkgs-unstable, claude-code, tiny4linux, pkgs-tiny4linux, ... }:
 
+let
+  # Blank out the "letterpress" logo shown in an empty editor group (no tabs
+  # open) so the pane is just its background color instead of the VSCodium logo.
+  vscodium = pkgs.vscodium.overrideAttrs (oldAttrs: {
+    postInstall = (oldAttrs.postInstall or "") + ''
+      for variant in dark light hcDark hcLight; do
+        f="$out/lib/vscode/resources/app/out/media/letterpress-$variant.svg"
+        chmod +w "$f"
+        echo '<svg xmlns="http://www.w3.org/2000/svg"></svg>' > "$f"
+      done
+    '';
+  });
+in
 {
   home.packages = [
 
@@ -20,7 +33,7 @@
     pkgs.nerd-fonts.jetbrains-mono
     pkgs.gh
     pkgs.github-copilot-cli
-    pkgs.vscodium
+    vscodium
     pkgs.nodejs_24
     pkgs.devbox
     pkgs.jq
