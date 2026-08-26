@@ -13,6 +13,7 @@
     ./desktop-entries.nix
     ./nixd.nix
     ./autostart.nix
+    ./opencode.nix
   ];
 
   home.stateVersion = "25.11";
