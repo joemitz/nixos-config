@@ -88,13 +88,13 @@ This alias:
 2. Runs `deadnix -e .` to remove unused code (arguments, variables, let bindings)
 3. Runs `statix fix .` to fix style issues (empty patterns, manual inherits, etc.)
 4. Runs `nh os switch`
-5. On success: checks if kernel or systemd changed using `nvd diff` and recommends reboot if needed
-6. Invokes Claude Haiku to analyze git diff, update CLAUDE.md, and generate commit message
-7. Reads commit message from temporary file in config directory
-8. Cleans up temporary commit message file
-9. Stages all changes with `git add -A`
-10. Commits changes with generation number and generated message
-11. Pushes to git remote
+5. On success: invokes Claude Haiku to analyze git diff, update CLAUDE.md, and generate commit message
+6. Reads commit message from temporary file in config directory
+7. Cleans up temporary commit message file
+8. Stages all changes with `git add -A`
+9. Commits changes with generation number and generated message
+10. Pushes to git remote
+11. Checks if kernel or systemd changed using `nvd diff` and recommends reboot if needed
 12. Returns to original directory
 
 **Stage for next boot with auto-commit and push** (use the `nhb` bash alias):
