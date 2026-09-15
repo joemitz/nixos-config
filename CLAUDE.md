@@ -88,13 +88,14 @@ This alias:
 2. Runs `deadnix -e .` to remove unused code (arguments, variables, let bindings)
 3. Runs `statix fix .` to fix style issues (empty patterns, manual inherits, etc.)
 4. Runs `nh os switch`
-5. On success: invokes Claude Haiku to analyze git diff, update CLAUDE.md, and generate commit message
-6. Reads commit message from temporary file in config directory
-7. Cleans up temporary commit message file
-8. Stages all changes with `git add -A`
-9. Commits changes with generation number and generated message
-10. Pushes to git remote
-11. Returns to original directory
+5. On success: checks if kernel or systemd changed using `nvd diff` and recommends reboot if needed
+6. Invokes Claude Haiku to analyze git diff, update CLAUDE.md, and generate commit message
+7. Reads commit message from temporary file in config directory
+8. Cleans up temporary commit message file
+9. Stages all changes with `git add -A`
+10. Commits changes with generation number and generated message
+11. Pushes to git remote
+12. Returns to original directory
 
 **Stage for next boot with auto-commit and push** (use the `nhb` bash alias):
 ```bash
@@ -166,7 +167,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 - **Filesystem**: Btrfs with subvolumes (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles) and zstd compression
 
 **User Configuration** (modular structure in home/):
-- **packages.nix**: All user packages organized by category - AWS (awscli2, awslogs), Android (android-studio, android-tools, jdk17, dotslash), Dev (watchman, claude-code, opencode from unstable, gh, github-copilot-cli, vscodium, nodejs_24, devbox, jq, postman), Nix tools (nixd, nixpkgs-fmt, nixf, statix, deadnix, sops), Dictation (handy from unstable, dotool), Media (audacity, tidal-hifi, vlc), Meetings (tiny4linux, zoom-us, guvcview), Productivity (google-chrome, teams-for-linux, slack, gimp, thunderbird), Remote Desktop (remmina, parsec-bin), Terminal (btop, eza). Uses pinned nixpkgs input for tiny4linux built from nixpkgs-tiny4linux (to avoid unnecessary rebuilds on Rust updates). VSCodium is customized via overrideAttrs to blank out the letterpress logo SVG in empty editor groups (dark, light, hcDark, hcLight variants). Module header cleaned to include only required parameters (removed unused `config`). Note: tmux enabled via programs.tmux in tmux.nix, not listed here
+- **packages.nix**: All user packages organized by category - AWS (awscli2, awslogs), Android (android-studio, android-tools, jdk17, dotslash), Dev (watchman, claude-code, opencode from unstable, gh, github-copilot-cli, vscodium, nodejs_24, devbox, jq, postman), Nix tools (nixd, nixpkgs-fmt, nixf, statix, deadnix, sops, nvd), Dictation (handy from unstable, dotool), Media (audacity, tidal-hifi, vlc), Meetings (tiny4linux, zoom-us, guvcview), Productivity (google-chrome, teams-for-linux, slack, gimp, thunderbird), Remote Desktop (remmina, parsec-bin), Terminal (btop, eza). Uses pinned nixpkgs input for tiny4linux built from nixpkgs-tiny4linux (to avoid unnecessary rebuilds on Rust updates). VSCodium is customized via overrideAttrs to blank out the letterpress logo SVG in empty editor groups (dark, light, hcDark, hcLight variants). Module header cleaned to include only required parameters (removed unused `config`). Note: tmux enabled via programs.tmux in tmux.nix, not listed here
 - **opencode.nix**: Opencode CLI configuration with Claude Sonnet 5 model (reads ANTHROPIC_API_KEY from ~/.config/secrets.env automatically)
 - **git.nix**: Git with gitFull package, user config, useful aliases (co, st, br, hi, lb, ma, type, dump, pu, ad, ch, cp), editor set to nano, LFS support, libsecret credential helper (KDE Wallet)
 - **ssh.nix**: SSH configuration with macbook host (192.168.0.232) and nixos-server host (192.168.0.115), modernized to use settings format
@@ -384,6 +385,9 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
   - Scan all config files: `for file in /home/joemitz/nixos-config/{system,home}/*.nix /home/joemitz/nixos-config/flake.nix /home/joemitz/nixos-config/pkgs/*.nix /home/joemitz/nixos-config/cachix/*.nix; do if [ -f "$file" ]; then result=$(nixf-tidy --variable-lookup < "$file" 2>&1); if [ "$result" != "[]" ]; then echo "=== $file ==="; echo "$result"; fi; fi; done`
   - Empty output `[]` means no errors found
 - **nixpkgs-fmt**: Nix code formatter used by nixd
+- **nvd**: NixOS diff tool showing changes between configurations
+  - Used by nhs alias to detect kernel/systemd changes and recommend reboot if needed
+  - Provides detailed diff output via `nvd diff /run/booted-system /run/current-system`
 
 **Additional Environment Variables**:
 - NODE_ENV=development

@@ -70,6 +70,14 @@ _:
         local exit_code=$?
 
         if [ $exit_code -eq 0 ]; then
+          if [ "$mode" = "switch" ]; then
+            if nvd diff /run/booted-system /run/current-system 2>/dev/null | grep -qE 'linux|systemd'; then
+              echo "Reboot recommended (kernel or systemd changed)"
+            else
+              echo "Reboot not needed"
+            fi
+          fi
+
           if ! git diff --quiet || ! git diff --cached --quiet; then
             echo "Generating commit message and CLAUDE.md updates..." && \
             claude -p "Check git diff and them complete both of these 2 tasks: 1) Edit /home/joemitz/nixos-config/CLAUDE.md with any important changes 2) Write a 5-10 word lowercase commit description to /home/joemitz/nixos-config/nhs-commit-msg.txt (e.g. 'enable nix-ld for android tools')" --model haiku --allowedTools "Edit" "Write" "Read" "Bash(git diff:*)" && \

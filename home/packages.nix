@@ -47,6 +47,7 @@ in
     pkgs.statix
     pkgs.deadnix
     pkgs.sops
+    pkgs.nvd
 
     # Media
     pkgs.audacity
