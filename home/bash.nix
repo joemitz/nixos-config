@@ -12,6 +12,7 @@ _:
       zzz = "systemctl suspend";
       nhs = "_nh_rebuild_commit switch";
       nhb = "_nh_rebuild_commit boot";
+      needsrestart = "_check_needs_restart";
     };
     sessionVariables = {
       # Non-secret environment variables
@@ -53,6 +54,21 @@ _:
         set +a
       fi
 
+      # Check whether the running system is out of sync with the active generation
+      _check_needs_restart() {
+        local diff_output
+        if diff_output=$(nvd diff /run/booted-system /run/current-system 2>/dev/null); then
+          # nvd's output is a fixed-width table; package name is always column 3
+          if echo "$diff_output" | awk '{print $3}' | grep -qE '^(linux|linux-firmware|initrd-linux|systemd|systemd-minimal|systemd-minimal-libs)$'; then
+            echo "Reboot recommended (kernel or systemd changed)"
+          else
+            echo "Reboot not needed"
+          fi
+        else
+          echo "Warning: could not determine reboot status (nvd diff failed)"
+        fi
+      }
+
       # NH rebuild with auto-commit function
       _nh_rebuild_commit() {
         local mode=$1
@@ -87,11 +103,7 @@ _:
           fi
 
           if [ "$mode" = "switch" ]; then
-            if nvd diff /run/booted-system /run/current-system 2>/dev/null | grep -qE 'linux|systemd'; then
-              echo "Reboot recommended (kernel or systemd changed)"
-            else
-              echo "Reboot not needed"
-            fi
+            _check_needs_restart
           fi
         fi
 

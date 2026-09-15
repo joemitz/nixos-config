@@ -496,7 +496,8 @@ The secrets.env template includes both secrets and non-secret constants:
 - Auto-attaches to tmux "main" session on login (unless already in tmux)
 - Custom prompt: Shows current directory and git branch (if in a repo): `dir(branch)$` (dir in blue, branch in yellow)
 - PATH includes `$HOME/.local/bin` for native Claude Code installation and other local binaries
-- Shell aliases: `ls`→`eza`, `top`→`btop`, `code`→`codium`, `c`→`claude`, `nano`→`micro`, `zzz`→`systemctl suspend`
+- Shell aliases: `ls`→`eza`, `top`→`btop`, `code`→`codium`, `c`→`claude`, `nano`→`micro`, `zzz`→`systemctl suspend`, `needsrestart`→`_check_needs_restart`
+- Helper function `_check_needs_restart`: Checks if running system is out of sync with active generation by comparing kernel/systemd packages in nvd diff output (column 3). Returns reboot recommendation or status message.
 - `nhs` alias: Full rebuild + auto-commit + push workflow (invokes Claude Haiku to generate commit message and update CLAUDE.md with important changes only)
 - `nhb` alias: Stage for boot + auto-commit + push workflow
 
