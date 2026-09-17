@@ -5,12 +5,16 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  # 6.12 LTS (EOL Dec 2028). Moved off 6.6 LTS (EOL Dec 2027) ahead of its EOL.
-  # The 6.12.10+ amdgpu regression that previously kept us on 6.6
-  # (botched backport broke amdgpu_discovery_init on RX 5600/5700/6600/6600XT,
-  # see https://bbs.archlinux.org/viewtopic.php?id=303556) was fixed upstream
-  # in 6.12.16; nixpkgs is now far past that (6.12.109+), so it doesn't apply.
-  boot.kernelPackages = pkgs.linuxPackages_6_12;
+  # 6.6 LTS (EOL Dec 2027). Tried 6.12.109 on 2026-09-17 (direct DisplayPort,
+  # no hub/dock/KVM in path): first suspend/resume produced a MODE1 reset,
+  # then "link_add_remote_sink: Bad EDID, status3" ~60s after resume with the
+  # MST topology manager flapping (start/stop) for ~2.5 min. Never seen on 6.6.
+  # Reverted; the 6.12.10+ discovery_init bug that originally motivated 6.6
+  # (see https://bbs.archlinux.org/viewtopic.php?id=303556) is unrelated and
+  # long fixed (6.12.16+), but this newer resume/MST issue is unresolved
+  # upstream as of 6.12.109. Before retrying 6.12+, check whether this
+  # specific post-resume EDID/MST regression has a merged fix.
+  boot.kernelPackages = pkgs.linuxPackages_6_6;
 
   # Load AMD GPU driver early in boot (fixes display detection before SDDM starts)
   boot.initrd.kernelModules = [ "amdgpu" ];

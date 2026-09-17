@@ -155,7 +155,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 ## Configuration Layout
 
 **System Configuration** (modular structure in system/):
-- **boot.nix**: systemd-boot with EFI, kernel 6.12 LTS (pkgs.linuxPackages_6_12), root rollback via systemd initrd service. Subvolume deletion uses bash built-ins instead of grep/cut (unavailable in initrd), ensuring reliable impermanence boot rollback
+- **boot.nix**: systemd-boot with EFI, kernel 6.6 LTS (pkgs.linuxPackages_6_6), root rollback via systemd initrd service. Subvolume deletion uses bash built-ins instead of grep/cut (unavailable in initrd), ensuring reliable impermanence boot rollback
 - **hardware.nix**: AMD GPU with amdgpu driver early loading, hardware acceleration, Bluetooth with power-on-boot enabled, firmware updates, OpenSUSE home subvolume mount
 - **desktop.nix**: KDE Plasma 6 with SDDM (Wayland enabled, breeze theme, Opal wallpaper background, NumLock enabled), PipeWire audio, printing with CUPS browsing disabled (browsing=false, cups-browsed service disabled to prevent duplicate printers) and Avahi for mDNS (.local hostname resolution and printer discovery), kde-rounded-corners, native Wayland support for Electron apps (NIXOS_OZONE_WL), XDG Desktop Portal for screen sharing
 - **networking.nix**: NetworkManager, Wake-on-LAN on enp6s0, Tailscale VPN, firewall disabled (all ports open), OpenSSH (port 22, password auth enabled)
@@ -296,7 +296,7 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
 - Unfree packages are allowed system-wide
 - The configuration auto-commits successfully applied changes to track system generations
 - All .nix files and flake.lock have ownership fixed on activation to allow NH updates
-- Using 6.12 LTS kernel (EOL Dec 2028). Previously pinned to 6.6 LTS to avoid an amdgpu regression introduced in 6.12.10 (see https://bbs.archlinux.org/viewtopic.php?id=303556); that was fixed upstream in 6.12.16 and nixpkgs now ships 6.12.109+, so it no longer applies
+- Using 6.6 LTS kernel (EOL Dec 2027). Tried 6.12.109 on 2026-09-17 (direct DisplayPort, no hub/dock/KVM): first suspend/resume triggered a MODE1 reset then a "Bad EDID, status3" MST link failure ~60s post-resume with no display output, never seen on 6.6 — reverted. Unrelated to the older 6.12.10 discovery_init bug (https://bbs.archlinux.org/viewtopic.php?id=303556), which is long fixed; this resume/MST regression is unresolved upstream as of 6.12.109
 - AMD GPU driver loaded early in initrd for proper display detection before SDDM
 - KVM module (kvm-amd) enabled for virtualization
 - AMD CPU microcode updates enabled
@@ -312,7 +312,7 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
   - `amdgpu.runpm=0`: Disable runtime power management (prevents GPU power state issues on suspend/resume)
   - `amdgpu.gpu_recovery=1`: Enable GPU recovery on errors
 
-**Kernel**: 6.12 LTS (linuxPackages_6_12, EOL Dec 2028). Moved from 6.6 LTS (EOL Dec 2027) once the 6.12.10 amdgpu regression that previously blocked the move was fixed upstream (6.12.16) and nixpkgs caught up (6.12.109+)
+**Kernel**: 6.6 LTS (linuxPackages_6_6, EOL Dec 2027). Attempted 6.12 LTS (linuxPackages_6_12, EOL Dec 2028) on 2026-09-17 after confirming the original blocking bug (6.12.10 discovery_init regression) was long fixed — but hit a different, unresolved amdgpu resume/MST regression on first suspend/resume (MODE1 reset + "Bad EDID, status3" ~60s after resume, no display output). Reverted to 6.6. Re-attempt only after confirming this specific resume/MST issue has a merged upstream fix
 
 **Swap**:
 - 15.1 GiB swap partition on NVMe (/dev/nvme0n1p3, label: nixos-swap)
