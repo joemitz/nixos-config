@@ -5,9 +5,12 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  # Use 6.6 LTS kernel to avoid AMD GPU bug in kernel 6.12.10+
-  # See: https://bbs.archlinux.org/viewtopic.php?id=303556
-  boot.kernelPackages = pkgs.linuxPackages_6_6;
+  # 6.12 LTS (EOL Dec 2028). Moved off 6.6 LTS (EOL Dec 2027) ahead of its EOL.
+  # The 6.12.10+ amdgpu regression that previously kept us on 6.6
+  # (botched backport broke amdgpu_discovery_init on RX 5600/5700/6600/6600XT,
+  # see https://bbs.archlinux.org/viewtopic.php?id=303556) was fixed upstream
+  # in 6.12.16; nixpkgs is now far past that (6.12.109+), so it doesn't apply.
+  boot.kernelPackages = pkgs.linuxPackages_6_12;
 
   # Load AMD GPU driver early in boot (fixes display detection before SDDM starts)
   boot.initrd.kernelModules = [ "amdgpu" ];
@@ -15,11 +18,9 @@
   # AMD GPU kernel parameters for suspend/resume stability
   # amdgpu.runpm=0: Disable runtime PM (prevents GPU power state issues on RX 6600 XT)
   # amdgpu.gpu_recovery=1: Enable GPU recovery on errors
-  # amdgpu.dc_mst_support=0: Disable DisplayPort MST (not needed for single monitor, fixes ACT timeout errors after resume)
   boot.kernelParams = [
     "amdgpu.runpm=0"
     "amdgpu.gpu_recovery=1"
-    "amdgpu.dc_mst_support=0"
   ];
 
   # Root impermanence: Rollback root subvolume to pristine state on boot.
