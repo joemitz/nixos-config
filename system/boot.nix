@@ -5,15 +5,8 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  # 6.6 LTS (EOL Dec 2027). Tried 6.12.109 on 2026-09-17 (direct DisplayPort,
-  # no hub/dock/KVM in path): first suspend/resume produced a MODE1 reset,
-  # then "link_add_remote_sink: Bad EDID, status3" ~60s after resume with the
-  # MST topology manager flapping (start/stop) for ~2.5 min. Never seen on 6.6.
-  # Reverted; the 6.12.10+ discovery_init bug that originally motivated 6.6
-  # (see https://bbs.archlinux.org/viewtopic.php?id=303556) is unrelated and
-  # long fixed (6.12.16+), but this newer resume/MST issue is unresolved
-  # upstream as of 6.12.109. Before retrying 6.12+, check whether this
-  # specific post-resume EDID/MST regression has a merged fix.
+  # Use 6.6 LTS kernel to avoid AMD GPU bug in kernel 6.12.10+
+  # See: https://bbs.archlinux.org/viewtopic.php?id=303556
   boot.kernelPackages = pkgs.linuxPackages_6_6;
 
   # Load AMD GPU driver early in boot (fixes display detection before SDDM starts)
@@ -22,9 +15,11 @@
   # AMD GPU kernel parameters for suspend/resume stability
   # amdgpu.runpm=0: Disable runtime PM (prevents GPU power state issues on RX 6600 XT)
   # amdgpu.gpu_recovery=1: Enable GPU recovery on errors
+  # amdgpu.dc_mst_support=0: Disable DisplayPort MST (not needed for single monitor, fixes ACT timeout errors after resume)
   boot.kernelParams = [
     "amdgpu.runpm=0"
     "amdgpu.gpu_recovery=1"
+    "amdgpu.dc_mst_support=0"
   ];
 
   # Root impermanence: Rollback root subvolume to pristine state on boot.

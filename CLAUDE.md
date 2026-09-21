@@ -296,7 +296,7 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
 - Unfree packages are allowed system-wide
 - The configuration auto-commits successfully applied changes to track system generations
 - All .nix files and flake.lock have ownership fixed on activation to allow NH updates
-- Using 6.6 LTS kernel (EOL Dec 2027). Tried 6.12.109 on 2026-09-17 (direct DisplayPort, no hub/dock/KVM): first suspend/resume triggered a MODE1 reset then a "Bad EDID, status3" MST link failure ~60s post-resume with no display output, never seen on 6.6 — reverted. Unrelated to the older 6.12.10 discovery_init bug (https://bbs.archlinux.org/viewtopic.php?id=303556), which is long fixed; this resume/MST regression is unresolved upstream as of 6.12.109
+- Using 6.6 LTS kernel to avoid AMD GPU bug in 6.12.10+ (see https://bbs.archlinux.org/viewtopic.php?id=303556)
 - AMD GPU driver loaded early in initrd for proper display detection before SDDM
 - KVM module (kvm-amd) enabled for virtualization
 - AMD CPU microcode updates enabled
@@ -311,8 +311,9 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
 - Kernel parameters configured for RX 6600 XT stability:
   - `amdgpu.runpm=0`: Disable runtime power management (prevents GPU power state issues on suspend/resume)
   - `amdgpu.gpu_recovery=1`: Enable GPU recovery on errors
+  - `amdgpu.dc_mst_support=0`: Disable DisplayPort MST (not needed for single monitor, fixes ACT timeout errors after resume)
 
-**Kernel**: 6.6 LTS (linuxPackages_6_6, EOL Dec 2027). Attempted 6.12 LTS (linuxPackages_6_12, EOL Dec 2028) on 2026-09-17 after confirming the original blocking bug (6.12.10 discovery_init regression) was long fixed — but hit a different, unresolved amdgpu resume/MST regression on first suspend/resume (MODE1 reset + "Bad EDID, status3" ~60s after resume, no display output). Reverted to 6.6. Re-attempt only after confirming this specific resume/MST issue has a merged upstream fix
+**Kernel**: 6.6 LTS (linuxPackages_6_6) to avoid stability issues with newer kernels on AMD GPUs
 
 **Swap**:
 - 15.1 GiB swap partition on NVMe (/dev/nvme0n1p3, label: nixos-swap)
