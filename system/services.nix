@@ -53,9 +53,9 @@
     enable = true;
     flake = "/home/joemitz/nixos-config";
     clean = {
-      enable = false;  # Disabled - run manually with: nix-collect-garbage -d
+      enable = true;  # Auto-clean weekly, keep last 30 days (prevents /boot from filling up)
       dates = "weekly";
-      extraArgs = "--keep 10 --keep-since 10d";
+      extraArgs = "--keep-since 30d";
     };
   };
 
