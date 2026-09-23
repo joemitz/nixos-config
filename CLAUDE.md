@@ -45,7 +45,8 @@ nixos-config/
 │   ├── secrets.yaml           # Encrypted secrets (committed)
 │   └── secrets-template.yaml  # Template (not committed)
 └── pkgs/
-    └── tiny4linux.nix         # Custom OBSBOT Tiny2 camera package
+    ├── tiny4linux.nix         # Custom OBSBOT Tiny2 camera package
+    └── devbox.nix             # Custom devbox package (tracks upstream releases)
 ```
 
 **Flake Structure**:
@@ -57,6 +58,7 @@ nixos-config/
 - `home/*.nix`: Modular home configuration split by program (packages, git, ssh, direnv, bash, tmux, alacritty, firefox, desktop-entries)
 - `system/hardware-configuration.nix`: Hardware-specific configuration with Btrfs subvolumes (generated, not typically edited manually)
 - `pkgs/tiny4linux.nix`: Custom package for OBSBOT Tiny2 camera controller
+- `pkgs/devbox.nix`: Custom package tracking devbox upstream releases (nixpkgs lags behind, including breaking changes)
 - `cachix/`: Binary cache configurations (claude-code). Auto-import system uses cleanup of unused parameters for code hygiene.
 - `secrets/`: Encrypted secrets managed by sops-nix
 
@@ -471,6 +473,12 @@ The secrets.env template includes both secrets and non-secret constants:
   - Uses `fetchCargoVendor` with preBuild hook to patch fetch-cargo-vendor-util (adds User-Agent header for crates.io compatibility)
   - Both GUI and CLI binaries wrapped with `WGPU_BACKEND=vulkan` for graphics backend support
   - Library paths: wayland, libxkbcommon, libGL, vulkan-loader
+
+**Devbox** (pkgs/devbox.nix):
+- Instant, easy, predictable shells and containers
+- Version: 0.18.3 (tracks upstream GitHub releases, not nixpkgs)
+- Reason for custom package: nixpkgs lags behind upstream releases; devbox 0.18.0+ removed the Jetify Cloud browser-login flow (devbox auth/cache/secrets) that broke when Jetify's login page went down
+- Binary package downloaded directly from github.com/jetify-com/devbox releases for latest upstream updates
 
 ## Terminal & Shell
 

@@ -36,7 +36,7 @@ in
     pkgs.github-copilot-cli
     vscodium
     pkgs.nodejs_24
-    pkgs.devbox
+    (pkgs.callPackage ../pkgs/devbox.nix { })
     pkgs.jq
     pkgs.postman
 
