@@ -38,7 +38,7 @@ in
     pkgs.nodejs_24
     (pkgs.callPackage ../pkgs/devbox.nix { })
     pkgs.jq
-    pkgs.postman
+    pkgs-unstable.postman
 
     # Nix
     pkgs.nixd
