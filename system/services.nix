@@ -32,22 +32,6 @@
   # Enable NFS client support
   services.rpcbind.enable = true;
 
-  # Disable 3-finger tap-to-middle-click on the Magic Trackpad, which triggers
-  # X11/Wayland primary-selection paste in every app (including Firefox).
-  # libinput's tap-to-click only supports a global on/off plus an LRM/LMR
-  # finger-to-button map swap (no per-finger-count disable), so instead this
-  # removes BTN_MIDDLE from the device's reported event codes entirely,
-  # below KWin and every toolkit. 1 and 2 finger tap (left/right click) are
-  # unaffected. Trade-off: middle-click-to-open-link-in-new-tab no longer
-  # works from the trackpad either (a real mouse's middle button still does).
-  environment.etc."libinput/local-overrides.quirks".text = ''
-    [Magic Trackpad No Middle Tap]
-    MatchVendor=0x05AC
-    MatchProduct=0x0265
-    MatchUdevType=touchpad
-    AttrEventCode=-BTN_MIDDLE
-  '';
-
   # Grant the "input" group access to /dev/uinput so dotool (used by Handy for
   # dictation) can inject keystrokes on Wayland/KWin, which lacks the
   # virtual-keyboard protocol wtype depends on.
