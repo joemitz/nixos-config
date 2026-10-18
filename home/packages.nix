@@ -29,7 +29,6 @@ in
     # Dev
     pkgs.watchman
     claude-code.packages.x86_64-linux.default
-    pkgs-unstable.gemini-cli
     pkgs-unstable.opencode
     pkgs.nerd-fonts.jetbrains-mono
     pkgs.gh

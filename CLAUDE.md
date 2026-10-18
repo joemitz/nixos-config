@@ -51,7 +51,7 @@ nixos-config/
 
 **Flake Structure**:
 - `flake.nix`: Main entry point defining inputs (nixpkgs stable, nixpkgs-unstable, home-manager, claude-code, sops-nix, tiny4linux, impermanence, pinned nixpkgs for tiny4linux) and outputs
-  - `nixpkgs-unstable`: Tracking nixos-unstable channel for packages only available in unstable (e.g., gemini-cli)
+  - `nixpkgs-unstable`: Tracking nixos-unstable channel for packages only available in unstable
 - `system/index.nix`: Main system configuration entry point (imports all system modules)
 - `system/*.nix`: Modular system configuration split by concern (boot, hardware, networking, desktop, users, secrets, services, persistence, snapper)
 - `home/index.nix`: Main home-manager entry point (imports all home modules)
@@ -77,7 +77,7 @@ nixos-config/
 - Binary caches configured: cache.nixos.org, claude-code.cachix.org
 - Pinned and unstable nixpkgs inputs for specific use cases:
   - `nixpkgs-tiny4linux`: Pinned to 2c3e5ec (avoid Rust updates)
-  - `nixpkgs-unstable`: Tracks nixos-unstable for packages only available in unstable (e.g., gemini-cli)
+  - `nixpkgs-unstable`: Tracks nixos-unstable for packages only available in unstable
 
 ## Building and Deploying
 
@@ -440,7 +440,7 @@ nix-shell -p sops --run "sops --set '[\"npm_token\"] \"<value>\"' secrets/secret
 3. Rebuild: `nhs`
 
 **Managed Secrets**:
-- API Keys: NPM_TOKEN, GEMINI_API_KEY, OPENAI_API_KEY, ANTHROPIC_API_KEY, CIRCLECI_TOKEN
+- API Keys: NPM_TOKEN, OPENAI_API_KEY, ANTHROPIC_API_KEY, CIRCLECI_TOKEN
 - Android: ANDROID_RELEASE_KEYSTORE_PASSWORD, ANDROID_RELEASE_KEY_PASSWORD, ANDROID_KEYSTORE_PASSWORD
 - Production: APC_WSS_ADMIN_BEARER_TOKEN, APC_WSS_FIREBASE_ADMIN_CONFIG, APC_WSS_A3_PG_PASSWORD
 

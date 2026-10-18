@@ -9,7 +9,6 @@
     # Define secrets and their output paths
     secrets = {
       "npm_token" = { owner = "joemitz"; };
-      "gemini_api_key" = { owner = "joemitz"; };
       "openai_api_key" = { owner = "joemitz"; };
       "anthropic_api_key" = { owner = "joemitz"; };
       "circleci_token" = { owner = "joemitz"; };
@@ -27,7 +26,6 @@
       path = "/home/joemitz/.config/secrets.env";
       content = ''
         export NPM_TOKEN="${config.sops.placeholder.npm_token}"
-        export GEMINI_API_KEY="${config.sops.placeholder.gemini_api_key}"
         export OPENAI_API_KEY="${config.sops.placeholder.openai_api_key}"
         export ANTHROPIC_API_KEY="${config.sops.placeholder.anthropic_api_key}"
         export CIRCLECI_TOKEN="${config.sops.placeholder.circleci_token}"
