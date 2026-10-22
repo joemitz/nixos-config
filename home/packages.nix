@@ -1,4 +1,4 @@
-{ pkgs, pkgs-unstable, claude-code, tiny4linux, pkgs-tiny4linux, ... }:
+{ pkgs, pkgs-unstable, claude-code, tiny4linux, pkgs-tiny4linux, pkgs-parsec, ... }:
 
 let
   # Blank out the "letterpress" logo shown in an empty editor group (no tabs
@@ -71,7 +71,7 @@ in
 
     # Remote Desktop
     pkgs.remmina
-    pkgs.parsec-bin
+    pkgs-parsec.parsec-bin
 
     # Terminal
     pkgs.btop

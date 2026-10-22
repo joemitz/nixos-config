@@ -96,6 +96,22 @@
         "type": "github"
       }
     },
+    "nixpkgs-parsec": {
+      "locked": {
+        "lastModified": 1740303746,
+        "narHash": "sha256-XcdiWLEhjJkMxDLKQJ0CCivmYYCvA5MDxu9pMybM5kM=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "2d068ae5c6516b2d04562de50a58c682540de9bf",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "2d068ae5c6516b2d04562de50a58c682540de9bf",
+        "type": "github"
+      }
+    },
     "nixpkgs-tiny4linux": {
       "locked": {
         "lastModified": 1768323494,
@@ -166,6 +182,7 @@
         "home-manager": "home-manager",
         "impermanence": "impermanence",
         "nixpkgs": "nixpkgs_3",
+        "nixpkgs-parsec": "nixpkgs-parsec",
         "nixpkgs-tiny4linux": "nixpkgs-tiny4linux",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "sops-nix": "sops-nix",
