@@ -50,7 +50,7 @@ nixos-config/
 ```
 
 **Flake Structure**:
-- `flake.nix`: Main entry point defining inputs (nixpkgs stable, nixpkgs-unstable, home-manager, claude-code, sops-nix, tiny4linux, impermanence, pinned nixpkgs for tiny4linux and parsec) and outputs
+- `flake.nix`: Main entry point defining inputs (nixpkgs stable, nixpkgs-unstable, home-manager, claude-code, sops-nix, tiny4linux, impermanence, pinned nixpkgs for tiny4linux) and outputs
   - `nixpkgs-unstable`: Tracking nixos-unstable channel for packages only available in unstable
 - `system/index.nix`: Main system configuration entry point (imports all system modules)
 - `system/*.nix`: Modular system configuration split by concern (boot, hardware, networking, desktop, users, secrets, services, persistence, snapper)
@@ -77,7 +77,6 @@ nixos-config/
 - Binary caches configured: cache.nixos.org, claude-code.cachix.org
 - Pinned and unstable nixpkgs inputs for specific use cases:
   - `nixpkgs-tiny4linux`: Pinned to 2c3e5ec (avoid Rust updates)
-  - `nixpkgs-parsec`: Pinned to 2d068ae for parsec-bin 150_95 (150_97c is broken). Exposed to home-manager as `pkgs-parsec`
   - `nixpkgs-unstable`: Tracks nixos-unstable for packages only available in unstable
 
 ## Building and Deploying
@@ -170,7 +169,7 @@ The activation script ensures proper file ownership to allow NH to update flake.
 - **Filesystem**: Btrfs with subvolumes (@, @nix, @blank, @persist-root, @persist-dotfiles, @persist-userfiles) and zstd compression
 
 **User Configuration** (modular structure in home/):
-- **packages.nix**: All user packages organized by category - AWS (awscli2, awslogs), Android (android-studio, android-tools, jdk17, dotslash), Dev (watchman, claude-code, opencode from unstable, gh, github-copilot-cli, vscodium, nodejs_24, devbox, jq, postman from unstable), Nix tools (nixd, nixpkgs-fmt, nixf, statix, deadnix, sops, nvd), Dictation (handy from unstable, dotool), Media (audacity, tidal-hifi, vlc), Meetings (tiny4linux, zoom-us, guvcview), Productivity (google-chrome, teams-for-linux, slack, gimp, thunderbird), Remote Desktop (remmina, parsec-bin from pinned `nixpkgs-parsec`, since 150_97c is broken), Terminal (btop, eza). Uses pinned nixpkgs input for tiny4linux built from nixpkgs-tiny4linux (to avoid unnecessary rebuilds on Rust updates). VSCodium is customized via overrideAttrs to blank out the letterpress logo SVG in empty editor groups (dark, light, hcDark, hcLight variants). Module header cleaned to include only required parameters (removed unused `config`). Note: tmux enabled via programs.tmux in tmux.nix, not listed here
+- **packages.nix**: All user packages organized by category - AWS (awscli2, awslogs), Android (android-studio, android-tools, jdk17, dotslash), Dev (watchman, claude-code, opencode from unstable, gh, github-copilot-cli, vscodium, nodejs_24, devbox, jq, postman from unstable), Nix tools (nixd, nixpkgs-fmt, nixf, statix, deadnix, sops, nvd), Dictation (handy from unstable, dotool), Media (audacity, tidal-hifi, vlc), Meetings (tiny4linux, zoom-us, guvcview), Productivity (google-chrome, teams-for-linux, slack, gimp, thunderbird), Remote Desktop (remmina, parsec-bin), Terminal (btop, eza). Uses pinned nixpkgs input for tiny4linux built from nixpkgs-tiny4linux (to avoid unnecessary rebuilds on Rust updates). VSCodium is customized via overrideAttrs to blank out the letterpress logo SVG in empty editor groups (dark, light, hcDark, hcLight variants). Module header cleaned to include only required parameters (removed unused `config`). Note: tmux enabled via programs.tmux in tmux.nix, not listed here
 - **opencode.nix**: Opencode CLI configuration with Claude Sonnet 5 model (reads ANTHROPIC_API_KEY from ~/.config/secrets.env automatically)
 - **git.nix**: Git with gitFull package, user config, useful aliases (co, st, br, hi, lb, ma, type, dump, pu, ad, ch, cp), editor set to nano, LFS support, libsecret credential helper (KDE Wallet)
 - **ssh.nix**: SSH configuration with macbook host (192.168.0.232) and nixos-server host (192.168.0.115), modernized to use settings format
