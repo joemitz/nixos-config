@@ -35,6 +35,10 @@ in
     pkgs.github-copilot-cli
     vscodium
     pkgs.nodejs_24
+    (pkgs.python3.withPackages (ps: [
+      ps.pip
+      ps.requests
+    ]))
     (pkgs.callPackage ../pkgs/devbox.nix { })
     pkgs.jq
     pkgs-unstable.postman
