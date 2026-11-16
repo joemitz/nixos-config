@@ -16,10 +16,12 @@
   # amdgpu.runpm=0: Disable runtime PM (prevents GPU power state issues on RX 6600 XT)
   # amdgpu.gpu_recovery=1: Enable GPU recovery on errors
   # amdgpu.dc_mst_support=0: Disable DisplayPort MST (not needed for single monitor, fixes ACT timeout errors after resume)
+  # amdgpu.dcdebugmask=0x10: Disable Panel Self Refresh (PSR), suspected cause of kwin losing its DRM device / "no outputs" after wake (2026-11-16)
   boot.kernelParams = [
     "amdgpu.runpm=0"
     "amdgpu.gpu_recovery=1"
     "amdgpu.dc_mst_support=0"
+    "amdgpu.dcdebugmask=0x10"
   ];
 
   # Root impermanence: Rollback root subvolume to pristine state on boot.

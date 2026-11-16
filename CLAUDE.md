@@ -314,6 +314,7 @@ Auto-setup-remote is enabled for pushing new branches. Git LFS is configured. Cr
   - `amdgpu.runpm=0`: Disable runtime power management (prevents GPU power state issues on suspend/resume)
   - `amdgpu.gpu_recovery=1`: Enable GPU recovery on errors
   - `amdgpu.dc_mst_support=0`: Disable DisplayPort MST (not needed for single monitor, fixes ACT timeout errors after resume)
+  - `amdgpu.dcdebugmask=0x10`: Disable Panel Self Refresh (PSR), suspected cause of kwin losing its DRM device / "no outputs" after wake (added 2026-11-16, under test)
 
 **Kernel**: 6.6 LTS (linuxPackages_6_6) to avoid stability issues with newer kernels on AMD GPUs
 
